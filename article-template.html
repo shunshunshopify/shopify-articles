@@ -1,0 +1,378 @@
+<div class="custom-content">
+<style>
+  /* ============================================================
+     SOLSTAR ブログ記事スタイル（Broadcast干渉対策統合版 v2）
+     対象スキーム: scheme-a834ebaa-257b-48bd-9853-4460159b9060
+     背景=#ffffff / 文字=#000000
+     ※このCSSブロックは記事ごとに使い回す（編集しないのが原則）
+     ============================================================ */
+
+  .rte .custom-content a {
+    background: none;
+    -webkit-background-clip: border-box;
+            background-clip: border-box;
+    -webkit-text-fill-color: currentColor;
+    color: #0040b8;
+    display: inline;
+    padding: 0;
+    text-decoration: underline;
+  }
+  .rte .custom-content a::after { content: none; display: none; }
+  .rte .custom-content a:hover,
+  .rte .custom-content a:focus {
+    color: #002d82;
+    -webkit-text-fill-color: #002d82;
+  }
+  .rte .custom-content a:focus-visible {
+    outline: 2px solid #0040b8;
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+
+  .custom-content {
+    color: #1a1a1a;
+    background: transparent;
+    --heading-accent: #1a73e8;
+    --tbl-border: #d1cdc4;
+  }
+
+  .rte .custom-content ul,
+  .rte .custom-content ol  { margin: revert; list-style: revert; }
+  .rte .custom-content blockquote { margin: revert; padding: revert; border: 0; }
+  .rte .custom-content img { margin: revert; }
+
+  html { scroll-behavior: smooth; }
+  .custom-content h1,
+  .custom-content h2,
+  .custom-content h3,
+  .custom-content h4 { scroll-margin-top: 80px; }
+
+  /* === H2 === */
+  .custom-content h2 {
+    padding: 0.25em 0.6em;
+    border-left: solid 5px var(--heading-accent);
+    margin: 2.5rem 0 1.2rem;
+    line-height: 1.35;
+  }
+  .custom-content .toc h2,
+  .custom-content h2.no-style {
+    padding: 0;
+    border: none;
+    color: inherit;
+    margin: 0 0 12px;
+  }
+
+  /* === H3 === */
+  .custom-content h3 {
+    margin: 2rem 0 0.75rem;
+    line-height: 1.4;
+  }
+
+  /* === 段落 === */
+  .custom-content p {
+    margin-bottom: 1em;
+    line-height: 1.8;
+  }
+
+  /* === HR（大セクション区切り） === */
+  .custom-content hr.section-divider {
+    border: none;
+    border-top: 2px solid #e8e4df;
+    margin: 3rem 0 2.5rem;
+  }
+
+  /* === HR（小セクション区切り：既存の<hr>を流用） === */
+  .custom-content hr:not(.section-divider) {
+    border: none;
+    border-top: 1px solid #e8e4df;
+    margin: 2.5rem 0 2rem;
+  }
+
+  /* ===== 目次（TOC） ===== */
+  .custom-content .toc {
+    border: 1px solid rgba(0,0,0,0.15) !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,.08) !important;
+    border-radius: 12px;
+    padding: 32px;
+    max-width: 720px;
+    margin: 20px auto 40px;
+    width: 100%;
+  }
+  .custom-content .toc ol {
+    counter-reset: item;
+    list-style: none;
+    margin: 0;
+    padding-left: 32px;
+  }
+  .custom-content .toc li {
+    display: block;
+    margin: 6px 0;
+  }
+  .custom-content .toc li::before {
+    content: counters(item, ".") ". ";
+    counter-increment: item;
+    margin-right: 4px;
+    font-weight: normal;
+  }
+  .custom-content .toc ol ol {
+    margin-top: 6px;
+    padding-left: 20px;
+  }
+  .rte .custom-content .toc a {
+    text-decoration: none;
+    color: inherit;
+    -webkit-text-fill-color: currentColor;
+    font-weight: normal;
+    transition: color .2s ease;
+  }
+  .rte .custom-content .toc a:hover,
+  .rte .custom-content .toc a:focus {
+    color: #0040b8;
+    -webkit-text-fill-color: #0040b8;
+  }
+  .rte .custom-content .toc a:focus-visible {
+    outline: 2px solid #0040b8;
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+
+  /* ===== 箇条書き ===== */
+  .custom-content ul {
+    list-style-type: disc;
+    margin: 8px 0 20px 24px;
+    padding: 0;
+  }
+  .custom-content ul li {
+    margin: 8px 0;
+    line-height: 1.7;
+  }
+  .custom-content ol li {
+    margin: 8px 0;
+    line-height: 1.7;
+  }
+
+  /* ===== テーブル ===== */
+  .custom-content table {
+    width: 100%;
+    max-width: 100%;
+    margin: 16px 0 24px;
+    border-collapse: collapse;
+    border: 1px solid var(--tbl-border);
+    table-layout: auto;
+  }
+  .custom-content table col { width: auto !important; }
+  .custom-content table th,
+  .custom-content table td {
+    border: 1px solid var(--tbl-border);
+    padding: 12px 14px;
+    vertical-align: middle;
+    text-align: left;
+    line-height: 1.6;
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+  .custom-content table thead th,
+  .custom-content table thead td {
+    text-align: center;
+    font-weight: 700;
+    background-color: #f5f5f5 !important;
+    background-image: none !important;
+  }
+  .custom-content table tbody th { text-align: left; font-weight: 400; }
+  .custom-content table td p,
+  .custom-content table th p,
+  .custom-content table td span,
+  .custom-content table th span {
+    margin: 0 !important; padding: 0 !important; display: inline;
+  }
+  .custom-content table img { max-width: 100%; height: auto; display: block; }
+  .custom-content table tbody,
+  .custom-content table tbody tr,
+  .custom-content table tbody td { background-image: none !important; }
+
+  /* 画像 */
+  .custom-content img { max-width: 100%; height: auto; display: block; }
+  /* 画像の上下余白 */
+  .custom-content p img,
+  .custom-content div img,
+  .custom-content li img {
+    margin-top: 12px;
+    margin-bottom: 12px;
+  }
+
+  /* Tailwindクラスの干渉対策 */
+  .custom-content .tw-text-fg-secondary {
+    color: #4b5563 !important;
+    -webkit-text-fill-color: #4b5563 !important;
+  }
+
+  /* ダークモード */
+  @media (prefers-color-scheme: dark) {
+    .custom-content .toc {
+      border: 1px solid rgba(255,255,255,.72) !important;
+      box-shadow: 0 10px 26px rgba(0,0,0,.35), 0 0 0 1px rgba(255,255,255,.72) inset !important;
+    }
+    .custom-content hr.section-divider,
+    .custom-content hr:not(.section-divider) {
+      border-top-color: rgba(255,255,255,.15);
+    }
+    .rte .custom-content a { color: #80ccff; -webkit-text-fill-color: #80ccff; }
+    .rte .custom-content a:hover,
+    .rte .custom-content a:focus { color: #b3e0ff; -webkit-text-fill-color: #b3e0ff; }
+    .rte .custom-content .toc a { color: inherit; -webkit-text-fill-color: currentColor; }
+    .custom-content .tw-text-fg-secondary {
+      color: unset !important; -webkit-text-fill-color: unset !important;
+    }
+    .custom-content table thead th,
+    .custom-content table thead td { background-color: rgba(255,255,255,0.06) !important; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rte .custom-content .toc a { transition: none; }
+  }
+
+  /* スマホ */
+  @media (max-width: 768px) {
+    .custom-content .toc { padding: 24px; border-radius: 10px; max-width: 100%; }
+    .custom-content .toc ol { padding-left: 24px; }
+    .custom-content .toc ol ol { padding-left: 18px; }
+    .custom-content table { font-size: 15px; }
+    .custom-content table th,
+    .custom-content table td { padding: 10px 12px; }
+    .custom-content hr.section-divider { margin: 2rem 0 1.75rem; }
+  }
+  @media (max-width: 768px) {
+    .custom-content .tbl-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-x: contain;
+      border-radius: 6px;
+    }
+    .custom-content .tbl-scroll > table { min-width: 700px; width: 100%; }
+  }
+  @media (max-width: 768px) {
+    .custom-content table th,
+    .custom-content table th * {
+      white-space: nowrap !important;
+      word-break: normal !important;
+      overflow-wrap: normal !important;
+    }
+  }
+</style>
+
+<!-- ▼▼▼ ここから本文（記事ごとに差し替える） ▼▼▼ -->
+
+<!-- 導入文：読者の悩みへの共感 → 本記事で何がわかるか（2〜4文） -->
+<p>{{INTRO_PARAGRAPH}}</p>
+
+<!-- 目次：H2/H3に対応した階層。各aのhrefは本文の見出しidと一致させる -->
+<div class="toc">
+<h2 class="no-style">目次</h2>
+<ol>
+<li>
+<a href="#sec-1">{{H2_1_TITLE}}</a>
+<ol>
+<li><a href="#sec-1-1">{{H3_1_1_TITLE}}</a></li>
+<li><a href="#sec-1-2">{{H3_1_2_TITLE}}</a></li>
+</ol>
+</li>
+<li><a href="#sec-2">{{H2_2_TITLE}}</a></li>
+<li><a href="#sec-3">{{H2_3_TITLE}}</a></li>
+<li><a href="#sec-4">まとめ</a></li>
+</ol>
+</div>
+
+<!-- ▼ セクション1 -->
+<h2 id="sec-1">1. {{H2_1_TITLE}}</h2>
+<p>{{BODY}}</p>
+
+<h3 id="sec-1-1">{{H3_1_1_TITLE}}</h3>
+<p>{{BODY}}</p>
+
+<h3 id="sec-1-2">{{H3_1_2_TITLE}}</h3>
+<p>{{BODY}}</p>
+
+<!-- ▼ セクション2 -->
+<hr class="section-divider">
+<h2 id="sec-2">2. {{H2_2_TITLE}}</h2>
+<p>{{BODY}}</p>
+
+<!-- ▼ セクション3 -->
+<hr class="section-divider">
+<h2 id="sec-3">3. {{H2_3_TITLE}}</h2>
+<p>{{BODY}}</p>
+
+<!-- ▼ まとめ -->
+<hr class="section-divider">
+<h2 id="sec-4">4. まとめ</h2>
+<p>{{CONCLUSION}}</p>
+<!-- 必要に応じて自社（SOLSTAR）への自然な誘導を1段落入れる -->
+
+<!-- ▲▲▲ 本文ここまで ▲▲▲ -->
+
+<!-- 構造化データ（JSON-LD）：PAGE_URL / HEADLINE / DESCRIPTION / DATE_* を実値に置換。
+     blogのBreadcrumbはShopify/Marketingなど該当ブログに合わせる。
+     ※画像URLは記事に実在する画像のみを記載すること（偽装はNG） -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://www.solstar.co.jp/#website",
+      "url": "https://www.solstar.co.jp/",
+      "name": "株式会社SOLSTAR",
+      "inLanguage": "ja-JP"
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://www.solstar.co.jp/#organization",
+      "name": "株式会社SOLSTAR",
+      "url": "https://www.solstar.co.jp/",
+      "logo": {
+        "@type": "ImageObject",
+        "@id": "https://www.solstar.co.jp/#logo",
+        "url": "https://www.solstar.co.jp/cdn/shop/files/Logo_5_copy.png",
+        "contentUrl": "https://www.solstar.co.jp/cdn/shop/files/Logo_5_copy.png"
+      }
+    },
+    {
+      "@type": "WebPage",
+      "@id": "PAGE_URL#webpage",
+      "url": "PAGE_URL",
+      "name": "HEADLINE",
+      "isPartOf": { "@id": "https://www.solstar.co.jp/#website" },
+      "about": { "@id": "https://www.solstar.co.jp/#organization" },
+      "inLanguage": "ja-JP"
+    },
+    {
+      "@type": "Article",
+      "@id": "PAGE_URL#article",
+      "mainEntityOfPage": { "@id": "PAGE_URL#webpage" },
+      "headline": "HEADLINE",
+      "description": "DESCRIPTION",
+      "datePublished": "DATE_PUBLISHED",
+      "dateModified": "DATE_MODIFIED",
+      "author": {
+        "@type": "Person",
+        "@id": "https://www.solstar.co.jp/pages/about#person"
+      },
+      "publisher": { "@id": "https://www.solstar.co.jp/#organization" },
+      "inLanguage": "ja-JP"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "PAGE_URL#breadcrumb",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "ホーム", "item": "https://www.solstar.co.jp/" },
+        { "@type": "ListItem", "position": 2, "name": "ブログ", "item": "https://www.solstar.co.jp/blogs/" },
+        { "@type": "ListItem", "position": 3, "name": "BLOG_NAME", "item": "BLOG_URL" },
+        { "@type": "ListItem", "position": 4, "name": "HEADLINE", "item": "PAGE_URL" }
+      ]
+    }
+  ]
+}
+</script>
+
+</div>

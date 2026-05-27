@@ -1,0 +1,17 @@
+# 認証情報（絶対にコミットしない）
+.secrets/
+*.json.key
+gsc-service-account.json
+
+# Python仮想環境
+.venv/
+__pycache__/
+*.pyc
+
+# GSCデータ（任意・大きくなるため除外）
+data/*.csv
+
+# 機密・社内戦略（Publicリポジトリに含めない。中身はGoogle Drive管理）
+company-facts.md
+data/keyword-sources.md
+drafts/
