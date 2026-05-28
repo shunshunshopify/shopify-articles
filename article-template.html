@@ -98,25 +98,21 @@
     margin: 20px auto 40px;
     width: 100%;
   }
+  /* 番号はブラウザ標準の<ol>に任せる（エディタ編集で崩れないように、CSSカウンタは使わない） */
   .custom-content .toc ol {
-    counter-reset: item;
-    list-style: none;
+    list-style: decimal;
+    list-style-position: outside;
     margin: 0;
-    padding-left: 32px;
+    padding-left: 28px;
   }
   .custom-content .toc li {
-    display: block;
     margin: 6px 0;
-  }
-  .custom-content .toc li::before {
-    content: counters(item, ".") ". ";
-    counter-increment: item;
-    margin-right: 4px;
-    font-weight: normal;
+    line-height: 1.7;
   }
   .custom-content .toc ol ol {
+    list-style: lower-roman;
     margin-top: 6px;
-    padding-left: 20px;
+    padding-left: 24px;
   }
   .rte .custom-content .toc a {
     text-decoration: none;
@@ -266,17 +262,13 @@
 <!-- 導入文：読者の悩みへの共感 → 本記事で何がわかるか（2〜4文） -->
 <p>{{INTRO_PARAGRAPH}}</p>
 
-<!-- 目次：H2/H3に対応した階層。各aのhrefは本文の見出しidと一致させる -->
+<!-- 目次：H2と1対1のフラットなリスト（入れ子にしない）。番号は<ol>のネイティブ機能で自動採番。
+     ★Shopifyのエディタで文言を打ち替えても崩れない仕様。項目はH2の数だけ<li>を増減する。
+     H3はTOCに載せない（必要なら本文側だけに置く）。各href(#sec-x)は本文H2のidと一致させること。 -->
 <div class="toc">
 <h2 class="no-style">目次</h2>
 <ol>
-<li>
-<a href="#sec-1">{{H2_1_TITLE}}</a>
-<ol>
-<li><a href="#sec-1-1">{{H3_1_1_TITLE}}</a></li>
-<li><a href="#sec-1-2">{{H3_1_2_TITLE}}</a></li>
-</ol>
-</li>
+<li><a href="#sec-1">{{H2_1_TITLE}}</a></li>
 <li><a href="#sec-2">{{H2_2_TITLE}}</a></li>
 <li><a href="#sec-3">{{H2_3_TITLE}}</a></li>
 <li><a href="#sec-4">まとめ</a></li>
