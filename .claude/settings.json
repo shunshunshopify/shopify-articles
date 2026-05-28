@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:www.shopify.com)",
+      "WebFetch(domain:playbit.co.jp)",
+      "WebFetch(domain:d2c.mynavi.jp)",
+      "mcp__claude_ai_Shopify__validate_graphql_codeblocks",
+      "Bash(python3 -c ' *)",
+      "Bash(python3)"
+    ]
+  }
+}
