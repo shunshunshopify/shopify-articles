@@ -7,7 +7,9 @@
       "WebFetch(domain:d2c.mynavi.jp)",
       "mcp__claude_ai_Shopify__validate_graphql_codeblocks",
       "Bash(python3 -c ' *)",
-      "Bash(python3)"
+      "Bash(python3)",
+      "WebFetch(domain:www.kolenda.io)",
+      "WebFetch(domain:www.profuture.co.jp)"
     ]
   }
 }
