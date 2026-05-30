@@ -5,11 +5,32 @@
       "WebFetch(domain:www.shopify.com)",
       "WebFetch(domain:playbit.co.jp)",
       "WebFetch(domain:d2c.mynavi.jp)",
-      "mcp__claude_ai_Shopify__validate_graphql_codeblocks",
+      "WebFetch(domain:www.kolenda.io)",
+      "WebFetch(domain:www.profuture.co.jp)",
       "Bash(python3 -c ' *)",
       "Bash(python3)",
-      "WebFetch(domain:www.kolenda.io)",
-      "WebFetch(domain:www.profuture.co.jp)"
+      "Task",
+      "Read",
+      "Write",
+      "mcp__claude_ai_Shopify__validate_graphql_codeblocks",
+      "mcp__claude_ai_Shopify__graphql_schema",
+      "mcp__claude_ai_Shopify__graphql_query",
+      "mcp__claude_ai_Google_Drive__search_files",
+      "mcp__claude_ai_Google_Drive__read_file_content"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "mcp__claude_ai_Shopify__graphql_mutation",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-/Users/shunshimabukuro/Documents/shopify-articles}/scripts/shopify_publish_guard.py\"",
+            "statusMessage": "Shopify mutation を検査中（公開操作のみ確認）..."
+          }
+        ]
+      }
     ]
   }
 }
