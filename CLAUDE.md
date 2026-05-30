@@ -75,7 +75,7 @@ Claude Code で半自動制作するためのワークスペースです。
 1記事を仕上げる構成。人間は意思決定（テーマ承認・構成承認・最終公開）のみ行う。
 
 ```
-①KW選定(GSC×3C) → ③設計 → ④執筆 → ⑤品質(95点ゲート) → ⑥公開(Shopify下書き)
+①KW選定(GSC×3C) → ③設計 → ④執筆 → ④.5校閲(日本語ネイティブ編集) → ⑤品質(95点ゲート) → ⑥公開(Shopify下書き)
 ```
 
 サブエージェント（`.claude/agents/`）:
@@ -84,6 +84,7 @@ Claude Code で半自動制作するためのワークスペースです。
 | ①KW選定 | `keyword-strategist` | GSC実データ＋3C分析で勝てるKWを選定（→ `drafts/keyword-candidates.md`） |
 | ③設計 | `article-designer` | 上位記事をWeb調査しアウトライン・差別化方針を設計（→ `drafts/<handle>-brief.md`） |
 | ④執筆 | `article-writer` | テンプレートに沿って本文HTML執筆・AI感排除（→ `drafts/<handle>.html`） |
+| ④.5校閲 | `japanese-editor` | AIが書いた本文を日本人が自然に読める文章へ編集（本文テキストのみ・構成/HTML/SEOは不変更） |
 | ⑤品質 | `article-reviewer` | 95点ゲート。SEO/読者・E-E-A-T/AI感・独自性 の3観点で審査 |
 | ⑥公開 | `article-publisher` | Shopifyに `isPublished:false` の下書き保存 |
 
@@ -95,9 +96,10 @@ Claude Code で半自動制作するためのワークスペースです。
 1. KW決定（引数 or `keyword-strategist`）。
 2. `article-designer` で設計（承認停止はしない。要約提示のみ）。
 3. `article-writer` で執筆（`company-facts.md` の事実のみ使用）。
-4. `article-reviewer` を **3観点で並行起動** → 平均 **95点未満なら `article-writer` に差し戻し改稿** → 合格まで繰り返す（最大3周）。3周未達なら人間に報告して停止。
-5. 合格後 `article-publisher` で Shopify に **isPublished:false の下書き** 作成。
-6. 下書きURL・要確認点を報告。**公開は人間が手動で行う（自動公開は禁止）**。
+4. `japanese-editor` で校閲（本文テキストのみを日本人が自然に読める文章へ編集。構成・HTML・SEOは変更しない）。
+5. `article-reviewer` を **3観点で並行起動** → 平均 **95点未満なら `article-writer` に差し戻し改稿**（必要に応じ再校閲）→ 合格まで繰り返す（最大3周）。3周未達なら人間に報告して停止。
+6. 合格後 `article-publisher` で Shopify に **isPublished:false の下書き** 作成。
+7. 下書きURL・要確認点を報告。**公開は人間が手動で行う（自動公開は禁止）**。
 
 ### KWソース（`data/keyword-sources.md` 参照）
 1. Ahrefsリスト（Drive: EC=1EnCG1a2NEozHJ0VQSjpXcZ14wttjUTfkYpP7mh1KxK8 / Shopify=1dV_Un3QSZHVn3YP3QQhno5qdwp5KFuzytXjCpzkk7Fk）— Volume×Difficulty×Intent
@@ -112,7 +114,7 @@ kolenda等の他社コンテンツは **翻訳転載しない**。原理・研�
 ## ファイル
 
 - `article-template.html` … 再利用テンプレート（CSS＋TOC＋JSON-LD骨格）
-- `.claude/agents/` … 専門サブエージェント定義（keyword-strategist / article-designer / article-writer / article-reviewer / article-publisher）
+- `.claude/agents/` … 専門サブエージェント定義（keyword-strategist / article-designer / article-writer / japanese-editor / article-reviewer / article-publisher）
 - `scripts/gsc_fetch.py` … GSC APIから検索クエリを取得（サービスアカウント認証, `.venv` 使用）
 - `.secrets/gsc-service-account.json` … GSCサービスアカウント鍵（Git管理外。ユーザーが配置）
 - `data/` … GSC取得CSVの保存先（Git管理外）
