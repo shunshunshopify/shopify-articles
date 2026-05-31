@@ -157,12 +157,13 @@
   border-collapse: collapse;
   border: 1px solid var(--tbl-border);
   table-layout: auto;
+  font-size: 14px;
 }
 .custom-content table col { width: auto !important; }
 .custom-content table th,
 .custom-content table td {
   border: 1px solid var(--tbl-border);
-  padding: 12px 14px;
+  padding: 10px 12px;
   vertical-align: middle;
   text-align: left;
   line-height: 1.6;
@@ -234,9 +235,9 @@
   .custom-content .toc { padding: 24px; border-radius: 10px; max-width: 100%; }
   .custom-content .toc ol { padding-left: 24px; }
   .custom-content .toc ol ol { padding-left: 18px; }
-  .custom-content table { font-size: 15px; }
+  .custom-content table { font-size: 12px; }
   .custom-content table th,
-  .custom-content table td { padding: 10px 12px; }
+  .custom-content table td { padding: 8px 10px; }
   .custom-content hr.section-divider { margin: 2rem 0 1.75rem; }
 
   /* ★スマホでの箇条書きの余白を最適化（画面を広く使えるようPCより少し狭く） */
@@ -245,14 +246,15 @@
     padding-left: 24px;
   }
 }
+/* tbl-scroll: 全デバイスで横スクロール有効。モバイルのみ最小幅を強制 */
+.custom-content .tbl-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  border-radius: 6px;
+}
 @media (max-width: 768px) {
-  .custom-content .tbl-scroll {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-x: contain;
-    border-radius: 6px;
-  }
-  .custom-content .tbl-scroll > table { min-width: 700px; width: 100%; }
+  .custom-content .tbl-scroll > table { min-width: 600px; width: 100%; }
 }
 @media (max-width: 768px) {
   .custom-content table th,
