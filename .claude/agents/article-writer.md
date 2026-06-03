@@ -18,7 +18,7 @@ tools: Read, Write, WebSearch
    - H2は連番、H3で小見出し、大セクション間は `<hr class="section-divider">`
    - 表・箇条書きを適度に使い読みやすく
    - まとめ＋SOLSTARへの自然な誘導
-4. JSON-LD の `HEADLINE` `DESCRIPTION` を埋める。`PAGE_URL` `DATE_*` `BLOG_NAME` `BLOG_URL` は公開時に確定するため、明示プレースホルダのまま残してよい（公開エージェントが置換する）。
+4. JSON-LD の `HEADLINE` `DESCRIPTION` を（ブリーフを元に）暫定で埋める。最終確定は公開エージェントが行うため、ここでの値は下書きの仮値でよい。`PAGE_URL` `DATE_*` `BLOG_NAME` `BLOG_URL` は公開時に確定するため、明示プレースホルダのまま残す（公開エージェントが置換する）。
 5. 完成HTMLを `drafts/<handle>.html` に保存する。
 
 ## 一次情報（SOLSTARの実績・事例・料金）の扱い
