@@ -189,11 +189,22 @@
 
 /* ===== 画像 ===== */
 .custom-content img { max-width: 100%; height: auto; display: block; }
+
+/* 本文・セクション内に単独で置かれた画像（セクション挿絵・図版）。
+   管理画面から段落として挿入される画像を想定。
+   中央寄せ＋角丸＋淡い枠で「記事内の図版」として整え、見出し直下でも余白を確保する。 */
 .custom-content p img,
-.custom-content div img,
 .custom-content li img {
-  margin-top: 12px;
-  margin-bottom: 12px;
+  margin: 20px auto 24px;
+  border-radius: 10px;
+  border: 1px solid #e8e4df;
+}
+
+/* 表内の画像は枠・角丸を付けず素のまま（上のルールを打ち消す） */
+.custom-content table img {
+  margin: 0 auto;
+  border: 0;
+  border-radius: 0;
 }
 
 /* Tailwindクラスの干渉対策 */
@@ -221,6 +232,8 @@
   }
   .custom-content table thead th,
   .custom-content table thead td { background-color: rgba(255,255,255,0.06) !important; }
+  .custom-content p img,
+  .custom-content li img { border-color: rgba(255,255,255,.12); }
 }
 
 @media (prefers-reduced-motion: reduce) {
