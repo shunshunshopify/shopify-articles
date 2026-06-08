@@ -64,10 +64,9 @@ Claude Code で半自動制作するためのワークスペースです。
 - タグ: 既存運用に合わせる（例: `SEO` `費用相場` `全般` `UIUX` `価格` `心理学`）。新設は最小限に。
 - JSON-LD の画像URLは**記事に実在する画像のみ**記載する（存在しない情報の偽装は禁止）。
 
-## 既存記事（重複回避の参考）
+## 既存記事（重複回避・内部リンクの正本）
 
-- Shopifyのメリットとデメリット / Shopify構築費用 / フリーランス依頼の費用相場
-- JSON-LDとは？SEO完全ガイド / 価格の心理学
+公開済み記事の正確な handle・タイトル・タグ・公開状態・カニバリ注意は **`data/published-articles.md`** に集約（Shopify Admin APIのライブ取得で更新する正本）。KW選定の重複チェック・設計の内部リンク候補選定・執筆の内部リンク挿入は、すべてこのファイルを参照する。記事を新規公開したら正本も更新する。
 
 ## エージェント構成（中央指揮パイプライン）
 
@@ -75,7 +74,7 @@ Claude Code で半自動制作するためのワークスペースです。
 1記事を仕上げる構成。人間は意思決定（テーマ承認・構成承認・最終公開）のみ行う。
 
 ```
-①KW選定(GSC×3C) → ③設計 → ④執筆 → ④.5校閲(日本語ネイティブ編集) → ④.7法務(95点ゲート/未満はRewrite反復) → ⑤品質(95点ゲート) → ⑤.5追加校閲(日本語精度の磨き込み×3) → ⑥公開(Shopify下書き)
+①KW選定(GSC×3C) → ③設計 → ④執筆 → ④.5校閲(日本語ネイティブ編集) → ⑤品質(95点ゲート) → ⑤.5法務(95点ゲート・公開前の最終/未満はRewrite反復) → ⑥公開(Shopify下書き)
 ```
 
 サブエージェント（`.claude/agents/`）:
@@ -84,10 +83,9 @@ Claude Code で半自動制作するためのワークスペースです。
 | ①KW選定 | `keyword-strategist` | GSC実データ＋3C分析で勝てるKWを選定（→ `drafts/keyword-candidates.md`） |
 | ③設計 | `article-designer` | 上位記事をWeb調査しアウトライン・差別化方針を設計（→ `drafts/<handle>-brief.md`） |
 | ④執筆 | `article-writer` | テンプレートに沿って本文HTML執筆・AI感排除（→ `drafts/<handle>.html`） |
-| ④.5校閲 | `japanese-editor` | AIが書いた本文を日本人が自然に読める文章へ編集（本文テキストのみ・構成/HTML/SEOは不変更）。差し戻し後の再校閲、合格後の追加校閲も担う |
-| ④.7法務 | `legal-reviewer` | 95点ゲート。景表法・ステマ規制・薬機法・特商法・著作権など日本の広告/表示関連法で審査。未満はRewriteに差し戻し反復 |
+| ④.5校閲 | `japanese-editor` | AIが書いた本文を日本人が自然に読める文章へ編集（本文テキストのみ・構成/HTML/SEOは不変更）。差し戻し後の再校閲も担う |
 | ⑤品質 | `article-reviewer` | 95点ゲート。SEO/読者・E-E-A-T/AI感・独自性 の3観点で審査 |
-| ⑤.5追加校閲 | `japanese-editor` | 95点合格後、日本語精度をさらに上げるため追加で3回校閲。完了後に⑤で95点維持を確認 |
+| ⑤.5法務 | `legal-reviewer` | 95点ゲート（公開前の最終）。景表法・ステマ規制・薬機法・特商法・著作権など日本の広告/表示関連法で審査。未満はRewriteに差し戻し反復 |
 | ⑥公開 | `article-publisher` | Shopifyに `isPublished:false` の下書き保存 |
 
 ### 実行方法（自動化）
@@ -99,11 +97,10 @@ Claude Code で半自動制作するためのワークスペースです。
 2. `article-designer` で設計（承認停止はしない。要約提示のみ）。
 3. `article-writer` で執筆（`company-facts.md` の事実のみ使用）。
 4. `japanese-editor` で校閲（本文テキストのみを日本人が自然に読める文章へ編集。構成・HTML・SEOは変更しない）。
-5. **法務ゲート**: `legal-reviewer` で審査（景表法・ステマ規制・薬機法・特商法・著作権など）。**95点未満または高リスク表現が残れば `article-writer` にRewrite差し戻し**（必要に応じ再校閲）→ 再審査。**95点以上になるまで繰り返す**（最大3周）。3周未達なら法的リスクを添えて人間に報告して停止。
-6. `article-reviewer` を **3観点で並行起動** → 平均 **95点未満なら `article-writer` に差し戻し改稿**（必要に応じ再校閲）→ 合格まで繰り返す（最大3周）。3周未達なら人間に報告して停止。
-7. **合格後の追加校閲（日本語精度の磨き込み）**: 95点に達した後も、日本語の精度をさらに上げるため `japanese-editor` を**追加で3回繰り返す**。各回とも本文テキストのみを磨き込む（構成・HTML・SEOは不変更／法的リスク表現を新たに作らない）。3回完了後に `article-reviewer`（品質）と `legal-reviewer`（法務）の**両方を再走**させ、ともに95点以上を維持していることを確認する（品質が落ちたら手順6、法務が落ちたら手順5の差し戻しに戻す）。
-8. 合格を維持したら `article-publisher` で Shopify に **isPublished:false の下書き** 作成。
-9. 下書きURL・要確認点を報告。**公開は人間が手動で行う（自動公開は禁止）**。
+5. **品質ゲート**: `article-reviewer` を **3観点で並行起動** → 平均 **95点未満なら `article-writer` に差し戻し改稿**（必要に応じ再校閲）→ 合格まで繰り返す（最大3周）。3周未達なら人間に報告して停止。
+6. **法務ゲート（公開前の最終）**: `legal-reviewer` で審査（景表法・ステマ規制・薬機法・特商法・著作権など）。**95点未満または高リスク表現が残れば `article-writer` にRewrite差し戻し**（表現の安全化に限定し、構成・SEOキーワード・論旨は変えない＝品質を落とさない／必要に応じ再校閲）→ 再審査。**95点以上になるまで繰り返す**（最大3周）。3周未達なら法的リスクを添えて人間に報告して停止。法務通過をもって公開可とする（法務以降は本文を変更しない）。
+7. 合格したら `article-publisher` で Shopify に **isPublished:false の下書き** 作成。
+8. 下書きURL・要確認点を報告。**公開は人間が手動で行う（自動公開は禁止）**。
 
 ### KWソース（`data/keyword-sources.md` 参照）
 1. Ahrefsリスト（Drive: EC=1EnCG1a2NEozHJ0VQSjpXcZ14wttjUTfkYpP7mh1KxK8 / Shopify=1dV_Un3QSZHVn3YP3QQhno5qdwp5KFuzytXjCpzkk7Fk）— Volume×Difficulty×Intent
@@ -118,10 +115,12 @@ kolenda等の他社コンテンツは **翻訳転載しない**。原理・研�
 ## ファイル
 
 - `article-template.html` … 再利用テンプレート（CSS＋TOC＋JSON-LD骨格）
-- `.claude/agents/` … 専門サブエージェント定義（keyword-strategist / article-designer / article-writer / japanese-editor / article-reviewer / article-publisher）
+- `.claude/agents/` … 専門サブエージェント定義（keyword-strategist / article-designer / article-writer / japanese-editor / legal-reviewer / article-reviewer / article-publisher）
+- `data/published-articles.md` … 公開済み記事の正本（handle・タグ・公開状態・カニバリ注意）。内部リンク・重複回避の参照元。Shopify Admin APIのライブ取得で更新
+- `data/keyword-sources.md` … KWソース定義
 - `scripts/gsc_fetch.py` … GSC APIから検索クエリを取得（サービスアカウント認証, `.venv` 使用）
 - `.secrets/gsc-service-account.json` … GSCサービスアカウント鍵（Git管理外。ユーザーが配置）
-- `data/` … GSC取得CSVの保存先（Git管理外）
+- `data/` … GSC取得CSV等の保存先（CSVはGit管理外）
 - `drafts/` … KW候補・設計ブリーフ(`*-brief.md`)・生成記事HTML(`*.html`)の保存先
 
 ### GSCデータ取得メモ（手動エクスポート方式）
