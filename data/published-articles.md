@@ -30,6 +30,7 @@ URL形式: `https://www.solstar.co.jp/blogs/<blog-handle>/<article-handle>`（�
 | cost-of-building-a-shopify-store | Shopifyを利用したECサイト構築費用を徹底解説 | 費用相場 | 2025-09-08 | 公開 | 構築費用の総合。費用系のハブ |
 | netshop-osusume-comparison | ネットショップおすすめ4社を比較｜無料〜本格まで失敗しない選び方【2026】 | 全般/比較 | — | 下書き | ※2026-06-08作成（Article gid 665213042910）。総合比較（Shopify/BASE/STORES/MakeShop）。公開後はstatus更新。1対1の makeshop-vs-shopify と相互補完。内部リンク先にするのは公開後 |
 | pros-and-cons-about-shopify | Shopifyのメリットとデメリット | 全般 | — | 下書き | ※未公開。内部リンク先にしない |
+| shopify-shipping-methods-japan | Shopifyの配送方法｜国内配送アプリまで解説 | 全般/配送/アプリ/運用 | — | 下書き | ※2026-06-28作成（Article gid 665314459870）。Shopify標準配送設定と日本国内配送アプリ。公開後はstatus更新。内部リンク先にするのは公開後 |
 
 ## Marketingブログ（handle: marketing）
 
