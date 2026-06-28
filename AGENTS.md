@@ -35,6 +35,92 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 
 必要なキーワードがすでに決まっている場合は `keyword-strategist` を省略してよい。Shopify下書き保存まで進めない依頼では、`pre-publish-checker` と `article-publisher` を省略してよい。
 
+## Source Of Truth
+
+- Codex運用の判断基準、工程順、責務分担、停止条件はこの `AGENTS.md` を唯一の正本とする
+- 周辺ファイルは、この `AGENTS.md` に書かれた契約を実装するための補助資料または実装詳細として扱う
+- 周辺ファイルの記述が `AGENTS.md` と矛盾する場合は、Codexは `AGENTS.md` を優先する
+
+## Dependency Map
+
+### Required To Read
+
+- [AGENTS.md](/Users/shunshimabukuro/Documents/shopify-articles/AGENTS.md)
+  役割、ルール、工程、停止条件、成果物仕様の正本
+
+### Required At Runtime
+
+- [article-template.html](/Users/shunshimabukuro/Documents/shopify-articles/article-template.html)
+  `article-writer` が本文HTMLを書き込むテンプレート。CSS / TOC / JSON-LD の枠は変更しない
+- `drafts/`
+  各エージェントの成果物保存先
+- `company-facts.md`
+  SOLSTAR固有情報の唯一の参照元。なければ創作せず `【要記入: ...】` を残す
+
+### Conditionally Required
+
+- `data/keyword-sources.md`
+  `keyword-strategist` が使うキーワードソースの説明ファイル。あれば先に読む
+- `data/` 配下の CSV / Excel / メモ
+  GSC やキーワード候補の実データ
+- Google Drive 上の Ahrefs / GSC 資料
+  `keyword-strategist` が `data/` だけで足りない場合に参照
+- `drafts/<handle>-sources.md`
+  `fact-checker` の成果物。あれば `article-writer` `content-asset-planner` `pre-publish-checker` は必ず参照
+- `drafts/<handle>-assets.md`
+  `content-asset-planner` の成果物。`pre-publish-checker` と公開前の人間確認で使う
+
+### Reference Only
+
+- [CLAUDE.md](/Users/shunshimabukuro/Documents/shopify-articles/CLAUDE.md)
+  共通方針の参考資料。Codexでは正本ではない
+- `.claude/agents/*.md`
+  Claude Code 向けの個別定義。Codexでは参照のみ
+- `.claude/commands/new-article.md`
+  Claude Code 向けのコマンド定義。Codexでは参照のみ
+
+## Dependency Rules
+
+- Codexが最初に読むべきファイルは `AGENTS.md` のみでよい
+- その後は、実行する工程に必要な依存だけを追加で読む
+- `article-template.html` は `article-writer` 着手前に必ず読む
+- `company-facts.md` は SOLSTAR固有情報を書く必要が出た時点で必ず読む
+- `CLAUDE.md` は判断に迷ったときの補助資料としてのみ読む
+- `.claude/agents/*.md` と `.claude/commands/*.md` は、Claude側との同期確認が必要なときだけ読む
+
+## Runtime Contracts
+
+### Input Contracts
+
+- `keyword-strategist` はテーマ未定またはキーワード未指定で起動してよい
+- `article-designer` はキーワードと投稿先ブログが決まってから起動する
+- `fact-checker` は `drafts/<handle>-brief.md` 生成後に起動する
+- `article-writer` は `drafts/<handle>-brief.md` を必須入力とし、`drafts/<handle>-sources.md` があれば必須参照とする
+- `content-asset-planner` は `drafts/<handle>.html` 生成後に起動する
+- `japanese-editor` は `drafts/<handle>.html` だけを編集対象にする
+- `article-reviewer` は `drafts/<handle>.html` と `drafts/<handle>-brief.md` がそろってから起動する
+- `pre-publish-checker` は `drafts/<handle>.html` 完成後に起動する
+- `article-publisher` は `pre-publish-checker` 合格後しか起動しない
+
+### Output Contracts
+
+- `keyword-strategist` は `drafts/keyword-candidates.md` を生成する
+- `article-designer` は `drafts/<handle>-brief.md` を生成する
+- `fact-checker` は `drafts/<handle>-sources.md` を生成する
+- `article-writer` は `drafts/<handle>.html` を生成する
+- `content-asset-planner` は `drafts/<handle>-assets.md` を生成する
+- `japanese-editor` は `drafts/<handle>.html` を上書きする
+- `article-reviewer` はレビュー結果を返すが、本文は編集しない
+- `pre-publish-checker` は合否と修正点を返すが、本文は編集しない
+- `article-publisher` は Shopify に下書きを作成し、管理用URLを返す
+
+### Fallback Contracts
+
+- `company-facts.md` がない場合でも、一般論と確認済み出典だけで成立する記事なら続行してよい
+- `company-facts.md` がないためにSOLSTAR固有情報が必要な主張を書けない場合は `【要記入: ...】` を残す
+- 出典確認ができない主張は本文へ断定的に書かない
+- Google Drive や Shopify に接続できない場合は、その工程で止めて必要な接続を報告する
+
 ## Files
 
 - [CLAUDE.md](/Users/shunshimabukuro/Documents/shopify-articles/CLAUDE.md): 文体、SEO、制作フローの基本ルール
