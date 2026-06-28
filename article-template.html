@@ -72,6 +72,18 @@
   margin-bottom: 1em;
   line-height: 1.8;
 }
+.custom-content .article-updated,
+.custom-content .article-supervisor {
+  color: #4b5563;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.custom-content .article-updated {
+  margin-bottom: 0.35em;
+}
+.custom-content .article-supervisor {
+  margin-bottom: 1.5em;
+}
 
 /* === HR（大セクション区切り） === */
 .custom-content hr.section-divider {
@@ -268,19 +280,33 @@
 
 <!-- ▼▼▼ ここから本文（記事ごとに差し替える） ▼▼▼ -->
 
-<!-- 導入文：読者の悩みへの共感 → 本記事で何がわかるか（2〜4文） -->
+<!-- 最終更新日・監修者情報：記事冒頭に必ず設置 -->
+<p class="article-updated">最終更新日：{{LAST_UPDATED}}</p>
+<p class="article-supervisor">※この記事は、EC業界で9年以上にわたり、Shopifyを活用したECサイトの構築・運用支援に携わる株式会社SOLSTAR代表取締役・島袋隼が監修しています。</p>
+
+<!-- 導入文：読者の悩み・結論・本記事の切り口・読了メリットを300文字程度でまとめる -->
 <p>{{INTRO_PARAGRAPH}}</p>
+
+<!-- この記事でわかること：本文と一致する4〜6項目を入れる -->
+<h2 id="sec-learn">この記事でわかること</h2>
+<ul>
+<li>{{LEARN_ITEM_1}}</li>
+<li>{{LEARN_ITEM_2}}</li>
+<li>{{LEARN_ITEM_3}}</li>
+<li>{{LEARN_ITEM_4}}</li>
+</ul>
 
 <!-- 目次：H2と1対1のフラットなリスト（入れ子にしない）。番号は<ol>のネイティブ機能で自動採番。
      ★Shopifyのエディタで文言を打ち替えても崩れない仕様。項目はH2の数だけ<li>を増減する。
-     H3はTOCに載せない（必要なら本文側だけに置く）。各href(#sec-x)は本文H2のidと一致させること。 -->
+     H3は原則TOCに載せない。主要H3だけ必要に応じて載せる。各href(#sec-x)は本文H2のidと一致させること。 -->
 <div class="toc">
 <h2 class="no-style">目次</h2>
 <ol>
 <li><a href="#sec-1">{{H2_1_TITLE}}</a></li>
 <li><a href="#sec-2">{{H2_2_TITLE}}</a></li>
 <li><a href="#sec-3">{{H2_3_TITLE}}</a></li>
-<li><a href="#sec-4">まとめ</a></li>
+<li><a href="#sec-faq">よくある質問</a></li>
+<li><a href="#sec-summary">まとめ</a></li>
 </ol>
 </div>
 
@@ -304,11 +330,34 @@
 <h2 id="sec-3">3. {{H2_3_TITLE}}</h2>
 <p>{{BODY}}</p>
 
+<!-- ▼ FAQ：まとめの直前に3〜5問を目安に設置 -->
+<hr class="section-divider">
+<h2 id="sec-faq">よくある質問</h2>
+
+<h3>{{FAQ_1_QUESTION}}</h3>
+<p>{{FAQ_1_ANSWER}}</p>
+
+<h3>{{FAQ_2_QUESTION}}</h3>
+<p>{{FAQ_2_ANSWER}}</p>
+
+<h3>{{FAQ_3_QUESTION}}</h3>
+<p>{{FAQ_3_ANSWER}}</p>
+
 <!-- ▼ まとめ -->
 <hr class="section-divider">
-<h2 id="sec-4">4. まとめ</h2>
+<h2 id="sec-summary">まとめ</h2>
 <p>{{CONCLUSION}}</p>
 <!-- 必要に応じて自社（SOLSTAR）への自然な誘導を1段落入れる -->
+
+<!-- 参考文献：必要な場合のみ設置。Shopify公式、官公庁、論文、信頼できる調査を優先する -->
+<!--
+<h2 id="sec-references">参考文献</h2>
+<ul>
+<li><a href="{{REFERENCE_URL_1}}">{{REFERENCE_TITLE_1}}</a></li>
+</ul>
+-->
+
+<!-- 公開前メモ：未確認の内部リンク、図解、画像案は本文に混ぜず drafts/<handle>-assets.md に分ける -->
 
 <!-- ▲▲▲ 本文ここまで ▲▲▲ -->
 

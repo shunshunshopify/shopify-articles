@@ -12,6 +12,7 @@ tools: Read, mcp__claude_ai_Shopify__graphql_query, mcp__claude_ai_Shopify__grap
 ## 入力
 - 合格済み記事 `drafts/<handle>.html`
 - 設計ブリーフ `drafts/<handle>-brief.md`（タイトル・メタディスクリプション・タグ・投稿先ブログ）
+- `pre-publish-checker` の合格結果
 
 ## やること
 1. ブリーフから タイトル / handle / メタディスクリプション / タグ / 投稿先ブログを確定する。
@@ -31,3 +32,4 @@ tools: Read, mcp__claude_ai_Shopify__graphql_query, mcp__claude_ai_Shopify__grap
 ## 原則
 - mutation実行前に、何を作成するか（タイトル・ブログ・下書きである旨）を要約して提示する。
 - 推測でフィールド名を埋めない。必ずスキーマで確認する。
+- `pre-publish-checker` が不合格の場合は実行しない。
