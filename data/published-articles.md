@@ -7,7 +7,7 @@ URL形式: `https://www.solstar.co.jp/blogs/<blog-handle>/<article-handle>`（�
 - `status: 公開` の記事のみ内部リンク先に使う。`status: 下書き` の記事へはリンクしない（URLが存在しないため）。
 - 更新方法: Shopify Admin API で各ブログの `articles` を取得し直し、この表を上書きする（GraphQLは `articles(first: 50, reverse: true)`。`sortKey` は非対応）。
 
-ブログのgid: Shopify=`gid://shopify/Blog/96499761374`（handle: `shopify`） / Marketing=`gid://shopify/Blog/96528236766`（handle: `marketing`）
+ブログのgid: Shopify=`gid://shopify/Blog/96499761374`（handle: `shopify`） / Marketing=`gid://shopify/Blog/96528236766`（handle: `marketing`） / Branding=`gid://shopify/Blog/103031931102`（handle: `branding`）
 
 ---
 
@@ -41,6 +41,12 @@ URL形式: `https://www.solstar.co.jp/blogs/<blog-handle>/<article-handle>`（�
 | physiology-about-price | 価格の心理学：安く感じさせる価格設定のテクニックとは？ | UIUX/価格/心理学 | 2025-02-18 | 公開 | 自社最強の価格心理ページ。価格・心理系は必ずここへ内部リンク |
 | json-ld-shopify-seo | 【徹底解説】JSON-LDとは？SEO効果とShopifyでの実装・設定方法まで完全ガイド | SEO | 2026-02-02 | 公開 | 構造化データ・SEO。技術SEO系 |
 | brand-concept-how-to | ブランドコンセプトの作り方｜初心者でも今日書ける5ステップ【EC実践】 | 全般/心理学 | — | 下書き | ※未公開。内部リンク先にしない |
+
+## Brandingブログ（handle: branding）
+
+| handle | タイトル | タグ | 公開日 | status | テーマ／内部リンク用途 |
+|---|---|---|---|---|---|
+| what-is-brand-beginner | ブランドとは？高級品だけではない意味を初心者向けに解説 | 全般/心理学 | — | 下書き | ※2026-06-29作成（Article gid 665316917470）。ブランディング基礎の入門記事。公開後はstatus更新。内部リンク先にするのは公開後 |
 
 ---
 
