@@ -77,12 +77,13 @@ Claude Code で半自動制作するためのワークスペースです。
 
 ## エージェント構成（中央指揮パイプライン）
 
+人間ライター原稿は、ユーザーが指定した個別Google Drive URLを正本として `AGENTS.md` の `review-human-draft` を実行する。レビュー済み版はフォルダID `1nY8LitmaNw6v8ZPb2tVxb2bVK4pK3Wee` に別ファイル保存・readbackしてから、Shopifyへ `isPublished:false` で投入する。原本は明示依頼がない限り上書きしない。
+
 このワークスペースは、Claude Code（中央指揮）が専門サブエージェントを順番に呼び出して
 1記事を仕上げる構成。通常フローでは自動進行し、人間は最終公開のみ行う。
 
 ```
-①KW選定(GSC×3C) → ③設計 → ③.5事実確認 → ④執筆 → ④.2素材/リンク提案 → ④.5校閲(日本語ネイティブ編集) → ⑤品質(95点ゲート) → ⑤.5公開前チェック → ⑥公開(Shopify下書き)
-→ ⑤.7法務(95点ゲート・公開前の最終/未満はRewrite反復) → ⑥公開(Shopify下書き)
+①KW選定 → ③設計 → ③.5事実確認(pre-write) → ④執筆 → ④.1事実照合(post-write) → ④.2素材設計(必要時) → ④.5校閲 → ⑤品質 → ⑤.5法務 → ⑤.7機械検証 → ⑤.8公開前チェック → ⑥Shopify下書き
 ```
 
 サブエージェント（`.claude/agents/`）:
@@ -90,13 +91,14 @@ Claude Code で半自動制作するためのワークスペースです。
 |---|---|---|
 | ①KW選定 | `keyword-strategist` | GSC実データ＋3C分析で勝てるKWを選定（→ `drafts/keyword-candidates.md`） |
 | ③設計 | `article-designer` | 上位記事をWeb調査しアウトライン・差別化方針を設計（→ `drafts/<handle>-brief.md`） |
-| ③.5事実確認 | `fact-checker` | 公式情報・出典・変化しやすい情報を確認（→ `drafts/<handle>-sources.md`） |
+| ③.5/④.1事実確認 | `fact-checker` | 執筆前の出典確認と執筆後の主張照合（→ `drafts/<handle>-sources.md`） |
 | ④執筆 | `article-writer` | テンプレートに沿って本文HTML執筆・AI感排除（→ `drafts/<handle>.html`） |
-| ④.2素材/リンク提案 | `content-asset-planner` | 内部リンク・図解・画像・参考文献候補を本文と分けて整理（→ `drafts/<handle>-assets.md`） |
+| ④.2素材仕様 | `content-asset-planner` | 必要な記事だけ、図解・画像の実制作仕様とCWV注意点を整理（→ `drafts/<handle>-assets.md`） |
 | ④.5校閲 | `japanese-editor` | AIが書いた本文を日本人が自然に読める文章へ編集（本文テキストのみ・構成/HTML/SEOは不変更） |
-| ⑤品質 | `article-reviewer` | 95点ゲート。SEO/読者・E-E-A-T/AI感・独自性/UX・可読性 の4観点で審査 |
-| ⑤.5公開前チェック | `pre-publish-checker` | 残プレースホルダ・JSON-LD・FAQ位置・創作リスク等を最終確認 |
-| ⑤.7法務 | `legal-reviewer` | 95点ゲート（公開前の最終）。景表法・ステマ規制・薬機法・特商法・著作権など日本の広告/表示関連法で審査。未満はRewriteに差し戻し反復 |
+| ⑤品質 | `article-reviewer` | 総合95点・各観点90点ゲート。重大ブロッカーは点数によらず不合格 |
+| ⑤.5法務 | `legal-reviewer` | 95点かつ高リスクゼロの公開前法務ゲート |
+| ⑤.7機械検証 | `article-validator` | HTML・TOC・JSON-LD・リンク・残プレースホルダをスクリプト検証 |
+| ⑤.8公開前チェック | `pre-publish-checker` | 残プレースホルダ・JSON-LD・FAQ位置・創作リスク等を最終確認 |
 | ⑥公開 | `article-publisher` | Shopifyに `isPublished:false` の下書き保存 |
 
 ### 実行方法（自動化）
@@ -106,15 +108,17 @@ Claude Code で半自動制作するためのワークスペースです。
 人間チェックは **最終公開の1点のみ**。KW選定・設計・執筆・品質はすべて自動進行する。
 1. KW決定（引数 or `keyword-strategist`）。
 2. `article-designer` で設計（承認停止はしない。要約提示のみ）。
-3. `fact-checker` で公式情報・出典・変化しやすい情報を確認。
+3. `fact-checker (pre-write)` で公式情報・出典・変化しやすい情報を確認。
 4. `article-writer` で執筆（`company-facts.md` の事実のみ使用。なければ創作せず `【要記入】` を残す）。
-5. `content-asset-planner` で内部リンク・図解・画像・参考文献候補を本文と分けて整理。
-6. `japanese-editor` で校閲（本文テキストのみを日本人が自然に読める文章へ編集。構成・HTML・SEOは変更しない）。
-7. `article-reviewer` を **4観点で起動** → 平均 **95点未満なら `article-writer` に差し戻し改稿**（必要に応じ再校閲）→ 合格まで繰り返す（最大3周）。3周未達なら人間に報告して停止。
-8. `pre-publish-checker` で公開前チェック。不合格なら下書き保存に進まない。
-9. `legal-reviewer` で法務審査（景表法・ステマ規制・薬機法・特商法・著作権など）。**95点未満または高リスク表現が残れば `article-writer` にRewrite差し戻し**（表現の安全化に限定し、構成・SEOキーワード・論旨は変えない／必要に応じ `content-asset-planner` と `japanese-editor` を再実行）→ 再審査。**95点以上になるまで繰り返す**（最大3周）。
-10. 合格後 `article-publisher` で Shopify に **isPublished:false の下書き** 作成。
-11. 下書きURL・要確認点を報告。**公開は人間が手動で行う（自動公開は禁止）**。
+5. `fact-checker (post-write)` で完成HTMLの主張を出典と照合。
+6. 素材設計が必要な場合だけ `content-asset-planner` を実行。
+7. `japanese-editor` で本文テキストのみを最小限校閲。
+8. `article-reviewer` で総合95点・各観点90点・重大ブロッカーゼロを確認（最大3周）。
+9. `legal-reviewer` で95点・高リスクゼロを確認（最大3周）。
+10. `article-validator` 合格後、指定Google DriveフォルダへGoogle Docとして保存・readbackする。
+11. `pre-publish-checker` を実行する。
+12. 合格後 `article-publisher` で Shopify に **isPublished:false の下書き** 作成。
+13. Drive URL・Shopify下書きURL・要確認点を報告。**公開は人間が手動で行う（自動公開は禁止）**。
 
 ### KWソース（`data/keyword-sources.md` 参照）
 1. Ahrefsリスト（Drive: EC=1EnCG1a2NEozHJ0VQSjpXcZ14wttjUTfkYpP7mh1KxK8 / Shopify=1dV_Un3QSZHVn3YP3QQhno5qdwp5KFuzytXjCpzkk7Fk）— Volume×Difficulty×Intent

@@ -19,12 +19,13 @@ argument-hint: [キーワード（省略可：省略時はKW選定から）]
 - 価格心理・EC・ブランディング系テーマなら、kolendaガイドを参考資料に（翻訳転載はせず原理を抽出・出典明記）。
 
 ### 2. 執筆（④）
-- `fact-checker` サブエージェントを起動し、公式情報・出典・変化しやすい情報を確認して `drafts/<handle>-sources.md` を作らせる。
+- `fact-checker` を `pre-write` モードで起動し、公式情報・出典・変化しやすい情報を確認して `drafts/<handle>-sources.md` を作らせる。
 - `article-writer` サブエージェントを起動。`article-template.html`・`company-facts.md`・ブリーフ・事実確認メモに沿って本文HTMLを `drafts/<handle>.html` に書かせる。
+- `fact-checker` を `post-write` モードで再起動し、完成HTMLの主張・数値・比較・引用を出典メモと照合させる。
 - SOLSTAR固有の事実は `company-facts.md` の範囲のみ。無い事実は創作せず `【要記入：…】` を残す。
 
 ### 2.5 素材・リンク提案
-- `content-asset-planner` サブエージェントを起動し、内部リンク・図解・画像・参考文献候補を `drafts/<handle>-assets.md` に分けて整理させる。
+- 図解・画像などの素材設計が必要な記事だけ `content-asset-planner` を起動し、実制作仕様・挿入位置・参考文献・CWV注意点を `drafts/<handle>-assets.md` に整理させる。
 - 未確認URLや未作成画像を本文に確定情報として混ぜない。
 
 ### 3. 校閲（④.5・日本語ネイティブ編集）
@@ -33,13 +34,9 @@ argument-hint: [キーワード（省略可：省略時はKW選定から）]
 
 ### 4. 品質ゲート（⑤・95点）
 - `article-reviewer` を **4観点で起動**（focus: SEO観点 / 読者・E-E-A-T観点 / AI感・独自性観点 / UX・可読性観点）。
-- 4点の平均が **95点未満なら、指摘を統合して `article-writer` に差し戻し改稿**（必要に応じ `content-asset-planner` と `japanese-editor` を再実行）→ 再審査。合格まで繰り返す（最大3周）。
+- **総合95点未満、各観点90点未満、または重大ブロッカーが1件でもあれば**、指摘を統合して `article-writer` に差し戻す。必要に応じ `fact-checker (post-write)`、`content-asset-planner`、`japanese-editor` を再実行する（最大3周）。
 - 3周しても未達なら、残課題を添えて人間に報告して停止（公開には進まない）。
 - 品質ゲートを通過してから、次の法務ゲート（公開前の最終）へ進む。
-
-### 4.5 公開前チェック
-- `pre-publish-checker` サブエージェントを起動し、残プレースホルダ・JSON-LD・FAQ位置・数字タイトル整合・創作リスク・未確認リンクを確認させる。
-- 不合格なら `article-publisher` へ進まず、修正点を報告して停止する。
 
 ### 5. 法務ゲート（⑤.5・95点／公開前の最終）
 - `legal-reviewer` サブエージェントを起動し、`drafts/<handle>.html` を日本の広告・表示関連法（景品表示法・ステマ規制・薬機法・特定商取引法・著作権法など）の観点で採点させる。
@@ -48,6 +45,8 @@ argument-hint: [キーワード（省略可：省略時はKW選定から）]
 - 法務ゲートを通過してから、次の公開前チェックへ進む。
 
 ### 5.5 公開前チェック
+- `python3 scripts/article_validator.py drafts/<handle>.html` を実行する。失敗した場合は修正して再検証し、合格するまで次へ進まない。
+- 合格記事をフォルダID `1nY8LitmaNw6v8ZPb2tVxb2bVK4pK3Wee` へ `[下書き] <記事タイトル>` のGoogle Docとして保存し、作成結果をreadbackする。保存・readbackできない場合はShopifyへ進まない。
 - `pre-publish-checker` サブエージェントを起動し、残プレースホルダ・JSON-LD・FAQ位置・数字タイトル整合・創作リスク・未確認リンクを確認させる。
 - 不合格なら `article-publisher` へ進まず、修正点を報告して停止する。
 
@@ -56,7 +55,7 @@ argument-hint: [キーワード（省略可：省略時はKW選定から）]
 - JSON-LDのプレースホルダ（HEADLINE/DESCRIPTION/PAGE_URL/DATE_PUBLISHED/DATE_MODIFIED/BLOG_NAME/BLOG_URL）を確定値に置換してから投稿（置換の最終責任は publisher。writer が先に埋めた HEADLINE/DESCRIPTION もブリーフの確定値で上書き確認する）。
 
 ### 7. 報告
-- 最終の品質スコア・法務スコア、作成した下書きのadmin URL、`【要記入】`が残っていればその一覧、公開前に人間が確認すべき点（プレビュー・アイキャッチ画像・内部リンク）を報告する。
+- 最終の品質スコア・法務スコア、Google Drive URL、作成したShopify下書きのadmin URL、`【要記入】`が残っていればその一覧、公開前に人間が確認すべき点を報告する。
 - **公開はしていないこと**を明記し、人間に最終公開を委ねる。
 
 ## 重要な原則

@@ -9,11 +9,22 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 - 成果物は `drafts/` に保存する
 - Shopifyへの反映は必ず下書き (`isPublished: false`) で行う
 - 公開操作は人間が行う
+- 人間ライターの下書きとレビュー済み原稿は、指定のGoogle Driveフォルダを受け渡しの正本とする
+
+## Google Drive Draft Folder
+
+- Folder URL: `https://drive.google.com/drive/folders/1nY8LitmaNw6v8ZPb2tVxb2bVK4pK3Wee`
+- Folder ID: `1nY8LitmaNw6v8ZPb2tVxb2bVK4pK3Wee`
+- 人間執筆記事のレビューは、ユーザーが指定した個別ファイルURLだけを対象にする
+- フォルダ内の先頭記事や同名記事を推測で選ばない
+- 原本は明示依頼がない限り上書きせず、レビュー済み版を同フォルダへ別ファイルとして保存する
+- Driveへの保存後は、返されたURLとファイルIDをreadbackで確認してからShopify工程へ進む
+- `drafts/` は処理中のローカル成果物置き場であり、人間との受け渡し正本はGoogle Driveとする
 
 ## Shared Rules
 
-- Codex実行時はこの [AGENTS.md](/Users/shunshimabukuro/Documents/shopify-articles/AGENTS.md) を正本とする
-- [CLAUDE.md](/Users/shunshimabukuro/Documents/shopify-articles/CLAUDE.md) は共通方針として参照するが、内容が衝突する場合は `AGENTS.md` を優先する
+- Codex実行時はリポジトリ直下の `AGENTS.md` を正本とする
+- `CLAUDE.md` は共通方針として参照するが、内容が衝突する場合は `AGENTS.md` を優先する
 - 記事は SOLSTAR 向けの実務的なSEOコンテンツとして扱う
 - 事実が不明な内容は創作しない
 - 事実、数値、実績、口コミ、導入事例、支援実績は追加・変更・創作しない
@@ -31,7 +42,7 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 
 ## Pipeline
 
-`keyword-strategist` -> `article-designer` -> `fact-checker` -> `article-writer` -> `content-asset-planner` -> `japanese-editor` -> `article-reviewer` -> `pre-publish-checker` -> `article-publisher`
+`keyword-strategist` -> `article-designer` -> `fact-checker (pre-write)` -> `article-writer` -> `fact-checker (post-write)` -> `content-asset-planner (必要時)` -> `japanese-editor` -> `article-reviewer` -> `legal-reviewer` -> `article-validator` -> `pre-publish-checker` -> `article-publisher`
 
 必要なキーワードがすでに決まっている場合は `keyword-strategist` を省略してよい。Shopify下書き保存まで進めない依頼では、`pre-publish-checker` と `article-publisher` を省略してよい。
 
@@ -45,12 +56,12 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 
 ### Required To Read
 
-- [AGENTS.md](/Users/shunshimabukuro/Documents/shopify-articles/AGENTS.md)
+- `AGENTS.md`
   役割、ルール、工程、停止条件、成果物仕様の正本
 
 ### Required At Runtime
 
-- [article-template.html](/Users/shunshimabukuro/Documents/shopify-articles/article-template.html)
+- `article-template.html`
   `article-writer` が本文HTMLを書き込むテンプレート。CSS / TOC / JSON-LD の枠は変更しない
 - `drafts/`
   各エージェントの成果物保存先
@@ -72,7 +83,7 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 
 ### Reference Only
 
-- [CLAUDE.md](/Users/shunshimabukuro/Documents/shopify-articles/CLAUDE.md)
+- `CLAUDE.md`
   共通方針の参考資料。Codexでは正本ではない
 - `.claude/agents/*.md`
   Claude Code 向けの個別定義。Codexでは参照のみ
@@ -96,9 +107,11 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 - `article-designer` はキーワードと投稿先ブログが決まってから起動する
 - `fact-checker` は `drafts/<handle>-brief.md` 生成後に起動する
 - `article-writer` は `drafts/<handle>-brief.md` を必須入力とし、`drafts/<handle>-sources.md` があれば必須参照とする
-- `content-asset-planner` は `drafts/<handle>.html` 生成後に起動する
+- `content-asset-planner` は `drafts/<handle>.html` 生成後、図解・画像などの素材設計が必要な場合だけ起動する
 - `japanese-editor` は `drafts/<handle>.html` だけを編集対象にする
 - `article-reviewer` は `drafts/<handle>.html` と `drafts/<handle>-brief.md` がそろってから起動する
+- `legal-reviewer` は `article-reviewer` 合格後に起動する
+- `article-validator` は `legal-reviewer` 合格後に `scripts/article_validator.py` を実行する
 - `pre-publish-checker` は `drafts/<handle>.html` 完成後に起動する
 - `article-publisher` は `pre-publish-checker` 合格後しか起動しない
 
@@ -111,6 +124,8 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 - `content-asset-planner` は `drafts/<handle>-assets.md` を生成する
 - `japanese-editor` は `drafts/<handle>.html` を上書きする
 - `article-reviewer` はレビュー結果を返すが、本文は編集しない
+- `legal-reviewer` は法務リスクと合否を返すが、本文は編集しない
+- `article-validator` は決定論的な検査結果を返すが、本文は編集しない
 - `pre-publish-checker` は合否と修正点を返すが、本文は編集しない
 - `article-publisher` は Shopify に下書きを作成し、管理用URLを返す
 
@@ -123,8 +138,8 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 
 ## Files
 
-- [CLAUDE.md](/Users/shunshimabukuro/Documents/shopify-articles/CLAUDE.md): 文体、SEO、制作フローの基本ルール
-- [article-template.html](/Users/shunshimabukuro/Documents/shopify-articles/article-template.html): 記事HTMLテンプレート
+- `CLAUDE.md`: 文体、SEO、制作フローの基本ルール
+- `article-template.html`: 記事HTMLテンプレート
 - `drafts/`: 設計ブリーフ、記事HTML、候補メモの保存先
 - `data/`: GSCエクスポートや関連データの保存先
 - `company-facts.md`: SOLSTAR固有の実績・事例・料金の参照元。存在しない場合は創作せず `【要記入: ...】` を残す
@@ -266,11 +281,12 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 
 ### Tasks
 
-1. 事実確認が必要な論点を抽出する
-2. Shopify公式、官公庁、論文、信頼できる調査を優先して確認する
-3. 変化しやすい情報は最新性を確認する
-4. 出典として使えるURL、確認日、本文での使いどころを整理する
-5. 不確かな情報、確認できない情報、SOLSTAR固有情報の不足を明示する
+1. `pre-write` ではブリーフから事実確認が必要な論点を抽出する
+2. `post-write` では完成HTMLの主張、数値、比較、引用を一文ずつ出典メモと照合する
+3. Shopify公式、官公庁、論文、信頼できる調査を優先して確認する
+4. 変化しやすい情報は最新性を確認する
+5. 出典として使えるURL、確認日、本文での使いどころを整理する
+6. 不確かな情報、確認できない情報、SOLSTAR固有情報の不足を明示する
 
 ### Output
 
@@ -304,7 +320,7 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 - `data/keyword-sources.md` があれば先に読む
 - `data/` 配下の CSV / Excel / メモ
 - Google Drive 上の Ahrefs / GSC 資料
-- [CLAUDE.md](/Users/shunshimabukuro/Documents/shopify-articles/CLAUDE.md)
+- `CLAUDE.md`
 
 ### Tasks
 
@@ -515,11 +531,64 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 
 ### Constraints
 
-- 95点以上で合格
+- 総合95点以上かつ各観点90点以上で合格
+- 事実誤認、創作、検索意図の重大な不一致、高リスク法務表現が1件でもあれば点数にかかわらず不合格
 - 不合格なら「どの見出しの何をどう直すか」まで具体化する
 - 迷う用語はWeb検索で浸透度を確認してから指摘する
 - レビュアー自身は本文を書き換えず、指摘に徹する
 - 次も必ず確認する: 冒頭構成、H2「この記事でわかること」、FAQ位置、数字タイトルとの整合、内部リンク提案、図解提案、出典の妥当性、創作の有無、CTAの自然さ
+
+## Agent: `legal-reviewer`
+
+### Role
+
+品質審査合格後の記事を、日本の広告・表示関連法と著作権の観点から審査する公開前ゲート。
+
+### Inputs
+
+- `drafts/<handle>.html`
+- `drafts/<handle>-brief.md`
+- `drafts/<handle>-sources.md`
+
+### Tasks
+
+1. 景品表示法、ステマ規制、薬機法、特定商取引法、著作権、商標、個人情報のリスクを確認する
+2. 断定、保証、最上級、比較表示、出典不明の数値、翻訳転載を検出する
+3. 各指摘に該当箇所、リスク、根拠、安全な代替表現を示す
+4. 法令や運用が変化しうる場合は官公庁などの一次情報で最新性を確認する
+
+### Output
+
+- 総合点
+- 高・中・低別のリスク
+- 合否
+- 不合格時の具体的な修正指示
+
+### Constraints
+
+- 95点以上かつ高リスクゼロで合格
+- 本文は編集しない
+- 最終的な法的判断は人間が行う
+
+## Component: `article-validator`
+
+### Role
+
+エージェントの目視審査ではなく、`scripts/article_validator.py` でHTMLを決定論的に検査する。
+
+### Checks
+
+- HTMLの基本構造、見出しIDの重複、TOCリンクとの一致
+- JSON-LDの構文と必須値
+- FAQがまとめの直前にあること
+- `【要記入...】`、`<!-- 要確認 -->`、禁止プレースホルダ
+- 公開済み記事一覧に存在しない内部リンク
+- テンプレートのCSS枠が維持されていること
+
+### Constraints
+
+- 検査失敗時は `pre-publish-checker` と `article-publisher` に進まない
+- 本文は編集しない
 
 ## Agent: `pre-publish-checker`
 
@@ -533,6 +602,8 @@ Shopify投入直前に、記事HTMLと関連メモを最終確認する。公開
 - `drafts/<handle>-brief.md`
 - `drafts/<handle>-sources.md` があれば参照する
 - `drafts/<handle>-assets.md` があれば参照する
+- `article-validator` の合格結果
+- 指定フォルダへの保存・readback済みGoogle Drive URL
 
 ### Tasks
 
@@ -542,6 +613,8 @@ Shopify投入直前に、記事HTMLと関連メモを最終確認する。公開
 4. 数字タイトルと本文項目数が一致しているか確認する
 5. 監修者情報、最終更新日、出典、CTA、内部リンク案、図解案の扱いを確認する
 6. 自動公開につながる設定がないか確認する
+7. `article-validator` が合格済みか確認する
+8. Google Drive保存・readbackが完了しているか確認する
 
 ### Output
 
@@ -564,6 +637,8 @@ Shopify投入直前に、記事HTMLと関連メモを最終確認する。公開
 - `drafts/<handle>.html`
 - `drafts/<handle>-brief.md`
 - `pre-publish-checker` の合格結果
+- `article-validator` の合格結果
+- 指定フォルダへの保存・readback済みGoogle Drive URL
 
 ### Tasks
 
@@ -583,6 +658,8 @@ Shopify投入直前に、記事HTMLと関連メモを最終確認する。公開
 - 推測で GraphQL フィールド名を決めない
 - 実行前に何を下書き作成するか要約して伝える
 - `pre-publish-checker` が不合格の場合は実行しない
+- `article-validator` が不合格または未実行の場合は実行しない
+- Google Drive保存URLを確認できない場合は実行しない
 
 ## Workflow: `new-article`
 
@@ -599,19 +676,25 @@ Shopify投入直前に、記事HTMLと関連メモを最終確認する。公開
 2. `article-designer` を実行し、`drafts/<handle>-brief.md` を作る
 3. `fact-checker` を実行し、`drafts/<handle>-sources.md` を作る
 4. `article-writer` を実行し、`drafts/<handle>.html` を作る
-5. `content-asset-planner` を実行し、`drafts/<handle>-assets.md` を作る
-6. `japanese-editor` を実行し、本文テキストだけ自然な日本語へ整える
-7. `article-reviewer` を4観点でレビューする
-8. 平均95点未満なら指摘を統合して `article-writer` に差し戻す
-9. 必要なら再度 `content-asset-planner` と `japanese-editor` を通す
-10. 最大3周まで 7〜9 を繰り返す
-11. 合格したら `pre-publish-checker` を実行する
-12. `pre-publish-checker` 合格後、`article-publisher` を実行し、Shopify に下書き保存する
-13. 下書きURL、要確認点、`【要記入: ...】` の残件を報告する
+5. `fact-checker` を `post-write` で再実行し、完成HTMLの主張を照合する
+6. 図解・画像などの素材設計が必要な場合だけ `content-asset-planner` を実行する
+7. `japanese-editor` を実行し、本文テキストだけ自然な日本語へ整える
+8. `article-reviewer` を4観点でレビューする
+9. 総合95点未満、各観点90点未満、または重大ブロッカーがあれば `article-writer` に差し戻す
+10. 必要なら `fact-checker (post-write)`、`content-asset-planner`、`japanese-editor` を再実行する
+11. 最大3周まで 8〜10 を繰り返す
+12. 品質合格後に `legal-reviewer` を実行し、95点未満または高リスクがあれば最大3周まで差し戻す
+13. 法務合格後に `python3 scripts/article_validator.py drafts/<handle>.html` を実行する
+14. 検証合格後の記事を指定Google Driveフォルダへ `[下書き] <記事タイトル>` のGoogle Docとして保存し、readbackする
+15. Drive保存合格後に `pre-publish-checker` を実行する
+16. `pre-publish-checker` 合格後、`article-publisher` を実行し、Shopify に下書き保存する
+17. Google Drive URL、Shopify下書きURL、要確認点、`【要記入: ...】` の残件を報告する
 
 ### Stop Conditions
 
 - 最大3周しても95点未満なら停止して残課題を報告する
+- いずれかの品質観点が90点未満、法務高リスクが残る、または `article-validator` が失敗した場合は停止する
+- 指定Google Driveフォルダへの保存とreadbackが完了しない場合はShopifyへ進まない
 - `company-facts.md` がなくても一般論と確認済み出典で書ける場合は続行し、SOLSTAR固有情報は `【要記入: ...】` として残す
 - `company-facts.md` やキーデータが不足し、記事の主張そのものが成立しない場合は停止して不足を報告する
 - `pre-publish-checker` が不合格なら下書き保存に進まず、修正点を報告する
@@ -623,6 +706,36 @@ Shopify投入直前に、記事HTMLと関連メモを最終確認する。公開
 - ただし公開はしない
 - 各段階で主要な成果物パスを明示する
 - 迷った場合はSEOテクニックより読者体験を優先する
+
+## Workflow: `review-human-draft`
+
+人間ライターが執筆したGoogle Drive上の記事をレビューし、修正済み原稿を同フォルダへ保存してからShopify下書きへ投入する。
+
+### Input
+
+- ユーザーが指定した個別のGoogle DocsまたはDriveファイルURL
+- 任意で投稿先ブログ
+
+### Steps
+
+1. 指定URLからファイルID、MIME type、タイトルを取得し、対象ファイルを固定する
+2. Google DocsならDocsコネクターで本文・見出し・表・リンクを読み、原本の現在内容を取得する
+3. `human-draft-reviewer` が検索意図、構成、SEO、E-E-A-T、事実、独自性、日本語、CTAをレビューし、`drafts/<handle>-human-review.md` と `drafts/<handle>-brief.md` を作る
+4. `article-writer` を人間原稿の改稿モードで実行し、原文の有用な内容と筆者の意図を保持しながら `article-template.html` に統合して `drafts/<handle>.html` を作る
+5. `fact-checker (post-write)`、必要時の `content-asset-planner`、`japanese-editor` を実行する
+6. `article-reviewer`、`legal-reviewer`、`article-validator` の順でゲートを通す。差し戻しは各最大3周とする
+7. レビュー済み原稿を指定フォルダへ `[レビュー済み] <記事タイトル>` として別ファイル保存し、コネクターでreadbackする
+8. Drive保存URL、記事タイトル、handle、投稿先ブログ、残課題をユーザーへ要約してから `pre-publish-checker` を実行する
+9. 全ゲート合格後に限り、`article-publisher` がShopifyへ `isPublished: false` で下書き作成する
+10. Google Driveのレビュー済みURLとShopify管理URLを報告する
+
+### Stop Conditions
+
+- 個別記事URLが指定されていない場合は、フォルダ内の記事を推測で選ばず停止する
+- URL先を取得できない、または対象ファイルを一意に固定できない場合は停止する
+- Google Driveへのレビュー済み版保存・readbackが完了しない場合はShopifyへ進まない
+- `【要記入...】`、未確認事実、重大なレビュー指摘、法務高リスク、validatorエラーが残る場合はShopifyへ進まない
+- Shopifyへの反映は下書きのみとし、公開操作は行わない
 
 ## How To Ask Codex
 

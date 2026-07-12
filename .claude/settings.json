@@ -22,12 +22,12 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "mcp__claude_ai_Shopify__graphql_mutation",
+        "matcher": "mcp__.*__graphql_mutation",
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR:-/Users/shunshimabukuro/Documents/shopify-articles}/scripts/shopify_publish_guard.py\"",
-            "statusMessage": "Shopify mutation を検査中（公開操作のみ確認）..."
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-$PWD}/scripts/shopify_publish_guard.py\"",
+            "statusMessage": "Shopify mutation の下書き指定を検査中..."
           }
         ]
       }
