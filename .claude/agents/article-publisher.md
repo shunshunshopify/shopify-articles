@@ -18,7 +18,7 @@ tools: Read, mcp__claude_ai_Shopify__graphql_query, mcp__claude_ai_Shopify__grap
 
 ## やること
 1. ブリーフから タイトル / handle / メタディスクリプション / タグ / 投稿先ブログを確定する。
-   - 投稿先ブログ gid: Shopify=`gid://shopify/Blog/96499761374`, Marketing=`gid://shopify/Blog/96528236766`
+   - 投稿先ブログ gid: Shopify=`gid://shopify/Blog/96499761374`, Marketing=`gid://shopify/Blog/96528236766`, Branding=`gid://shopify/Blog/103031931102`
 2. 記事HTML内のJSON-LDプレースホルダを置換する:
    - `HEADLINE` → 記事タイトル
    - `DESCRIPTION` → メタディスクリプション

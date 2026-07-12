@@ -5,7 +5,7 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 
 ## Purpose
 
-- Shopify / Marketing ブログ向けのSEO記事を制作する
+- Shopify / Marketing / Branding ブログ向けのSEO記事を制作する
 - 成果物は `drafts/` に保存する
 - Shopifyへの反映は必ず下書き (`isPublished: false`) で行う
 - 公開操作は人間が行う
@@ -76,6 +76,8 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
   GSC やキーワード候補の実データ
 - Google Drive 上の Ahrefs / GSC 資料
   `keyword-strategist` が `data/` だけで足りない場合に参照
+- `data/published-articles.md`
+  公開済み記事の正本（handle・タグ・公開状態・カニバリ注意）。`keyword-strategist` の重複確認、`article-designer` のカニバリ確認・内部リンク選定、`article-writer` の内部リンクhandle確定、`scripts/article_validator.py` の内部リンク検証が参照する
 - `drafts/<handle>-sources.md`
   `fact-checker` の成果物。あれば `article-writer` `content-asset-planner` `pre-publish-checker` は必ず参照
 - `drafts/<handle>-assets.md`
@@ -98,6 +100,7 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 - その後は、実行する工程に必要な依存だけを追加で読む
 - `article-template.html` は `article-writer` 着手前に必ず読む
 - `company-facts.md` は SOLSTAR固有情報を書く必要が出た時点で必ず読む
+- `data/published-articles.md` は `keyword-strategist` の重複確認、`article-designer` の設計着手前、`article-writer` の内部リンク確定前に必ず読む
 - `CLAUDE.md` は判断に迷ったときの補助資料としてのみ読む
 - `.claude/agents/*.md` と `.claude/commands/*.md` は、Claude側との同期確認が必要なときだけ読む
 
@@ -219,6 +222,8 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 ### Readability
 
 - 文章だけを続けず、必要に応じて箇条書き、比較表、早見表、チェックリストを使う
+- 出典・調査結果をもとに書く場合も、原文の情報順や分量に引っ張られず、まず読者が知りたい結論・要点を先に示してから、詳細な根拠・出典情報を続ける
+- 情報量が多い部分（項目・手順・条件・数値などが3つ以上並ぶ場合）は、地の文で羅列せず箇条書きや表に変換する
 
 ### FAQ
 
@@ -336,6 +341,13 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 4. 既存記事と重複しない候補を優先順位付きで整理する
 5. UXとE-E-A-Tの観点から、一般論に寄りにくいテーマを優先する
 
+### Scoring Details
+
+- Ahrefs候補プール: Google Drive連携で読む。ECサイト系 fileId `1EnCG1a2NEozHJ0VQSjpXcZ14wttjUTfkYpP7mh1KxK8` / Shopify系 fileId `1dV_Un3QSZHVn3YP3QQhno5qdwp5KFuzytXjCpzkk7Fk`。抽出基準: Volume ≥ 1,000 × KD ≤ 20 × Intent = Commercial
+- GSC伸びしろ判定: position 8〜20 かつ impressions ≥ 1,000 → 上位10本を最優先。取りこぼし判定: impressions ≥ 1,000 かつ CTR < 1.0%
+- 優先度スコア = 40% Ahrefs適性 + 35% GSC伸びしろ + 15% 3C評価 + 10% 新規余地（各0〜10点で加重平均、同点時はGSC impressions高い順）
+- いずれかのソースが読めない場合は「データ取得失敗: file/ID=...」と明示し、利用可能なソースのみで継続する
+
 ### Output
 
 `drafts/keyword-candidates.md` に保存し、要約も返す。各候補には以下を含める。
@@ -366,7 +378,7 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 ### Inputs
 
 - 狙う検索キーワード
-- 投稿先ブログ（`Shopify` または `Marketing`）
+- 投稿先ブログ（`Shopify` / `Marketing` / `Branding`）
 
 ### Tasks
 
@@ -376,11 +388,13 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 4. 想定読者を明確化する
 5. SOLSTAR独自の切り口を組み合わせて H2 / H3 アウトラインを作る
 6. 記事冒頭の統一構成、FAQ、内部リンク、図解提案まで含めて設計する
+7. `data/published-articles.md`（公開済み記事の正本）を読み、(a) このテーマと**カニバリ（重複）しないか**を確認し、(b) 本文から内部リンクすべき**関連する公開済み記事を2〜3本**選ぶ。`status: 公開` の記事のみ対象とする
 
 ### Output
 
 `drafts/<handle>-brief.md` に保存し、要約を返す。内容には以下を含める。
 
+- **handle（URLスラッグ）**: 内容を表す半角英小文字ハイフン区切り。以降の全工程がこの handle をファイル名に使うため、設計工程で必ず確定する
 - タイトル案3つ
 - メタディスクリプション案
 - 想定読者と検索意図
@@ -390,7 +404,7 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 - 推奨タグ
 - 想定文字数
 - FAQ案
-- 内部リンク提案
+- **内部リンク候補**: `data/published-articles.md` から選んだ関連公開済み記事2〜3本（handle・相対URL・本文のどの見出しから張るか）。カニバリ懸念がある既存記事があればその注意も明記
 - 図解 / 画像提案と挿入位置
 
 ### Constraints
@@ -422,6 +436,8 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 4. JSON-LD の `HEADLINE` と `DESCRIPTION` を埋める
 5. `PAGE_URL` `DATE_*` `BLOG_NAME` `BLOG_URL` は公開工程用プレースホルダとして残す
 6. 確認済みの出典は本文または参考文献として自然に入れる
+7. 出典（`drafts/<handle>-sources.md`）から得た情報は、原文の順序や分量をそのまま反映せず、読者が知りたい結論を先に立ててから詳細・根拠を続ける形に再構成する
+8. 項目・手順・条件・数値の比較など情報量が多い内容は、地の文の羅列にせず箇条書きや表にする
 
 ### Output
 
@@ -542,7 +558,7 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 - 不合格なら「どの見出しの何をどう直すか」まで具体化する
 - 迷う用語はWeb検索で浸透度を確認してから指摘する
 - レビュアー自身は本文を書き換えず、指摘に徹する
-- 次も必ず確認する: 冒頭構成、H2「この記事でわかること」、FAQ位置、数字タイトルとの整合、内部リンク提案、図解提案、出典の妥当性、創作の有無、CTAの自然さ
+- 次も必ず確認する: 冒頭構成、H2「この記事でわかること」、FAQ位置、数字タイトルとの整合、内部リンク提案、図解提案、出典の妥当性、創作の有無、CTAの自然さ、各セクションが結論先出しになっているか（出典情報を原文順のまま羅列していないか）、情報量が多い箇所が箇条書き・表に整理されているか
 
 ## Agent: `legal-reviewer`
 
@@ -712,7 +728,7 @@ Shopify投入直前に、記事HTMLと関連メモを最終確認する。公開
 ## Workflow: `new-article`
 
 これは Claude の `/new-article` 相当の Codex 用実行フロー。Codex はこの順序で記事制作を進める。
-`article-orchestrator` はこのワークフローの中央指揮を担い、通常依頼ではGoogle Drive下書き保存・readbackまでを自動実行する。
+中央指揮を担うのはサブエージェントではなく、この指示を実行するCodex自身（メインの実行主体）である。通常依頼ではGoogle Drive下書き保存・readbackまでを自動実行する。
 
 ### Input
 

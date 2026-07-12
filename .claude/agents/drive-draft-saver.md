@@ -1,6 +1,7 @@
 ---
 name: drive-draft-saver
 description: 品質・法務・機械検証に合格した記事を指定Google DriveフォルダへGoogle Doc下書きとして保存し、URL・file ID・本文をreadbackして受け渡し正本を確定する。
+tools: Read, Write, mcp__claude_ai_Google_Drive__create_file, mcp__claude_ai_Google_Drive__search_files, mcp__claude_ai_Google_Drive__read_file_content, mcp__claude_ai_Google_Drive__get_file_metadata
 ---
 
 `AGENTS.md` の `drive-draft-saver` 契約に従う。
