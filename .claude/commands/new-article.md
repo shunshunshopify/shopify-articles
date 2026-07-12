@@ -1,9 +1,9 @@
 ---
-description: KWから記事を全自動制作しShopify下書きまで作る（公開のみ手動）
+description: KWから記事を全自動制作しGoogle Drive下書きまで保存する（Shopify下書きは明示依頼時のみ）
 argument-hint: [キーワード（省略可：省略時はKW選定から）]
 ---
 
-あなたはSOLSTARのSEO記事制作パイプラインの中央指揮役です。以下を順に実行し、Shopifyの下書き作成まで自動で進めてください。**公開は絶対にしない**（人間が管理画面で行う）。`CLAUDE.md` のルールを全工程で遵守すること。
+あなたはSOLSTARのSEO記事制作パイプラインの中央指揮役です。以下を順に実行し、Google Driveの下書き保存・readbackまで自動で進めてください。Shopify下書きは、ユーザーが明示的に依頼した場合だけ作成します。**公開は絶対にしない**（人間が管理画面で行う）。`AGENTS.md` のルールを全工程で遵守すること。
 
 対象キーワード: $ARGUMENTS
 
@@ -33,8 +33,8 @@ argument-hint: [キーワード（省略可：省略時はKW選定から）]
 - 構成・HTML・目次・JSON-LD・SEOキーワード・出典は変更しない（AI感・翻訳調の排除が目的）。
 
 ### 4. 品質ゲート（⑤・95点）
-- `article-reviewer` を **4観点で起動**（focus: SEO観点 / 読者・E-E-A-T観点 / AI感・独自性観点 / UX・可読性観点）。
-- **総合95点未満、各観点90点未満、または重大ブロッカーが1件でもあれば**、指摘を統合して `article-writer` に差し戻す。必要に応じ `fact-checker (post-write)`、`content-asset-planner`、`japanese-editor` を再実行する（最大3周）。
+- `article-reviewer` を **1回起動して4観点をまとめて採点**させる（SEO / 読者・E-E-A-T / AI感・独自性 / UX・可読性）。結果は `drafts/<handle>-review.md` に保存させる。
+- **総合95点未満、いずれかの観点が90点未満、または重大ブロッカーが1件でもあれば**、指摘を統合して `article-writer` に差し戻す。必要に応じ `fact-checker (post-write)`、`content-asset-planner`、`japanese-editor` を再実行する（最大3周）。
 - 3周しても未達なら、残課題を添えて人間に報告して停止（公開には進まない）。
 - 品質ゲートを通過してから、次の法務ゲート（公開前の最終）へ進む。
 
@@ -44,18 +44,19 @@ argument-hint: [キーワード（省略可：省略時はKW選定から）]
 - 3周しても未達なら、残った法的リスクを添えて人間に報告して停止（公開には進まない）。
 - 法務ゲートを通過してから、次の公開前チェックへ進む。
 
-### 5.5 公開前チェック
-- `python3 scripts/article_validator.py drafts/<handle>.html` を実行する。失敗した場合は修正して再検証し、合格するまで次へ進まない。
-- 合格記事をフォルダID `1nY8LitmaNw6v8ZPb2tVxb2bVK4pK3Wee` へ `[下書き] <記事タイトル>` のGoogle Docとして保存し、作成結果をreadbackする。保存・readbackできない場合はShopifyへ進まない。
-- `pre-publish-checker` サブエージェントを起動し、残プレースホルダ・JSON-LD・FAQ位置・数字タイトル整合・創作リスク・未確認リンクを確認させる。
-- 不合格なら `article-publisher` へ進まず、修正点を報告して停止する。
+### 5.5 Google Drive下書き保存
+- `python3 scripts/article_validator.py --allow-draft-placeholders drafts/<handle>.html` を実行する。構造、TOC、JSON-LD、CSS、内部リンクの検証に失敗した場合は修正して再検証し、合格するまで次へ進まない。
+- `drive-draft-saver` サブエージェントを `new_article` モードで起動し、合格記事をフォルダID `1nY8LitmaNw6v8ZPb2tVxb2bVK4pK3Wee` へ `[下書き] <記事タイトル>` のGoogle Docとして保存・readbackさせる。
+- `drafts/<handle>-drive.md` が `passed` でない場合は、Drive URLと未解決事項を報告して停止する。Shopifyへは進まない。
 
-### 6. 公開＝下書き作成（⑥）
+### 6. Shopify下書き作成（明示依頼時のみ）
+- ユーザーがShopify下書き作成を明示的に依頼した場合だけ、`drafts/<handle>-drive.md` が `passed` であることを確認し、`python3 scripts/article_validator.py drafts/<handle>.html` を通常モードで再実行する。合格後に `pre-publish-checker` サブエージェントを起動し、残プレースホルダ・JSON-LD・FAQ位置・数字タイトル整合・創作リスク・未確認リンクを確認させる。
+- `pre-publish-checker` が不合格なら `article-publisher` へ進まず、修正点を報告して停止する。
 - 合格を維持したら `article-publisher` サブエージェントを起動し、Shopifyに **isPublished:false の下書き** として作成。
 - JSON-LDのプレースホルダ（HEADLINE/DESCRIPTION/PAGE_URL/DATE_PUBLISHED/DATE_MODIFIED/BLOG_NAME/BLOG_URL）を確定値に置換してから投稿（置換の最終責任は publisher。writer が先に埋めた HEADLINE/DESCRIPTION もブリーフの確定値で上書き確認する）。
 
 ### 7. 報告
-- 最終の品質スコア・法務スコア、Google Drive URL、作成したShopify下書きのadmin URL、`【要記入】`が残っていればその一覧、公開前に人間が確認すべき点を報告する。
+- 最終の品質スコア・法務スコア、Google Drive URL、Shopify下書きを作成した場合だけそのadmin URL、`【要記入】`が残っていればその一覧、公開前に人間が確認すべき点を報告する。
 - **公開はしていないこと**を明記し、人間に最終公開を委ねる。
 
 ## 重要な原則

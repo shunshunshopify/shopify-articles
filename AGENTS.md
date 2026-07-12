@@ -42,9 +42,9 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 
 ## Pipeline
 
-`keyword-strategist` -> `article-designer` -> `fact-checker (pre-write)` -> `article-writer` -> `japanese-editor` -> `article-reviewer` -> `legal-reviewer` -> Google Drive保存・readback -> `fact-checker (post-write)` -> `content-asset-planner (必要時)` -> `article-validator` -> `pre-publish-checker` -> `article-publisher`
+`keyword-strategist` -> `article-designer` -> `fact-checker (pre-write)` -> `article-writer` -> `fact-checker (post-write)` -> `content-asset-planner (必要時)` -> `japanese-editor` -> `article-reviewer` -> `legal-reviewer` -> `article-validator` -> `drive-draft-saver`（Google Drive保存・readback）-> （Shopify下書きを明示依頼された場合のみ）`pre-publish-checker` -> `article-publisher`
 
-必要なキーワードがすでに決まっている場合は `keyword-strategist` を省略してよい。Shopify下書き保存まで進めない依頼では、`pre-publish-checker` と `article-publisher` を省略してよい。
+必要なキーワードがすでに決まっている場合は `keyword-strategist` を省略してよい。通常の `new-article` は `drive-draft-saver` によるGoogle Drive保存・readbackまで自動で実施する。Shopify下書き保存は明示依頼時だけ実施し、その場合に限り `pre-publish-checker` と `article-publisher` を起動する。
 
 ## Source Of Truth
 
@@ -80,6 +80,8 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
   `fact-checker` の成果物。あれば `article-writer` `content-asset-planner` `pre-publish-checker` は必ず参照
 - `drafts/<handle>-assets.md`
   `content-asset-planner` の成果物。`pre-publish-checker` と公開前の人間確認で使う
+- `drafts/<handle>-drive.md`
+  `drive-draft-saver` の保存記録。Google Doc URL、file ID、MIME type、readback結果、未解決事項を記録する。Shopify下書き工程はこの記録の合格結果を必須入力とする
 
 ### Reference Only
 
@@ -107,13 +109,14 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 - `article-designer` はキーワードと投稿先ブログが決まってから起動する
 - `fact-checker` は `drafts/<handle>-brief.md` 生成後に起動する
 - `article-writer` は `drafts/<handle>-brief.md` を必須入力とし、`drafts/<handle>-sources.md` があれば必須参照とする
-- Google Drive保存前は、`article-writer`、`japanese-editor`、`article-reviewer`、`legal-reviewer` をすべて完了させる
-- `fact-checker (post-write)`、`content-asset-planner`、`article-validator`、`pre-publish-checker` は、Shopify下書き作成を依頼された時点で実行する
+- Google Drive保存前は、`article-writer`、`fact-checker (post-write)`、必要時の`content-asset-planner`、`japanese-editor`、`article-reviewer`、`legal-reviewer`、`article-validator` をすべて完了させる
+- `drive-draft-saver` は `article-validator` 合格後にのみ起動し、Google Driveへの保存とURL・file IDのreadbackを完了させる
+- `pre-publish-checker` と `article-publisher` は、Shopify下書き作成を明示依頼された時点でのみ実行する
 - `content-asset-planner` は `drafts/<handle>.html` 生成後、図解・画像などの素材設計が必要な場合だけ起動する
 - `japanese-editor` は `drafts/<handle>.html` だけを編集対象にする
 - `article-reviewer` は `drafts/<handle>.html` と `drafts/<handle>-brief.md` がそろってから起動する
 - `legal-reviewer` は `article-reviewer` 合格後に起動する
-- `article-validator` は `legal-reviewer` 合格後に `scripts/article_validator.py` を実行する
+- `article-validator` は `legal-reviewer` 合格後に `scripts/article_validator.py --allow-draft-placeholders` を実行する。Shopify下書き作成を明示依頼された場合は、`pre-publish-checker` の直前にプレースホルダを許可しない通常モードで再実行する
 - `pre-publish-checker` は `drafts/<handle>.html` 完成後に起動する
 - `article-publisher` は `pre-publish-checker` 合格後しか起動しない
 
@@ -125,9 +128,10 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 - `article-writer` は `drafts/<handle>.html` を生成する
 - `content-asset-planner` は `drafts/<handle>-assets.md` を生成する
 - `japanese-editor` は `drafts/<handle>.html` を上書きする
-- `article-reviewer` はレビュー結果を返すが、本文は編集しない
-- `legal-reviewer` は法務リスクと合否を返すが、本文は編集しない
+- `article-reviewer` は `drafts/<handle>-review.md` にレビュー結果を保存し、本文は編集しない
+- `legal-reviewer` は `drafts/<handle>-legal-review.md` に法務リスクと合否を保存し、本文は編集しない
 - `article-validator` は決定論的な検査結果を返すが、本文は編集しない
+- `drive-draft-saver` は `drafts/<handle>-drive.md` に保存記録を残し、Google Doc URL・file ID・MIME type・readback結果を返す
 - `pre-publish-checker` は合否と修正点を返すが、本文は編集しない
 - `article-publisher` は Shopify に下書きを作成し、管理用URLを返す
 
@@ -523,7 +527,7 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 
 ### Output
 
-レビュー結果は本文返答でもよいが、可能なら次の見出しで固定する。
+`drafts/<handle>-review.md` に保存し、次の見出しで固定する。本文は編集しない。
 
 - 総合点
 - 各観点の点数
@@ -561,6 +565,8 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 
 ### Output
 
+`drafts/<handle>-legal-review.md` に保存し、以下を返す。
+
 - 総合点
 - 高・中・低別のリスク
 - 合否
@@ -592,6 +598,46 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 - 検査失敗時は `pre-publish-checker` と `article-publisher` に進まない
 - 本文は編集しない
 
+## Agent: `drive-draft-saver`
+
+### Role
+
+品質・法務・機械検証を通過した記事を、指定Google DriveフォルダへGoogle Docの下書きとして保存し、保存結果をreadbackする。Google Drive上の文書を人間との受け渡し正本にする。
+
+### Inputs
+
+- `drafts/<handle>.html`
+- `drafts/<handle>-brief.md`
+- `drafts/<handle>-review.md` の合格結果
+- `drafts/<handle>-legal-review.md` の合格結果
+- プレースホルダを許可しない通常モードでの `article-validator` 合格結果
+- Google Drive Draft Folder ID: `1nY8LitmaNw6v8ZPb2tVxb2bVK4pK3Wee`
+- 保存モード: `new_article`（既定）または `reviewed_human_draft`
+
+### Tasks
+
+1. ブリーフから確定タイトルを取得し、`new_article` は `[下書き] <記事タイトル>`、`reviewed_human_draft` は `[レビュー済み] <記事タイトル>` のGoogle Docを指定フォルダに新規作成する
+2. HTMLの本文をGoogle Docs向けに変換し、見出し、段落、リスト、表、リンクを可能な範囲で保持する。CSS、JSON-LD、公開用プレースホルダはGoogle Doc本文へ混在させない
+3. 記事本文に `【要記入...】` または `<!-- 要確認 -->` が残る場合は、Google Docの先頭に未解決事項として明示し、保存記録を `needs_human_input` とする。Shopify下書き工程へは進めない
+4. 作成後、返されたURL、file ID、MIME typeを記録する
+5. Google Docsコネクターで作成済み文書をreadbackし、タイトル、フォルダ、本文冒頭、主要見出し、リンクの保存を確認する
+
+### Output
+
+`drafts/<handle>-drive.md` に以下を保存し、要約を返す。
+
+- 保存状態（`passed` / `needs_human_input` / `failed`）
+- Google Doc URL、file ID、MIME type、保存先フォルダID
+- readbackしたタイトル、本文冒頭、主要見出し、リンク確認結果
+- 未解決事項とShopify下書き工程へ進める可否
+
+### Constraints
+
+- 既存のGoogle Drive文書を上書きしない
+- 保存またはreadbackに失敗した場合は `failed` とし、Shopify工程へ進まない
+- `needs_human_input` の文書は人間確認用の下書きとして保存してよいが、`pre-publish-checker` と `article-publisher` は起動しない
+- Google Drive接続・認証がない場合は、その時点で停止して必要な接続を報告する
+
 ## Agent: `pre-publish-checker`
 
 ### Role
@@ -605,7 +651,7 @@ Shopify投入直前に、記事HTMLと関連メモを最終確認する。公開
 - `drafts/<handle>-sources.md` があれば参照する
 - `drafts/<handle>-assets.md` があれば参照する
 - `article-validator` の合格結果
-- 指定フォルダへの保存・readback済みGoogle Drive URL
+- `drafts/<handle>-drive.md` の `passed` 結果（Google Drive URL・file ID・readback結果を含む）
 
 ### Tasks
 
@@ -616,7 +662,7 @@ Shopify投入直前に、記事HTMLと関連メモを最終確認する。公開
 5. 監修者情報、最終更新日、出典、CTA、内部リンク案、図解案の扱いを確認する
 6. 自動公開につながる設定がないか確認する
 7. `article-validator` が合格済みか確認する
-8. Google Drive保存・readbackが完了しているか確認する
+8. `drafts/<handle>-drive.md` が `passed` で、Google Drive保存・readbackが完了しているか確認する
 
 ### Output
 
@@ -640,7 +686,7 @@ Shopify投入直前に、記事HTMLと関連メモを最終確認する。公開
 - `drafts/<handle>-brief.md`
 - `pre-publish-checker` の合格結果
 - `article-validator` の合格結果
-- 指定フォルダへの保存・readback済みGoogle Drive URL
+- `drafts/<handle>-drive.md` の `passed` 結果
 
 ### Tasks
 
@@ -661,11 +707,12 @@ Shopify投入直前に、記事HTMLと関連メモを最終確認する。公開
 - 実行前に何を下書き作成するか要約して伝える
 - `pre-publish-checker` が不合格の場合は実行しない
 - `article-validator` が不合格または未実行の場合は実行しない
-- Google Drive保存URLを確認できない場合は実行しない
+- `drafts/<handle>-drive.md` がない、または `passed` でない場合は実行しない
 
 ## Workflow: `new-article`
 
 これは Claude の `/new-article` 相当の Codex 用実行フロー。Codex はこの順序で記事制作を進める。
+`article-orchestrator` はこのワークフローの中央指揮を担い、通常依頼ではGoogle Drive下書き保存・readbackまでを自動実行する。
 
 ### Input
 
@@ -678,29 +725,33 @@ Shopify投入直前に、記事HTMLと関連メモを最終確認する。公開
 2. `article-designer` を実行し、`drafts/<handle>-brief.md` を作る
 3. `fact-checker` を実行し、`drafts/<handle>-sources.md` を作る
 4. `article-writer` を実行し、`drafts/<handle>.html` を作る
-5. `japanese-editor` を実行し、本文テキストだけ自然な日本語へ整える
-6. `article-reviewer` を4観点でレビューする
-7. 総合95点未満、各観点90点未満、または重大ブロッカーがあれば `article-writer` に差し戻す
-8. 最大3周まで 5〜7 を繰り返す
-9. 品質合格後に `legal-reviewer` を実行し、95点未満または高リスクがあれば最大3周まで差し戻す
-10. 法務合格後の記事を指定Google Driveフォルダへ `[下書き] <記事タイトル>` のGoogle Docとして保存し、readbackする
-11. Shopify下書き作成を依頼された場合に限り、`fact-checker (post-write)`、必要時の`content-asset-planner`、`article-validator`、`pre-publish-checker`を順に実行する
-12. `pre-publish-checker` 合格後、`article-publisher` を実行し、Shopify に下書き保存する
-13. Google Drive URL、Shopify下書きURL（作成した場合のみ）、要確認点、`【要記入: ...】` の残件を報告する
+5. `fact-checker (post-write)` を実行し、完成HTMLの主張、数値、比較、引用を出典メモと照合する
+6. 図解・画像などの素材設計が必要な場合だけ `content-asset-planner` を実行する
+7. `japanese-editor` を実行し、本文テキストだけ自然な日本語へ整える
+8. `article-reviewer` を1回起動して4観点をまとめてレビューし、`drafts/<handle>-review.md` に保存する。総合95点以上かつ4観点すべて90点以上を合格条件とする
+9. 不合格または重大ブロッカーがあれば `article-writer` に差し戻し、必要に応じて5〜8を再実行する。最大3周とする
+10. 品質合格後に `legal-reviewer` を実行し、`drafts/<handle>-legal-review.md` に保存する。95点未満または高リスクがあれば `article-writer` に差し戻し、必要な工程から再実行する。最大3周とする
+11. `article-validator` を `python3 scripts/article_validator.py --allow-draft-placeholders drafts/<handle>.html` で実行する。構造、TOC、JSON-LD、CSS、内部リンクの検証に失敗した場合は修正して再検証し、合格するまで次へ進まない
+12. `drive-draft-saver` を実行し、指定Google Driveフォルダへ `[下書き] <記事タイトル>` のGoogle Docとして保存・readbackする。通常依頼での自動実行はここまでとする
+13. Shopify下書き作成を明示依頼された場合だけ、`drafts/<handle>-drive.md` が `passed` であることを確認し、`python3 scripts/article_validator.py drafts/<handle>.html` を通常モードで再実行してから `pre-publish-checker` を実行する
+14. `pre-publish-checker` 合格後、`article-publisher` を実行し、Shopify に `isPublished: false` の下書きとして保存する
+15. Google Drive URL、Shopify下書きURL（作成した場合のみ）、要確認点、`【要記入: ...】` の残件を報告する
 
 ### Stop Conditions
 
 - 最大3周しても95点未満なら停止して残課題を報告する
 - いずれかの品質観点が90点未満、法務高リスクが残る、または `article-validator` が失敗した場合は停止する
-- 指定Google Driveフォルダへの保存とreadbackが完了しない場合はShopifyへ進まない
+- 指定Google Driveフォルダへの保存とreadbackが完了しない場合は、Google Drive下書き作成として失敗を報告し、Shopifyへ進まない
+- `drive-draft-saver` が `needs_human_input` の場合はGoogle Drive URLと未解決事項を報告して停止し、Shopifyへ進まない
 - `company-facts.md` がなくても一般論と確認済み出典で書ける場合は続行し、SOLSTAR固有情報は `【要記入: ...】` として残す
 - `company-facts.md` やキーデータが不足し、記事の主張そのものが成立しない場合は停止して不足を報告する
-- `pre-publish-checker` が不合格なら下書き保存に進まず、修正点を報告する
+- `pre-publish-checker` が不合格ならShopify下書き保存に進まず、修正点を報告する
 - Shopify / Google Drive の接続や認証が不足している場合は、その時点で止めて必要な接続を報告する
 
 ### Output Expectations
 
-- 設計だけで止まらず、可能なら下書き保存まで進める
+- 設計だけで止まらず、通常はGoogle Drive下書き保存・readbackまで自動で進める
+- Shopify下書き保存は、ユーザーが明示的に依頼した場合だけ実施する
 - ただし公開はしない
 - 各段階で主要な成果物パスを明示する
 - 迷った場合はSEOテクニックより読者体験を優先する
@@ -721,9 +772,9 @@ Shopify投入直前に、記事HTMLと関連メモを最終確認する。公開
 3. `human-draft-reviewer` が検索意図、構成、SEO、E-E-A-T、事実、独自性、日本語、CTAをレビューし、`drafts/<handle>-human-review.md` と `drafts/<handle>-brief.md` を作る
 4. `article-writer` を人間原稿の改稿モードで実行し、原文の有用な内容と筆者の意図を保持しながら `article-template.html` に統合して `drafts/<handle>.html` を作る
 5. `fact-checker (post-write)`、必要時の `content-asset-planner`、`japanese-editor` を実行する
-6. `article-reviewer`、`legal-reviewer`、`article-validator` の順でゲートを通す。差し戻しは各最大3周とする
-7. レビュー済み原稿を指定フォルダへ `[レビュー済み] <記事タイトル>` として別ファイル保存し、コネクターでreadbackする
-8. Drive保存URL、記事タイトル、handle、投稿先ブログ、残課題をユーザーへ要約してから `pre-publish-checker` を実行する
+6. `article-reviewer`、`legal-reviewer`、`article-validator`（`--allow-draft-placeholders`）の順でゲートを通す。差し戻しは各最大3周とする
+7. `drive-draft-saver` を `reviewed_human_draft` モードで実行し、レビュー済み原稿を指定フォルダへ `[レビュー済み] <記事タイトル>` として別ファイル保存・readbackする
+8. Drive保存記録が `passed` の場合だけ、プレースホルダを許可しない通常モードで `article-validator` を再実行し、Drive保存URL、記事タイトル、handle、投稿先ブログ、残課題をユーザーへ要約してから `pre-publish-checker` を実行する
 9. 全ゲート合格後に限り、`article-publisher` がShopifyへ `isPublished: false` で下書き作成する
 10. Google Driveのレビュー済みURLとShopify管理URLを報告する
 

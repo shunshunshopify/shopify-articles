@@ -79,7 +79,7 @@ def contains_value(obj, expected):
     return obj == expected
 
 
-def validate(article, template, published):
+def validate(article, template, published, allow_draft_placeholders=False):
     errors = []
     text = article.read_text(encoding="utf-8")
     parser = ArticleParser()
@@ -102,9 +102,9 @@ def validate(article, template, published):
     elif h2_ids.index("sec-summary") - h2_ids.index("sec-faq") != 1:
         errors.append("FAQはまとめの直前に配置してください")
 
-    if re.search(r"【(?:要記入|内部リンク要記入)[：:].*?】", text):
+    if not allow_draft_placeholders and re.search(r"【(?:要記入|内部リンク要記入)[：:].*?】", text):
         errors.append("要記入プレースホルダが残っています")
-    if re.search(r"<!--\s*要確認", text):
+    if not allow_draft_placeholders and re.search(r"<!--\s*要確認", text):
         errors.append("要確認コメントが残っています")
     if re.search(r"\{\{[^}]+\}\}", text):
         errors.append("テンプレートプレースホルダ {{...}} が残っています")
@@ -141,11 +141,21 @@ def main():
     ap.add_argument("article", type=Path)
     ap.add_argument("--template", type=Path, default=root / "article-template.html")
     ap.add_argument("--published", type=Path, default=root / "data/published-articles.md")
+    ap.add_argument(
+        "--allow-draft-placeholders",
+        action="store_true",
+        help="Google Drive下書き保存時だけ、要記入・要確認の残存を警告扱いにする",
+    )
     args = ap.parse_args()
     if not args.article.exists():
         print(f"ERROR: 記事がありません: {args.article}", file=sys.stderr)
         return 2
-    errors = validate(args.article, args.template, args.published)
+    errors = validate(
+        args.article,
+        args.template,
+        args.published,
+        allow_draft_placeholders=args.allow_draft_placeholders,
+    )
     if errors:
         for error in errors:
             print(f"ERROR: {error}")

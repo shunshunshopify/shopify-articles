@@ -12,9 +12,10 @@ Claude Code で半自動制作するためのワークスペースです。
 2. 競合・既存記事と被らない切り口で構成案（H2/H3の見出し一覧）を作る
 3. 変化しやすい情報・出典・公式情報を確認する
 4. `article-template.html` をベースに本文HTMLを生成する
-5. 日本語校閲、品質レビュー、公開前チェックを行う
-6. Shopify Admin API の `articleCreate` mutation で**下書き（`isPublished: false`）として保存**する
-7. 公開はしない。公開ボタンは必ず人間が管理画面で押す。
+5. 事実照合、日本語校閲、品質・法務レビュー、機械検証を行う
+6. Google DriveへGoogle Doc下書きを保存し、readbackする
+7. Shopify下書きは明示依頼時だけ、`articleCreate` mutation で **`isPublished: false`** として保存する
+8. 公開はしない。公開ボタンは必ず人間が管理画面で押す。
 
 > 重要: いかなる場合も記事を自動公開しないこと。生成物は常に非公開の下書き。
 
@@ -80,10 +81,10 @@ Claude Code で半自動制作するためのワークスペースです。
 人間ライター原稿は、ユーザーが指定した個別Google Drive URLを正本として `AGENTS.md` の `review-human-draft` を実行する。レビュー済み版はフォルダID `1nY8LitmaNw6v8ZPb2tVxb2bVK4pK3Wee` に別ファイル保存・readbackしてから、Shopifyへ `isPublished:false` で投入する。原本は明示依頼がない限り上書きしない。
 
 このワークスペースは、Claude Code（中央指揮）が専門サブエージェントを順番に呼び出して
-1記事を仕上げる構成。通常フローでは自動進行し、人間は最終公開のみ行う。
+1記事を仕上げる構成。通常フローではGoogle Drive下書き保存・readbackまで自動進行し、Shopify下書きは明示依頼時だけ実施する。人間は最終公開のみ行う。
 
 ```
-①KW選定 → ③設計 → ③.5事実確認(pre-write) → ④執筆 → ④.1事実照合(post-write) → ④.2素材設計(必要時) → ④.5校閲 → ⑤品質 → ⑤.5法務 → ⑤.7機械検証 → ⑤.8公開前チェック → ⑥Shopify下書き
+①KW選定 → ③設計 → ③.5事実確認(pre-write) → ④執筆 → ④.1事実照合(post-write) → ④.2素材設計(必要時) → ④.5校閲 → ⑤品質 → ⑤.5法務 → ⑤.7機械検証 → Google Drive下書き保存・readback → （Shopify下書きを明示依頼した場合のみ）⑤.8公開前チェック → ⑥Shopify下書き
 ```
 
 サブエージェント（`.claude/agents/`）:
@@ -97,15 +98,16 @@ Claude Code で半自動制作するためのワークスペースです。
 | ④.5校閲 | `japanese-editor` | AIが書いた本文を日本人が自然に読める文章へ編集（本文テキストのみ・構成/HTML/SEOは不変更） |
 | ⑤品質 | `article-reviewer` | 総合95点・各観点90点ゲート。重大ブロッカーは点数によらず不合格 |
 | ⑤.5法務 | `legal-reviewer` | 95点かつ高リスクゼロの公開前法務ゲート |
-| ⑤.7機械検証 | `article-validator` | HTML・TOC・JSON-LD・リンク・残プレースホルダをスクリプト検証 |
+| ⑤.7機械検証 | `article-validator` | Drive保存前は構造・TOC・JSON-LD・リンクを検証し、Shopify前は残プレースホルダを含む完全検証を行う |
+| Drive保存 | `drive-draft-saver` | Google Doc下書きの新規保存・URL/file ID/readback（→ `drafts/<handle>-drive.md`） |
 | ⑤.8公開前チェック | `pre-publish-checker` | 残プレースホルダ・JSON-LD・FAQ位置・創作リスク等を最終確認 |
 | ⑥公開 | `article-publisher` | Shopifyに `isPublished:false` の下書き保存 |
 
 ### 実行方法（自動化）
 `~/shopify-articles/` から `claude` を起動し、スラッシュコマンド **`/new-article <キーワード>`** を実行すると全工程が自動で走る（キーワード省略時はKW選定から）。手動でサブエージェントを個別起動することも可能。
 
-### 自動化レベル: 公開のみ手動
-人間チェックは **最終公開の1点のみ**。KW選定・設計・執筆・品質はすべて自動進行する。
+### 自動化レベル: Google Drive下書きまで自動
+KW選定・設計・執筆・品質・Google Drive保存は自動進行する。Shopify下書きは明示依頼時のみ、公開は人間が実施する。
 1. KW決定（引数 or `keyword-strategist`）。
 2. `article-designer` で設計（承認停止はしない。要約提示のみ）。
 3. `fact-checker (pre-write)` で公式情報・出典・変化しやすい情報を確認。
@@ -115,10 +117,10 @@ Claude Code で半自動制作するためのワークスペースです。
 7. `japanese-editor` で本文テキストのみを最小限校閲。
 8. `article-reviewer` で総合95点・各観点90点・重大ブロッカーゼロを確認（最大3周）。
 9. `legal-reviewer` で95点・高リスクゼロを確認（最大3周）。
-10. `article-validator` 合格後、指定Google DriveフォルダへGoogle Docとして保存・readbackする。
-11. `pre-publish-checker` を実行する。
-12. 合格後 `article-publisher` で Shopify に **isPublished:false の下書き** 作成。
-13. Drive URL・Shopify下書きURL・要確認点を報告。**公開は人間が手動で行う（自動公開は禁止）**。
+10. `article-validator --allow-draft-placeholders` 合格後、`drive-draft-saver` が指定Google DriveフォルダへGoogle Docとして保存・readbackする。
+11. Shopify下書きを明示依頼された場合だけ、`drafts/<handle>-drive.md` が `passed` であることを確認し、通常モードの `article-validator` を再実行してから `pre-publish-checker` を実行する。
+12. 合格後だけ `article-publisher` で Shopify に **isPublished:false の下書き** を作成する。
+13. Drive URL・Shopify下書きURL（作成時のみ）・要確認点を報告。**公開は人間が手動で行う（自動公開は禁止）**。
 
 ### KWソース（`data/keyword-sources.md` 参照）
 1. Ahrefsリスト（Drive: EC=1EnCG1a2NEozHJ0VQSjpXcZ14wttjUTfkYpP7mh1KxK8 / Shopify=1dV_Un3QSZHVn3YP3QQhno5qdwp5KFuzytXjCpzkk7Fk）— Volume×Difficulty×Intent

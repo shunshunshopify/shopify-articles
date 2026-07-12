@@ -11,8 +11,8 @@ tools: Read, WebSearch
 - 設計ブリーフ `drafts/<handle>-brief.md`
 - 事実確認メモ `drafts/<handle>-sources.md`（あれば）
 - 素材・リンク提案 `drafts/<handle>-assets.md`（あれば）
-- `python3 scripts/article_validator.py drafts/<handle>.html` の合格結果
-- 指定フォルダへの保存・readback済みGoogle Drive URL
+- `python3 scripts/article_validator.py drafts/<handle>.html`（プレースホルダを許可しない通常モード）の合格結果
+- `drafts/<handle>-drive.md` の `passed` 結果（Google Drive URL・file ID・readback結果を含む）
 
 ## やること
 1. `【要記入: ...】`、`<!-- 要確認 -->`、未置換プレースホルダの残りを確認する。
@@ -22,7 +22,7 @@ tools: Read, WebSearch
 5. 監修者情報、最終更新日、出典、CTA、内部リンク案、図解案の扱いを確認する。
 6. 自動公開につながる設定がないか確認する。
 7. `article-validator` が合格済みか確認する。
-8. Google Drive保存・readbackが完了しているか確認する。
+8. `drafts/<handle>-drive.md` が `passed` で、Google Drive保存・readbackが完了しているか確認する。
 
 ## 出力
 - 合否
