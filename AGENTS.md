@@ -42,7 +42,7 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 
 ## Pipeline
 
-`keyword-strategist` -> `article-designer` -> `fact-checker (pre-write)` -> `article-writer` -> `fact-checker (post-write)` -> `content-asset-planner (必要時)` -> `japanese-editor` -> `article-reviewer` -> `legal-reviewer` -> `article-validator` -> `pre-publish-checker` -> `article-publisher`
+`keyword-strategist` -> `article-designer` -> `fact-checker (pre-write)` -> `article-writer` -> `japanese-editor` -> `article-reviewer` -> `legal-reviewer` -> Google Drive保存・readback -> `fact-checker (post-write)` -> `content-asset-planner (必要時)` -> `article-validator` -> `pre-publish-checker` -> `article-publisher`
 
 必要なキーワードがすでに決まっている場合は `keyword-strategist` を省略してよい。Shopify下書き保存まで進めない依頼では、`pre-publish-checker` と `article-publisher` を省略してよい。
 
@@ -107,6 +107,8 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 - `article-designer` はキーワードと投稿先ブログが決まってから起動する
 - `fact-checker` は `drafts/<handle>-brief.md` 生成後に起動する
 - `article-writer` は `drafts/<handle>-brief.md` を必須入力とし、`drafts/<handle>-sources.md` があれば必須参照とする
+- Google Drive保存前は、`article-writer`、`japanese-editor`、`article-reviewer`、`legal-reviewer` をすべて完了させる
+- `fact-checker (post-write)`、`content-asset-planner`、`article-validator`、`pre-publish-checker` は、Shopify下書き作成を依頼された時点で実行する
 - `content-asset-planner` は `drafts/<handle>.html` 生成後、図解・画像などの素材設計が必要な場合だけ起動する
 - `japanese-editor` は `drafts/<handle>.html` だけを編集対象にする
 - `article-reviewer` は `drafts/<handle>.html` と `drafts/<handle>-brief.md` がそろってから起動する
@@ -676,19 +678,15 @@ Shopify投入直前に、記事HTMLと関連メモを最終確認する。公開
 2. `article-designer` を実行し、`drafts/<handle>-brief.md` を作る
 3. `fact-checker` を実行し、`drafts/<handle>-sources.md` を作る
 4. `article-writer` を実行し、`drafts/<handle>.html` を作る
-5. `fact-checker` を `post-write` で再実行し、完成HTMLの主張を照合する
-6. 図解・画像などの素材設計が必要な場合だけ `content-asset-planner` を実行する
-7. `japanese-editor` を実行し、本文テキストだけ自然な日本語へ整える
-8. `article-reviewer` を4観点でレビューする
-9. 総合95点未満、各観点90点未満、または重大ブロッカーがあれば `article-writer` に差し戻す
-10. 必要なら `fact-checker (post-write)`、`content-asset-planner`、`japanese-editor` を再実行する
-11. 最大3周まで 8〜10 を繰り返す
-12. 品質合格後に `legal-reviewer` を実行し、95点未満または高リスクがあれば最大3周まで差し戻す
-13. 法務合格後に `python3 scripts/article_validator.py drafts/<handle>.html` を実行する
-14. 検証合格後の記事を指定Google Driveフォルダへ `[下書き] <記事タイトル>` のGoogle Docとして保存し、readbackする
-15. Drive保存合格後に `pre-publish-checker` を実行する
-16. `pre-publish-checker` 合格後、`article-publisher` を実行し、Shopify に下書き保存する
-17. Google Drive URL、Shopify下書きURL、要確認点、`【要記入: ...】` の残件を報告する
+5. `japanese-editor` を実行し、本文テキストだけ自然な日本語へ整える
+6. `article-reviewer` を4観点でレビューする
+7. 総合95点未満、各観点90点未満、または重大ブロッカーがあれば `article-writer` に差し戻す
+8. 最大3周まで 5〜7 を繰り返す
+9. 品質合格後に `legal-reviewer` を実行し、95点未満または高リスクがあれば最大3周まで差し戻す
+10. 法務合格後の記事を指定Google Driveフォルダへ `[下書き] <記事タイトル>` のGoogle Docとして保存し、readbackする
+11. Shopify下書き作成を依頼された場合に限り、`fact-checker (post-write)`、必要時の`content-asset-planner`、`article-validator`、`pre-publish-checker`を順に実行する
+12. `pre-publish-checker` 合格後、`article-publisher` を実行し、Shopify に下書き保存する
+13. Google Drive URL、Shopify下書きURL（作成した場合のみ）、要確認点、`【要記入: ...】` の残件を報告する
 
 ### Stop Conditions
 
