@@ -38,6 +38,7 @@ URL形式: `https://www.solstar.co.jp/blogs/<blog-handle>/<article-handle>`（�
 |---|---|---|---|---|---|
 | ecommerce-psychology | ECサイトの購買心理学｜CVRを上げる売れる導線9の法則【保存版】 | UIUX/心理学 | 2026-05-31 | 公開 | 購買心理・導線。心理系のハブ |
 | ec-pricing-techniques | 価格設定テクニック12選｜心理学でECの売上を伸ばす実装術 | UIUX/価格/心理学 | 2026-05-28 | 公開 | 価格設定の実装術。価格心理系 |
+| ec-cvr-improvement-checklist | ECサイトのCVR改善チェックリスト9項目｜売上が伸びない原因の診断法 | UIUX/CVR | — | 公開 | ※2026-07-21 Shopify Admin APIライブ取得で公開確認（この表は未反映のまま6/8時点で停滞していたため今回追加）。CVR診断・改善チェックリスト。商品ページ改善系から誘導 |
 | physiology-about-price | 価格の心理学：安く感じさせる価格設定のテクニックとは？ | UIUX/価格/心理学 | 2025-02-18 | 公開 | 自社最強の価格心理ページ。価格・心理系は必ずここへ内部リンク |
 | json-ld-shopify-seo | 【徹底解説】JSON-LDとは？SEO効果とShopifyでの実装・設定方法まで完全ガイド | SEO | 2026-02-02 | 公開 | 構造化データ・SEO。技術SEO系 |
 | brand-concept-how-to | ブランドコンセプトの作り方｜初心者でも今日書ける5ステップ【EC実践】 | 全般/心理学 | — | 下書き | ※未公開。内部リンク先にしない |
