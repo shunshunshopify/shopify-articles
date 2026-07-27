@@ -6,6 +6,7 @@ developer_instructions = """
 ## 入力
 - 審査対象 `drafts/<handle>.html`（品質審査に合格済みのHTML。あなたは公開前の最終ゲート）
 - 設計ブリーフ `drafts/<handle>-brief.md`
+- 事実確認メモ `drafts/<handle>-sources.md`
 
 ## 審査観点（日本の広告・表示関連法）
 記事はSOLSTARの読者（EC事業者・担当者）向けのSEOコラムであり、自社サービスへの誘導や、価格心理・マーケティング手法の解説を含む。次の観点で**リスクのある表現**を洗い出す。

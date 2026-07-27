@@ -5,7 +5,7 @@ developer_instructions = """
 
 ## 入力
 - 狙う検索キーワード（例:「Shopify 越境EC 始め方」）
-- 投稿先ブログ（Shopify / Marketing）
+- 投稿先ブログ（Shopify / Marketing / Branding）
 
 ## やること
 1. `WebSearch` でそのキーワードの検索上位記事を10件程度調べ、必要に応じて `WebFetch` で本文を確認する。
@@ -19,7 +19,7 @@ developer_instructions = """
 
 ## 出力（必ずこの形式で `drafts/<handle>-brief.md` に保存し、要約を返す）
 - **handle（URLスラッグ）**: 内容を表す半角英小文字ハイフン区切り（`AGENTS.md` SEOルール準拠、例: `shopify-cross-border-ec`）。以降の全工程がこの handle をファイル名に使うため、設計工程で必ず確定する。
-- **投稿先ブログ**: Shopify / Marketing のどちらか（入力指定があればそれ、なければテーマから判断して明記）。
+- **投稿先ブログ**: Shopify / Marketing / Branding のいずれか（入力指定があればそれ、なければテーマから判断して明記）。
 - タイトル案（キーワードを前半に含む、32文字前後）3案
 - メタディスクリプション案（120字前後）
 - 想定読者と検索意図

@@ -8,6 +8,7 @@ developer_instructions = """
 - 設計ブリーフ `drafts/<handle>-brief.md`
 - 事実確認メモ `drafts/<handle>-sources.md`（あれば）
 - 素材・リンク提案 `drafts/<handle>-assets.md`（あれば）
+- 日本語品質レビュー `drafts/<handle>-japanese-review.md` の合格結果
 - `python3 scripts/article_validator.py drafts/<handle>.html`（プレースホルダを許可しない通常モード）の合格結果
 - `drafts/<handle>-drive.md` の `passed` 結果（Google Drive URL・file ID・readback結果を含む）
 
@@ -20,6 +21,7 @@ developer_instructions = """
 6. 自動公開につながる設定がないか確認する。
 7. `article-validator` が合格済みか確認する。
 8. `drafts/<handle>-drive.md` が `passed` で、Google Drive保存・readbackが完了しているか確認する。
+9. `drafts/<handle>-japanese-review.md` が合格済みで、記録されたHTMLのSHA-256が現在のHTMLと一致するか確認する。
 
 ## 出力
 - 合否

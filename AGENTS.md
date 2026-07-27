@@ -41,7 +41,7 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 
 ## Pipeline
 
-`keyword-strategist` -> `article-designer` -> `fact-checker (pre-write)` -> `article-writer` -> `fact-checker (post-write)` -> `content-asset-planner (必要時)` -> `japanese-editor` -> `article-reviewer` -> `legal-reviewer` -> `article-validator` -> `drive-draft-saver`（Google Drive保存・readback）-> （Shopify下書きを明示依頼された場合のみ）`pre-publish-checker` -> `article-publisher`
+`keyword-strategist` -> `article-designer` -> `fact-checker (pre-write)` -> `article-writer` -> `fact-checker (post-write)` -> `content-asset-planner (必要時)` -> `japanese-editor` -> `japanese-quality-reviewer` -> `article-reviewer` -> `legal-reviewer` -> `article-validator` -> `drive-draft-saver`（Google Drive保存・readback）-> （Shopify下書きを明示依頼された場合のみ）`pre-publish-checker` -> `article-publisher`
 
 必要なキーワードがすでに決まっている場合は `keyword-strategist` を省略してよい。通常の `new-article` は `drive-draft-saver` によるGoogle Drive保存・readbackまで自動で実施する。Shopify下書き保存は明示依頼時だけ実施し、その場合に限り `pre-publish-checker` と `article-publisher` を起動する。
 
@@ -81,6 +81,8 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
   `fact-checker` の成果物。あれば `article-writer` `content-asset-planner` `pre-publish-checker` は必ず参照
 - `drafts/<handle>-assets.md`
   `content-asset-planner` の成果物。`pre-publish-checker` と公開前の人間確認で使う
+- `drafts/<handle>-japanese-review.md`
+  `japanese-quality-reviewer` の成果物。自然な日本語、段落論理、用語、リズム、文体統一の合格記録として使う
 - `drafts/<handle>-drive.md`
   `drive-draft-saver` の保存記録。Google Doc URL、file ID、MIME type、readback結果、未解決事項を記録する。Shopify下書き工程はこの記録の合格結果を必須入力とする
 
@@ -100,11 +102,12 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 - `article-designer` はキーワードと投稿先ブログが決まってから起動する
 - `fact-checker` は `drafts/<handle>-brief.md` 生成後に起動する
 - `article-writer` は `drafts/<handle>-brief.md` を必須入力とし、`drafts/<handle>-sources.md` があれば必須参照とする
-- Google Drive保存前は、`article-writer`、`fact-checker (post-write)`、必要時の`content-asset-planner`、`japanese-editor`、`article-reviewer`、`legal-reviewer`、`article-validator` をすべて完了させる
+- Google Drive保存前は、`article-writer`、`fact-checker (post-write)`、必要時の`content-asset-planner`、`japanese-editor`、`japanese-quality-reviewer`、`article-reviewer`、`legal-reviewer`、`article-validator` をすべて完了させる
 - `drive-draft-saver` は `article-validator` 合格後にのみ起動し、Google Driveへの保存とURL・file IDのreadbackを完了させる
 - `pre-publish-checker` と `article-publisher` は、Shopify下書き作成を明示依頼された時点でのみ実行する
 - `content-asset-planner` は `drafts/<handle>.html` 生成後、図解・画像などの素材設計が必要な場合だけ起動する
 - `japanese-editor` は `drafts/<handle>.html` だけを編集対象にする
+- `japanese-quality-reviewer` は `japanese-editor` 完了後に起動し、`drafts/<handle>.html` と `drafts/<handle>-brief.md` を必須入力とする
 - `article-reviewer` は `drafts/<handle>.html` と `drafts/<handle>-brief.md` がそろってから起動する
 - `legal-reviewer` は `article-reviewer` 合格後に起動する
 - `article-validator` は `legal-reviewer` 合格後に `scripts/article_validator.py --allow-draft-placeholders` を実行する。Shopify下書き作成を明示依頼された場合は、`pre-publish-checker` の直前にプレースホルダを許可しない通常モードで再実行する
@@ -119,6 +122,7 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 - `article-writer` は `drafts/<handle>.html` を生成する
 - `content-asset-planner` は `drafts/<handle>-assets.md` を生成する
 - `japanese-editor` は `drafts/<handle>.html` を上書きする
+- `japanese-quality-reviewer` は `drafts/<handle>-japanese-review.md` に日本語品質の審査結果を保存し、本文は編集しない
 - `article-reviewer` は `drafts/<handle>-review.md` にレビュー結果を保存し、本文は編集しない
 - `legal-reviewer` は `drafts/<handle>-legal-review.md` に法務リスクと合否を保存し、本文は編集しない
 - `article-validator` は決定論的な検査結果を返すが、本文は編集しない
@@ -169,7 +173,7 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 
 `最終更新日：YYYY年MM月DD日`
 
-`※この記事は、EC業界で9年以上にわたり、Shopifyを活用したECサイトの構築・運用支援に携わる株式会社SOLSTAR代表取締役・島袋隼が監修しています。`
+`※この記事は、Shopify開発歴8年以上の株式会社SOLSTAR代表取締役・島袋隼が監修しています。`
 
 ### Introduction
 
@@ -178,7 +182,7 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 - 結論を簡潔に伝える
 - 本記事で扱う内容と切り口を示す
 - 読了メリットと対象読者を示す
-- 「単に○○を紹介するだけでなく、△△まで解説します。」の形で付加価値を示す
+- 上位記事との差分や実務上の付加価値を示す。ただし「単に○○を紹介するだけでなく、△△まで解説します」などの固定構文を毎回使わず、記事内容に合う自然な文で表現する
 
 ### What Readers Will Learn
 
@@ -211,6 +215,17 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 - 文章だけを続けず、必要に応じて箇条書き、比較表、早見表、チェックリストを使う
 - 出典・調査結果をもとに書く場合も、原文の情報順や分量に引っ張られず、まず読者が知りたい結論・要点を先に示してから、詳細な根拠・出典情報を続ける
 - 情報量が多い部分（項目・手順・条件・数値などが3つ以上並ぶ場合）は、地の文で羅列せず箇条書きや表に変換する
+
+### Japanese Language Quality
+
+- SOLSTARの文体は、EC担当者・事業責任者・経営者に向けた、簡潔で落ち着いた実務文とする
+- 一文の短さだけを目的にせず、主語と述語、原因と結果、前後の段落の接続が自然に伝わることを優先する
+- 「重要です」「必要があります」「まずは」「一方で」「〜ではなく、〜」など、便利な構文や語尾の反復を避ける
+- 指示語の参照先、主語の省略、名詞化の連続、不自然な受動態、過剰な接続詞を確認する
+- 専門用語は正確さを保ち、想定読者に浸透していない場合は初出で短く説明する。同じ概念の訳語は記事内で統一する
+- タイトル、メタディスクリプション、見出し、本文、FAQ、アンカーテキスト、CTAの語調をそろえる
+- 読者への過度な呼びかけ、断定、あおり、幼すぎる言い換えを避ける
+- 流暢さを禁止語の機械的な回避だけで判断せず、意味の明瞭さ、情報密度、文章のリズムを総合して整える
 
 ### FAQ
 
@@ -266,6 +281,9 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 - 実績、数値、支援事例を創作していないか
 - 最終更新日と監修者情報を記載したか
 - CTAが自然につながっているか
+- 主述のねじれ、指示語の曖昧さ、直訳調、不自然な受動態が残っていないか
+- 同じ語尾・接続詞・対比構文が短い範囲で反復していないか
+- タイトル、見出し、本文、FAQ、CTAの文体が統一されているか
 
 ## Agent: `fact-checker`
 
@@ -414,6 +432,7 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 
 - `drafts/<handle>-brief.md`
 - `drafts/<handle>-sources.md` があれば必ず参照する
+- 差し戻し時は `drafts/<handle>-japanese-review.md`、`drafts/<handle>-review.md`、`drafts/<handle>-legal-review.md` のうち該当する指摘
 
 ### Tasks
 
@@ -484,30 +503,74 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 
 ### Role
 
-執筆済みHTMLの本文テキストだけを、日本人が自然に読める文章へ編集する。
+執筆済みHTMLの読者に見えるテキストを、意味と事実を変えず、日本人が自然に読める実務文へ編集する。
 
 ### Inputs
 
 - `drafts/<handle>.html`
+- `drafts/<handle>-brief.md`
 
 ### Tasks
 
-1. 本文テキストのみを編集する
-2. 翻訳調、AIっぽい語尾、冗長表現を削る
-3. 実務家が書いたような自然さへ整える
-4. 段落長、スマホ可読性、結論ファーストの流れを崩さないように整える
+1. マクロ編集として、各セクションの結論、段落間の論理接続、指示語の参照先、情報の重複を確認する
+2. ミクロ編集として、主述のねじれ、翻訳調、同じ語尾・構文の反復、不自然な受動態、冗長表現を整える
+3. 本文に加え、見出し、FAQ質問、アンカーテキスト、CTAも、意味・SEO意図・リンク先を維持した範囲で自然な日本語へ整える
+4. タイトルまたはメタディスクリプションに修正が必要な場合は本文を独断で変えず、`article-writer` への修正指示として報告する
+5. 構成変更や主張変更が必要な問題は編集で隠さず、`article-writer` への差し戻し事項として報告する
 
 ### Output
 
-同じ `drafts/<handle>.html` に上書き保存し、編集観点だけ短く報告する。
+同じ `drafts/<handle>.html` に上書き保存し、変更箇所、主な編集観点、`article-writer` への差し戻し要否を報告する。
 
 ### Constraints
 
-- HTML構造を変えない
-- CSS、TOC、JSON-LD、見出し階層、リンク、出典を変えない
+- HTMLタグ、見出し階層、CSS、JSON-LD構造、リンク先、出典を変えない
+- 見出し文を変える場合は対応するTOC表示文も同じ文言へ同期し、アンカーIDは変えない
 - 事実や数値を追加しない
-- SEOキーワードを削除しない
-- FAQ、監修者情報、最終更新日、CTAの役割を壊さない
+- SEOキーワードと検索意図を削除・変更しない
+- 監修者情報、最終更新日、FAQ位置、CTAの役割を変えない
+
+## Agent: `japanese-quality-reviewer`
+
+### Role
+
+日本語編集後の記事を、流暢さ、論理、用語、リズム、文体統一の観点だけで独立審査する。SEOや法務との総合評価に埋もれさせず、日本語品質の専用ゲートを担う。
+
+### Inputs
+
+- `drafts/<handle>.html`
+- `drafts/<handle>-brief.md`
+- `drafts/<handle>-sources.md` があれば参照する
+
+### Review Axes
+
+- 論理・段落構成（20%）
+- 文の自然さ・主述（20%）
+- 語彙・専門用語・訳語（15%）
+- リズム・語尾・構文の反復（15%）
+- 明瞭さ・簡潔さ・情報密度（15%）
+- SOLSTARの実務文としての語調（10%）
+- 見出し・FAQ・アンカーテキスト・CTAの統一（5%）
+
+### Output
+
+`drafts/<handle>-japanese-review.md` に次を保存する。本文は編集しない。
+
+- 総合点と各観点の100点換算スコア
+- 審査したHTMLのSHA-256
+- 合否
+- 重大度別の指摘
+- 該当箇所、問題の理由、具体的な修正案
+- `japanese-editor` と `article-writer` のどちらへ差し戻すべきか
+- 良い点と維持すべき表現
+
+### Constraints
+
+- 総合95点以上かつ各観点90点以上で合格
+- 主述の破綻、参照先不明の指示語、意味が変わる曖昧さ、未説明の難解な直訳語、記事全体の語調不統一が1件でもあれば点数にかかわらず不合格
+- 禁止語の有無だけで採点せず、前後の文脈と読者の理解しやすさを根拠にする
+- 不合格時は「どこを、なぜ、どう直すか」を具体化し、本文は書き換えない
+- タイトル・メタの問題、構成変更、主張変更は `article-writer`、意味を変えない文章調整は `japanese-editor` へ差し戻す
 
 ## Agent: `article-reviewer`
 
@@ -519,13 +582,15 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 
 - `drafts/<handle>.html`
 - `drafts/<handle>-brief.md`
-- 任意の重点観点（`SEO` / `E-E-A-T` / `AI感・独自性` / `UX・可読性`）
+- `drafts/<handle>-sources.md` があれば参照する
+- `drafts/<handle>-japanese-review.md` の合格結果
+- 4観点（`SEO` / `E-E-A-T` / `独自性・非定型性` / `UX・可読性`）を1回でまとめて審査する
 
 ### Review Axes
 
 - SEO観点
 - 読者 / E-E-A-T 観点
-- AI感 / 独自性観点
+- 独自性 / 非定型性観点（文章表層の流暢さは `japanese-quality-reviewer` の合格結果を前提とし、一般論の水増しや上位記事の焼き直しを中心に見る）
 - UX / 可読性観点
 
 ### Output
@@ -541,6 +606,8 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 ### Constraints
 
 - 総合95点以上かつ各観点90点以上で合格
+- `japanese-quality-reviewer` が未実行または不合格なら審査を開始しない
+- 現在のHTMLのSHA-256が `drafts/<handle>-japanese-review.md` の審査時SHA-256と一致しない場合は審査を開始しない
 - 事実誤認、創作、検索意図の重大な不一致、高リスク法務表現が1件でもあれば点数にかかわらず不合格
 - 不合格なら「どの見出しの何をどう直すか」まで具体化する
 - 迷う用語はWeb検索で浸透度を確認してから指摘する
@@ -592,6 +659,11 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 - HTMLの基本構造、見出しIDの重複、TOCリンクとの一致
 - JSON-LDの構文と必須値
 - FAQがまとめの直前にあること
+- FAQ質問が `Q.` で始まり、3〜5問あること
+- H2「この記事でわかること」と4〜6項目のリストがあること
+- 最終更新日と、テンプレートで承認済みの監修者表記があること
+- 禁止ダッシュなど、決定論的に判定できる日本語ルール
+- 導入文が220〜380字の目安から外れる場合、固定的な導入構文、同一表現の過剰反復は警告として報告すること
 - `【要記入...】`、`<!-- 要確認 -->`、禁止プレースホルダ
 - 公開済み記事一覧に存在しない内部リンク
 - テンプレートのCSS枠が維持されていること
@@ -611,19 +683,21 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 
 - `drafts/<handle>.html`
 - `drafts/<handle>-brief.md`
+- `drafts/<handle>-japanese-review.md` の合格結果
 - `drafts/<handle>-review.md` の合格結果
 - `drafts/<handle>-legal-review.md` の合格結果
-- プレースホルダを許可しない通常モードでの `article-validator` 合格結果
+- `python3 scripts/article_validator.py --allow-draft-placeholders drafts/<handle>.html` の合格結果
 - Google Drive Draft Folder ID: `1nY8LitmaNw6v8ZPb2tVxb2bVK4pK3Wee`
 - 保存モード: `new_article`（既定）または `reviewed_human_draft`
 
 ### Tasks
 
-1. ブリーフから確定タイトルを取得し、`new_article` は `[下書き] <記事タイトル>`、`reviewed_human_draft` は `[レビュー済み] <記事タイトル>` のGoogle Docを指定フォルダに新規作成する
-2. HTMLの本文をGoogle Docs向けに変換し、見出し、段落、リスト、表、リンクを可能な範囲で保持する。CSS、JSON-LD、公開用プレースホルダはGoogle Doc本文へ混在させない
-3. 記事本文に `【要記入...】` または `<!-- 要確認 -->` が残る場合は、Google Docの先頭に未解決事項として明示し、保存記録を `needs_human_input` とする。Shopify下書き工程へは進めない
-4. 作成後、返されたURL、file ID、MIME typeを記録する
-5. Google Docsコネクターで作成済み文書をreadbackし、タイトル、フォルダ、本文冒頭、主要見出し、リンクの保存を確認する
+1. 日本語品質レビューに記録されたHTMLのSHA-256が現在のHTMLと一致することを確認する。一致しなければ保存しない
+2. ブリーフから確定タイトルを取得し、`new_article` は `[下書き] <記事タイトル>`、`reviewed_human_draft` は `[レビュー済み] <記事タイトル>` のGoogle Docを指定フォルダに新規作成する
+3. HTMLの本文をGoogle Docs向けに変換し、見出し、段落、リスト、表、リンクを可能な範囲で保持する。CSS、JSON-LD、公開用プレースホルダはGoogle Doc本文へ混在させない
+4. 記事本文に `【要記入...】` または `<!-- 要確認 -->` が残る場合は、Google Docの先頭に未解決事項として明示し、保存記録を `needs_human_input` とする。Shopify下書き工程へは進めない
+5. 作成後、返されたURL、file ID、MIME typeを記録する
+6. Google Docsコネクターで作成済み文書をreadbackし、タイトル、フォルダ、本文冒頭、主要見出し、リンクの保存を確認する
 
 ### Output
 
@@ -632,6 +706,7 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 - 保存状態（`passed` / `needs_human_input` / `failed`）
 - Google Doc URL、file ID、MIME type、保存先フォルダID
 - readbackしたタイトル、本文冒頭、主要見出し、リンク確認結果
+- 照合したHTMLのSHA-256
 - 未解決事項とShopify下書き工程へ進める可否
 
 ### Constraints
@@ -653,6 +728,7 @@ Shopify投入直前に、記事HTMLと関連メモを最終確認する。公開
 - `drafts/<handle>-brief.md`
 - `drafts/<handle>-sources.md` があれば参照する
 - `drafts/<handle>-assets.md` があれば参照する
+- `drafts/<handle>-japanese-review.md` の合格結果
 - `article-validator` の合格結果
 - `drafts/<handle>-drive.md` の `passed` 結果（Google Drive URL・file ID・readback結果を含む）
 
@@ -666,6 +742,7 @@ Shopify投入直前に、記事HTMLと関連メモを最終確認する。公開
 6. 自動公開につながる設定がないか確認する
 7. `article-validator` が合格済みか確認する
 8. `drafts/<handle>-drive.md` が `passed` で、Google Drive保存・readbackが完了しているか確認する
+9. `drafts/<handle>-japanese-review.md` が合格済みで、記録されたHTMLのSHA-256が現在のHTMLと一致するか確認する
 
 ### Output
 
@@ -730,20 +807,22 @@ Shopify投入直前に、記事HTMLと関連メモを最終確認する。公開
 4. `article-writer` を実行し、`drafts/<handle>.html` を作る
 5. `fact-checker (post-write)` を実行し、完成HTMLの主張、数値、比較、引用を出典メモと照合する
 6. 図解・画像などの素材設計が必要な場合だけ `content-asset-planner` を実行する
-7. `japanese-editor` を実行し、本文テキストだけ自然な日本語へ整える
-8. `article-reviewer` を1回起動して4観点をまとめてレビューし、`drafts/<handle>-review.md` に保存する。総合95点以上かつ4観点すべて90点以上を合格条件とする
-9. 不合格または重大ブロッカーがあれば `article-writer` に差し戻し、必要に応じて5〜8を再実行する。最大3周とする
-10. 品質合格後に `legal-reviewer` を実行し、`drafts/<handle>-legal-review.md` に保存する。95点未満または高リスクがあれば `article-writer` に差し戻し、必要な工程から再実行する。最大3周とする
-11. `article-validator` を `python3 scripts/article_validator.py --allow-draft-placeholders drafts/<handle>.html` で実行する。構造、TOC、JSON-LD、CSS、内部リンクの検証に失敗した場合は修正して再検証し、合格するまで次へ進まない
-12. `drive-draft-saver` を実行し、指定Google Driveフォルダへ `[下書き] <記事タイトル>` のGoogle Docとして保存・readbackする。通常依頼での自動実行はここまでとする
-13. Shopify下書き作成を明示依頼された場合だけ、`drafts/<handle>-drive.md` が `passed` であることを確認し、`python3 scripts/article_validator.py drafts/<handle>.html` を通常モードで再実行してから `pre-publish-checker` を実行する
-14. `pre-publish-checker` 合格後、`article-publisher` を実行し、Shopify に `isPublished: false` の下書きとして保存する
-15. Google Drive URL、Shopify下書きURL（作成した場合のみ）、要確認点、`【要記入: ...】` の残件を報告する
+7. `japanese-editor` を実行し、読者に見えるテキストを自然な日本語へ整える
+8. `japanese-quality-reviewer` を実行し、`drafts/<handle>-japanese-review.md` に保存する。総合95点以上かつ全観点90点以上を合格条件とする
+9. 日本語品質が不合格なら、意味を変えない文章調整は `japanese-editor`、タイトル・メタ・構成・主張の修正は `article-writer` に差し戻す。`article-writer` が編集した場合は必ず5、7、8を再実行し、`japanese-editor` だけが編集した場合も8を再実行する。最大3周とする
+10. 日本語品質合格後に `article-reviewer` を1回起動してSEO、読者/E-E-A-T、独自性/非定型性、UX/可読性の4観点をレビューし、`drafts/<handle>-review.md` に保存する。総合95点以上かつ4観点すべて90点以上を合格条件とする
+11. 品質レビューが不合格または重大ブロッカーを検出した場合は `article-writer` に差し戻し、5、7、8、10を必ず再実行する。最大3周とする
+12. 品質合格後に `legal-reviewer` を実行し、`drafts/<handle>-legal-review.md` に保存する。95点未満または高リスクがあれば `article-writer` に差し戻し、5、7、8、10、12を必ず再実行する。最大3周とする
+13. `article-validator` を `python3 scripts/article_validator.py --allow-draft-placeholders drafts/<handle>.html` で実行する。構造、TOC、JSON-LD、CSS、内部リンク、日本語の決定論的ルールの検証に失敗した場合は修正し、影響した品質ゲートから再実行する
+14. `drive-draft-saver` を実行し、指定Google Driveフォルダへ `[下書き] <記事タイトル>` のGoogle Docとして保存・readbackする。通常依頼での自動実行はここまでとする
+15. Shopify下書き作成を明示依頼された場合だけ、`drafts/<handle>-drive.md` が `passed` であることを確認し、`python3 scripts/article_validator.py drafts/<handle>.html` を通常モードで再実行してから `pre-publish-checker` を実行する
+16. `pre-publish-checker` 合格後、`article-publisher` を実行し、Shopify に `isPublished: false` の下書きとして保存する
+17. Google Drive URL、Shopify下書きURL（作成した場合のみ）、要確認点、`【要記入: ...】` の残件を報告する
 
 ### Stop Conditions
 
-- 最大3周しても95点未満なら停止して残課題を報告する
-- いずれかの品質観点が90点未満、法務高リスクが残る、または `article-validator` が失敗した場合は停止する
+- 日本語品質、総合品質、法務のいずれかが最大3周しても合格しない場合は停止して残課題を報告する
+- 日本語品質または総合品質のいずれかの観点が90点未満、法務高リスクが残る、または `article-validator` が失敗した場合は停止する
 - 指定Google Driveフォルダへの保存とreadbackが完了しない場合は、Google Drive下書き作成として失敗を報告し、Shopifyへ進まない
 - `drive-draft-saver` が `needs_human_input` の場合はGoogle Drive URLと未解決事項を報告して停止し、Shopifyへ進まない
 - `company-facts.md` がなくても一般論と確認済み出典で書ける場合は続行し、SOLSTAR固有情報は `【要記入: ...】` として残す
@@ -761,7 +840,7 @@ Shopify投入直前に、記事HTMLと関連メモを最終確認する。公開
 
 ## Workflow: `review-human-draft`
 
-人間ライターが執筆したGoogle Drive上の記事をレビューし、修正済み原稿を同フォルダへ保存してからShopify下書きへ投入する。
+人間ライターが執筆したGoogle Drive上の記事をレビューし、修正済み原稿を同フォルダへ保存する。Shopify下書き作成はユーザーが明示した場合だけ行う。
 
 ### Input
 
@@ -775,11 +854,11 @@ Shopify投入直前に、記事HTMLと関連メモを最終確認する。公開
 3. `human-draft-reviewer` が検索意図、構成、SEO、E-E-A-T、事実、独自性、日本語、CTAをレビューし、`drafts/<handle>-human-review.md` と `drafts/<handle>-brief.md` を作る
 4. `article-writer` を人間原稿の改稿モードで実行し、原文の有用な内容と筆者の意図を保持しながら `article-template.html` に統合して `drafts/<handle>.html` を作る
 5. `fact-checker (post-write)`、必要時の `content-asset-planner`、`japanese-editor` を実行する
-6. `article-reviewer`、`legal-reviewer`、`article-validator`（`--allow-draft-placeholders`）の順でゲートを通す。差し戻しは各最大3周とする
+6. `japanese-quality-reviewer`、`article-reviewer`、`legal-reviewer`、`article-validator`（`--allow-draft-placeholders`）の順でゲートを通す。Rewrite後は `fact-checker (post-write)`、`japanese-editor`、`japanese-quality-reviewer`、`article-reviewer` を省略せず、差し戻しは各最大3周とする
 7. `drive-draft-saver` を `reviewed_human_draft` モードで実行し、レビュー済み原稿を指定フォルダへ `[レビュー済み] <記事タイトル>` として別ファイル保存・readbackする
-8. Drive保存記録が `passed` の場合だけ、プレースホルダを許可しない通常モードで `article-validator` を再実行し、Drive保存URL、記事タイトル、handle、投稿先ブログ、残課題をユーザーへ要約してから `pre-publish-checker` を実行する
-9. 全ゲート合格後に限り、`article-publisher` がShopifyへ `isPublished: false` で下書き作成する
-10. Google Driveのレビュー済みURLとShopify管理URLを報告する
+8. Shopify下書き作成を明示依頼された場合だけ、Drive保存記録が `passed` であることを確認し、プレースホルダを許可しない通常モードで `article-validator` を再実行する。Drive保存URL、記事タイトル、handle、投稿先ブログ、残課題をユーザーへ要約してから `pre-publish-checker` を実行する
+9. Shopify下書き作成を明示依頼され、全ゲートに合格した場合に限り、`article-publisher` がShopifyへ `isPublished: false` で下書き作成する
+10. Google Driveのレビュー済みURLと、作成した場合だけShopify管理URLを報告する
 
 ### Stop Conditions
 

@@ -6,6 +6,7 @@ developer_instructions = """
 ## 入力
 - 記事HTML `drafts/<handle>.html`
 - 設計ブリーフ `drafts/<handle>-brief.md`
+- 日本語品質レビュー `drafts/<handle>-japanese-review.md` の合格結果
 - 品質レビュー `drafts/<handle>-review.md` の合格結果
 - 法務レビュー `drafts/<handle>-legal-review.md` の合格結果
 - `python3 scripts/article_validator.py --allow-draft-placeholders drafts/<handle>.html` の合格結果
@@ -13,12 +14,13 @@ developer_instructions = """
 - 保存モード: `new_article`（既定）または `reviewed_human_draft`
 
 ## やること
-1. ブリーフから確定タイトルを取得する。
-2. 指定フォルダへ、`new_article` は `[下書き] <記事タイトル>`、`reviewed_human_draft` は `[レビュー済み] <記事タイトル>` のGoogle Docを新規作成する。既存文書は上書きしない。
-3. HTMLの本文をGoogle Docs向けに変換し、見出し、段落、リスト、表、リンクを可能な範囲で保持する。CSS、JSON-LD、公開用プレースホルダはGoogle Doc本文に含めない。
-4. `【要記入...】` または `<!-- 要確認 -->` が残る場合は、本文先頭に未解決事項を明記する。この場合でも人間確認用の下書きとして保存してよいが、保存状態は `needs_human_input` とする。
-5. 作成結果のURL、file ID、MIME typeを取得する。
-6. Google Docsコネクターで作成文書をreadbackし、タイトル、保存先フォルダ、本文冒頭、主要見出し、リンクを確認する。
+1. 日本語品質レビューに記録されたHTMLのSHA-256が現在のHTMLと一致することを確認する。一致しなければ保存しない。
+2. ブリーフから確定タイトルを取得する。
+3. 指定フォルダへ、`new_article` は `[下書き] <記事タイトル>`、`reviewed_human_draft` は `[レビュー済み] <記事タイトル>` のGoogle Docを新規作成する。既存文書は上書きしない。
+4. HTMLの本文をGoogle Docs向けに変換し、見出し、段落、リスト、表、リンクを可能な範囲で保持する。CSS、JSON-LD、公開用プレースホルダはGoogle Doc本文に含めない。
+5. `【要記入...】` または `<!-- 要確認 -->` が残る場合は、本文先頭に未解決事項を明記する。この場合でも人間確認用の下書きとして保存してよいが、保存状態は `needs_human_input` とする。
+6. 作成結果のURL、file ID、MIME typeを取得する。
+7. Google Docsコネクターで作成文書をreadbackし、タイトル、保存先フォルダ、本文冒頭、主要見出し、リンクを確認する。
 
 ## 出力
 `drafts/<handle>-drive.md` に次を保存し、要約を返す。
@@ -26,6 +28,7 @@ developer_instructions = """
 - 保存状態: `passed` / `needs_human_input` / `failed`
 - Google Doc URL、file ID、MIME type、保存先フォルダID
 - readbackしたタイトル、本文冒頭、主要見出し、リンク確認結果
+- 照合したHTMLのSHA-256
 - 未解決事項
 - Shopify下書き工程へ進める可否
 
