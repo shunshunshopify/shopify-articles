@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CODEX_PROJECT_DIR:-${CLAUDE_PROJECT_DIR:-$PWD}}/scripts/shopify_publish_guard.py\"",
+            "command": "python3 \"${CODEX_PROJECT_DIR:-$PWD}/scripts/shopify_publish_guard.py\"",
             "statusMessage": "Shopify mutation の下書き指定を検査中..."
           }
         ]

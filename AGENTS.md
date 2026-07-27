@@ -24,7 +24,6 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 ## Shared Rules
 
 - Codex実行時はリポジトリ直下の `AGENTS.md` を正本とする
-- `CLAUDE.md` は共通方針として参照するが、内容が衝突する場合は `AGENTS.md` を優先する
 - 記事は SOLSTAR 向けの実務的なSEOコンテンツとして扱う
 - 事実が不明な内容は創作しない
 - 事実、数値、実績、口コミ、導入事例、支援実績は追加・変更・創作しない
@@ -85,15 +84,6 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 - `drafts/<handle>-drive.md`
   `drive-draft-saver` の保存記録。Google Doc URL、file ID、MIME type、readback結果、未解決事項を記録する。Shopify下書き工程はこの記録の合格結果を必須入力とする
 
-### Reference Only
-
-- `CLAUDE.md`
-  共通方針の参考資料。Codexでは正本ではない
-- `.claude/agents/*.md`
-  Claude Code 向けの個別定義。Codexでは参照のみ
-- `.claude/commands/new-article.md`
-  Claude Code 向けのコマンド定義。Codexでは参照のみ
-
 ## Dependency Rules
 
 - Codexが最初に読むべきファイルは `AGENTS.md` のみでよい
@@ -101,8 +91,6 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 - `article-template.html` は `article-writer` 着手前に必ず読む
 - `company-facts.md` は SOLSTAR固有情報を書く必要が出た時点で必ず読む
 - `data/published-articles.md` は `keyword-strategist` の重複確認、`article-designer` の設計着手前、`article-writer` の内部リンク確定前に必ず読む
-- `CLAUDE.md` は判断に迷ったときの補助資料としてのみ読む
-- `.claude/agents/*.md` と `.claude/commands/*.md` は、Claude側との同期確認が必要なときだけ読む
 
 ## Runtime Contracts
 
@@ -147,7 +135,6 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 
 ## Files
 
-- `CLAUDE.md`: 文体、SEO、制作フローの基本ルール
 - `article-template.html`: 記事HTMLテンプレート
 - `drafts/`: 設計ブリーフ、記事HTML、候補メモの保存先
 - `data/`: GSCエクスポートや関連データの保存先
@@ -332,7 +319,6 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 - `data/keyword-sources.md` があれば先に読む
 - `data/` 配下の CSV / Excel / メモ
 - Google Drive 上の Ahrefs / GSC 資料
-- `CLAUDE.md`
 
 ### Tasks
 
@@ -728,7 +714,7 @@ Shopify投入直前に、記事HTMLと関連メモを最終確認する。公開
 
 ## Workflow: `new-article`
 
-これは Claude の `/new-article` 相当の Codex 用実行フロー。Codex はこの順序で記事制作を進める。
+これはCodexの記事制作フロー。Codexはこの順序で記事制作を進める。
 中央指揮を担うのはサブエージェントではなく、この指示を実行するCodex自身（メインの実行主体）である。通常依頼ではGoogle Drive下書き保存・readbackまでを自動実行する。
 
 ### Input
@@ -808,9 +794,3 @@ Shopify投入直前に、記事HTMLと関連メモを最終確認する。公開
 - `new-article を "Shopify 越境EC 始め方" で実行して`
 - `Marketing向けに、価格設定 心理学の記事を最初から下書き作成まで進めて`
 - `キーワード未定なので keyword-strategist から始めて`
-
-## Migration Notes
-
-- `.claude/agents/` は Claude Code 用の定義として残してよい
-- Codex ではこの `AGENTS.md` を正本として扱う
-- 仕様差分が出たら、まず `AGENTS.md` を更新し、その後必要なら Claude 側定義も同期する
