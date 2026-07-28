@@ -1,0 +1,257 @@
+{
+  "version": 1,
+  "kind": "google-docs-trusted-read-context",
+  "target": {
+    "documentId": "1MeJq4oVZ7o1oB9TZeiTf2fHL_gewis_YqMNxNIXtaWM",
+    "title": "[レビュー済み] Agentic Commerceとは？AI時代のEC戦略と始め方",
+    "revisionId": "AIroW34udq7vd25gamTx7ePSClJYlnmUeEjJ6kDI0aBWus4LV0sHeg8SCV_TGlVz3B7wPJWxGBYaMmbWRzT4RiKOrUgBOiMVKmNu1YTkx_w",
+    "documentUrl": "https://docs.google.com/document/d/1MeJq4oVZ7o1oB9TZeiTf2fHL_gewis_YqMNxNIXtaWM",
+    "selectedTabId": null
+  },
+  "dropdownMetadata": {
+    "status": "unavailable",
+    "resolvedTool": null,
+    "authoritative": false,
+    "count": 0
+  },
+  "derivedControlInventory": {
+    "hasProtectedControls": false,
+    "authoritativeDropdownCount": 0,
+    "opaqueControlCount": 0,
+    "nativeElementCounts": {
+      "horizontalRule": 11
+    },
+    "tabsScanned": [
+      "t.0"
+    ],
+    "controls": [],
+    "nativeElements": [
+      {
+        "type": "horizontalRule",
+        "startIndex": 728,
+        "endIndex": 729,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[21]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 728,
+          "endIndex": 767,
+          "namedStyleType": "HEADING_2",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": null
+      },
+      {
+        "type": "horizontalRule",
+        "startIndex": 1872,
+        "endIndex": 1873,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[28]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 1872,
+          "endIndex": 1900,
+          "namedStyleType": "HEADING_2",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": null
+      },
+      {
+        "type": "horizontalRule",
+        "startIndex": 2645,
+        "endIndex": 2646,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[36]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 2645,
+          "endIndex": 2665,
+          "namedStyleType": "HEADING_2",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": null
+      },
+      {
+        "type": "horizontalRule",
+        "startIndex": 3560,
+        "endIndex": 3561,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[45]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 3560,
+          "endIndex": 3581,
+          "namedStyleType": "HEADING_2",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": null
+      },
+      {
+        "type": "horizontalRule",
+        "startIndex": 4886,
+        "endIndex": 4887,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[58]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 4886,
+          "endIndex": 4911,
+          "namedStyleType": "HEADING_2",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": null
+      },
+      {
+        "type": "horizontalRule",
+        "startIndex": 5546,
+        "endIndex": 5547,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[65]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 5546,
+          "endIndex": 5562,
+          "namedStyleType": "HEADING_2",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": null
+      },
+      {
+        "type": "horizontalRule",
+        "startIndex": 6506,
+        "endIndex": 6507,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[74]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 6506,
+          "endIndex": 6534,
+          "namedStyleType": "HEADING_2",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": null
+      },
+      {
+        "type": "horizontalRule",
+        "startIndex": 7294,
+        "endIndex": 7295,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[80]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 7294,
+          "endIndex": 7302,
+          "namedStyleType": "HEADING_2",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": null
+      },
+      {
+        "type": "horizontalRule",
+        "startIndex": 8312,
+        "endIndex": 8313,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[91]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 8312,
+          "endIndex": 8317,
+          "namedStyleType": "HEADING_2",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": null
+      },
+      {
+        "type": "horizontalRule",
+        "startIndex": 8794,
+        "endIndex": 8795,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[94]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 8794,
+          "endIndex": 8800,
+          "namedStyleType": "HEADING_2",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": null
+      },
+      {
+        "type": "horizontalRule",
+        "startIndex": 9407,
+        "endIndex": 9408,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[104]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 9407,
+          "endIndex": 9431,
+          "namedStyleType": "HEADING_2",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": null
+      }
+    ]
+  },
+  "editGuidance": {
+    "advisoryOnly": true,
+    "requiresTargetedPreservation": false,
+    "recommendedBehavior": "No protected controls were detected in the scanned scope.",
+    "warnings": []
+  }
+}

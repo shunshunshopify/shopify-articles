@@ -1,0 +1,59 @@
+{
+  "bridgeVersion": "3.6",
+  "kind": "google-docs-trusted-read",
+  "status": "complete",
+  "outputDir": "/Users/garrypanda/shopify-articles/.tmp/google-docs-trusted/agentic-rewrite-copy-01",
+  "target": {
+    "documentId": "1MeJq4oVZ7o1oB9TZeiTf2fHL_gewis_YqMNxNIXtaWM",
+    "title": "[レビュー済み] Agentic Commerceとは？AI時代のEC戦略と始め方",
+    "revisionId": "AIroW34udq7vd25gamTx7ePSClJYlnmUeEjJ6kDI0aBWus4LV0sHeg8SCV_TGlVz3B7wPJWxGBYaMmbWRzT4RiKOrUgBOiMVKmNu1YTkx_w",
+    "documentUrl": "https://docs.google.com/document/d/1MeJq4oVZ7o1oB9TZeiTf2fHL_gewis_YqMNxNIXtaWM",
+    "selectedTabId": null
+  },
+  "dropdownMetadata": {
+    "status": "unavailable",
+    "resolvedTool": null,
+    "authoritative": false,
+    "count": 0
+  },
+  "controlAwareness": {
+    "hasProtectedControls": false,
+    "authoritativeDropdownCount": 0,
+    "opaqueControlCount": 0,
+    "affectedParagraphCount": 0,
+    "nativeElementCounts": {
+      "horizontalRule": 11
+    },
+    "preservationRequired": false,
+    "recommendedBehavior": "No protected controls were detected in the scanned scope."
+  },
+  "warnings": [],
+  "files": {
+    "document_result": {
+      "path": "/Users/garrypanda/shopify-articles/.tmp/google-docs-trusted/agentic-rewrite-copy-01/document-result.json",
+      "bytes": 671387,
+      "sha256": "eaaf0e1b27056b24a1675db0fb6dcead7b7385845b2bdfd1f35b64ef764c2bee"
+    },
+    "control_inventory": {
+      "path": "/Users/garrypanda/shopify-articles/.tmp/google-docs-trusted/agentic-rewrite-copy-01/control-inventory.json",
+      "bytes": 7000,
+      "sha256": "23ccacf2558f56751f0d09d56f1459ffd8abacf3bc79ea49fc11f6dc2f11fd21"
+    },
+    "document_outline": {
+      "path": "/Users/garrypanda/shopify-articles/.tmp/google-docs-trusted/agentic-rewrite-copy-01/document-outline.json",
+      "bytes": 104806,
+      "sha256": "0b5b45b2b7a59b981b688f32ad81dd0c8ba66c0e5530b71aeac5ad571696af10"
+    },
+    "document_text": {
+      "path": "/Users/garrypanda/shopify-articles/.tmp/google-docs-trusted/agentic-rewrite-copy-01/document-text.md",
+      "bytes": 34509,
+      "sha256": "27899ab57e28745d511c74b384406c3dec7c6c902d4da864c1847e5a206ae338"
+    },
+    "receipt": {
+      "path": "/Users/garrypanda/shopify-articles/.tmp/google-docs-trusted/agentic-rewrite-copy-01/receipt.json",
+      "bytes": 1045,
+      "sha256": "7ee959c5eecfafb43bdc6305ae92a355976a9301aee1b1814989bb5e216db901"
+    }
+  },
+  "error": null
+}

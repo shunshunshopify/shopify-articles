@@ -1,0 +1,31 @@
+{
+  "bridgeVersion": "3.6",
+  "kind": "google-docs-trusted-read-receipt",
+  "status": "complete",
+  "target": {
+    "documentId": "1MeJq4oVZ7o1oB9TZeiTf2fHL_gewis_YqMNxNIXtaWM",
+    "title": "[レビュー済み] Agentic Commerceとは？AI時代のEC戦略と始め方",
+    "revisionId": "AIroW34udq7vd25gamTx7ePSClJYlnmUeEjJ6kDI0aBWus4LV0sHeg8SCV_TGlVz3B7wPJWxGBYaMmbWRzT4RiKOrUgBOiMVKmNu1YTkx_w",
+    "documentUrl": "https://docs.google.com/document/d/1MeJq4oVZ7o1oB9TZeiTf2fHL_gewis_YqMNxNIXtaWM",
+    "selectedTabId": null
+  },
+  "dropdownMetadata": {
+    "status": "unavailable",
+    "resolvedTool": null,
+    "authoritative": false,
+    "count": 0
+  },
+  "controlAwareness": {
+    "hasProtectedControls": false,
+    "authoritativeDropdownCount": 0,
+    "opaqueControlCount": 0,
+    "affectedParagraphCount": 0,
+    "nativeElementCounts": {
+      "horizontalRule": 11
+    },
+    "preservationRequired": false,
+    "recommendedBehavior": "No protected controls were detected in the scanned scope."
+  },
+  "warnings": [],
+  "error": null
+}
