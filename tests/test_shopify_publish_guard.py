@@ -18,18 +18,72 @@ def decision(query, variables=None):
 
 
 class PublishGuardTests(unittest.TestCase):
-    def test_allows_literal_false(self):
-        self.assertEqual(decision("mutation { articleCreate(article: {isPublished: false}) { article { id } } }"), "allow")
+    def test_allows_literal_false_with_inline_meta_description(self):
+        query = '''mutation Create($description: String!) {
+          articleCreate(article: {
+            isPublished: false
+            metafields: [{namespace: "global", key: "description_tag", type: "single_line_text_field", value: $description}]
+          }) { article { id } }
+        }'''
+        self.assertEqual(decision(query, {"description": "記事の内容と読了メリットが分かる説明文です。"}), "allow")
 
-    def test_allows_variable_false(self):
+    def test_allows_variable_false_with_meta_description(self):
         query = "mutation Create($article: ArticleCreateInput!) { articleCreate(article: $article) { article { id } } }"
-        self.assertEqual(decision(query, {"article": {"isPublished": False}}), "allow")
+        variables = {
+            "article": {
+                "isPublished": False,
+                "metafields": [{
+                    "namespace": "global",
+                    "key": "description_tag",
+                    "type": "single_line_text_field",
+                    "value": "記事の内容と読了メリットが分かる説明文です。",
+                }],
+            }
+        }
+        self.assertEqual(decision(query, variables), "allow")
 
     def test_denies_missing_flag(self):
         self.assertEqual(decision("mutation { articleCreate(article: {title: \"x\"}) { article { id } } }"), "deny")
 
+    def test_denies_missing_meta_description(self):
+        query = "mutation { articleCreate(article: {isPublished: false, summary: \"説明文\"}) { article { id } } }"
+        self.assertEqual(decision(query), "deny")
+
+    def test_denies_empty_meta_description(self):
+        query = "mutation Create($article: ArticleCreateInput!) { articleCreate(article: $article) { article { id } } }"
+        variables = {
+            "article": {
+                "isPublished": False,
+                "metafields": [{
+                    "namespace": "global",
+                    "key": "description_tag",
+                    "type": "single_line_text_field",
+                    "value": "   ",
+                }],
+            }
+        }
+        self.assertEqual(decision(query, variables), "deny")
+
+    def test_denies_placeholder_meta_description(self):
+        query = "mutation Create($article: ArticleCreateInput!) { articleCreate(article: $article) { article { id } } }"
+        variables = {
+            "article": {
+                "isPublished": False,
+                "metafields": [{
+                    "namespace": "global",
+                    "key": "description_tag",
+                    "type": "single_line_text_field",
+                    "value": "DESCRIPTION",
+                }],
+            }
+        }
+        self.assertEqual(decision(query, variables), "deny")
+
     def test_denies_true(self):
         self.assertEqual(decision("mutation { articleUpdate(article: {isPublished: true}) { article { id } } }"), "deny")
+
+    def test_allows_article_update_without_resending_existing_meta(self):
+        self.assertEqual(decision("mutation { articleUpdate(article: {isPublished: false}) { article { id } } }"), "allow")
 
     def test_denies_publish_mutation(self):
         self.assertEqual(decision("mutation { publishablePublish(id: \"x\") { userErrors { message } } }"), "deny")

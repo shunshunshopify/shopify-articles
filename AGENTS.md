@@ -62,6 +62,8 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 
 - `article-template.html`
   `article-writer` が本文HTMLを書き込むテンプレート。CSS / TOC / JSON-LD の枠は変更しない
+- `scripts/shopify_publish_guard.py`
+  Shopify記事作成mutationに`isPublished: false`と有効な`global.description_tag`が含まれることを機械的に検査する。コネクターだけでなくShopify CLI経由でも実行前に使う
 - `drafts/`
   各エージェントの成果物保存先
 - `company-facts.md`
@@ -112,7 +114,8 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 - `legal-reviewer` は `article-reviewer` 合格後に起動する
 - `article-validator` は `legal-reviewer` 合格後に `scripts/article_validator.py --allow-draft-placeholders` を実行する。Shopify下書き作成を明示依頼された場合は、`pre-publish-checker` の直前にプレースホルダを許可しない通常モードで再実行する
 - `pre-publish-checker` は `drafts/<handle>.html` 完成後に起動する
-- `article-publisher` は `pre-publish-checker` 合格後しか起動しない
+- `pre-publish-checker` はブリーフの確定メタディスクリプションとJSON-LDの`Article.description`が完全一致しない場合は不合格とする
+- `article-publisher` は `pre-publish-checker` 合格後しか起動せず、確定メタディスクリプションをShopifyの`global.description_tag`へ設定する
 
 ### Output Contracts
 
@@ -128,7 +131,7 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 - `article-validator` は決定論的な検査結果を返すが、本文は編集しない
 - `drive-draft-saver` は `drafts/<handle>-drive.md` に保存記録を残し、Google Doc URL・file ID・MIME type・readback結果を返す
 - `pre-publish-checker` は合否と修正点を返すが、本文は編集しない
-- `article-publisher` は Shopify に下書きを作成し、管理用URLを返す
+- `article-publisher` は Shopify に下書きを作成し、`global.description_tag`と`isPublished: false`をreadbackして、管理用URL・保存したMeta description・確認結果を`drafts/<handle>-shopify.md`へ記録する
 
 ### Fallback Contracts
 
@@ -155,9 +158,12 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 ### Title And Meta
 
 - 記事内容に合わせてメタタイトルとメタディスクリプションを作成する
+- `article-designer` は80〜120字を目安に**確定メタディスクリプションを1つ**決め、空欄・仮値・複数案のまま後工程へ渡さない
 - タイトル、メタ、本文の内容を一致させる
 - 検索意図を満たしつつ、クリックしたくなる表現にする
 - タイトルに数字を使う場合は、本文でもその数が分かる構成にする
+- 確定メタディスクリプションは、ブリーフ、JSON-LDの`Article.description`、Shopifyの`global.description_tag`で完全に同じ文字列を使う
+- Shopifyの`summary`は抜粋用であり、SEOメタディスクリプションの代替にしない
 
 ### Opening Structure
 
@@ -266,6 +272,7 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 ### Pre-Delivery Checklist
 
 - タイトル、メタ、本文の内容は一致しているか
+- 確定メタディスクリプションが1つあり、JSON-LDの`Article.description`と完全一致しているか
 - タイトルの数字と本文構成は一致しているか
 - 結論ファーストになっているか
 - 記事冒頭の構成は統一されているか
@@ -401,7 +408,7 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 
 - **handle（URLスラッグ）**: 内容を表す半角英小文字ハイフン区切り。以降の全工程がこの handle をファイル名に使うため、設計工程で必ず確定する
 - タイトル案3つ
-- メタディスクリプション案
+- **確定メタディスクリプション**（80〜120字を目安に1つ。記事の主題、対象読者、読了メリットを含める）
 - 想定読者と検索意図
 - H2 / H3 アウトライン
 - 各見出しの要点
@@ -421,6 +428,7 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 - H2「この記事でわかること」を前提に設計する
 - H2だけで流れが分かり、H3で具体性が伝わる構成にする
 - 目次が長くなりすぎないよう、表示すべき見出しを意識する
+- 確定メタディスクリプションを空欄・仮値・複数案のまま後工程へ渡さない
 
 ## Agent: `article-writer`
 
@@ -439,7 +447,7 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 1. `article-template.html` を読み、枠組みは変えずに本文だけ差し替える
 2. ブリーフに沿って、最終更新日、監修者情報、導入文、H2「この記事でわかること」、本文、FAQ、まとめを書く
 3. TOCアンカーと見出し `id` を一致させる
-4. JSON-LD の `HEADLINE` と `DESCRIPTION` を埋める
+4. JSON-LD の `HEADLINE` を確定タイトルで、`DESCRIPTION` をブリーフの確定メタディスクリプションと完全に同じ文字列で埋める。空欄・仮値・別案は禁止する
 5. `PAGE_URL` `DATE_*` `BLOG_NAME` `BLOG_URL` は公開工程用プレースホルダとして残す
 6. 確認済みの出典は本文または参考文献として自然に入れる
 7. 出典（`drafts/<handle>-sources.md`）から得た情報は、原文の順序や分量をそのまま反映せず、読者が知りたい結論を先に立ててから詳細・根拠を続ける形に再構成する
@@ -462,6 +470,7 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 - 数字タイトルの場合は、本文の項目数と一致させる
 - 独自性は創作ではなく、事実に基づく考察と実務視点で出す
 - 未確認の内部リンク、未作成の図解、未確認の参考文献は本文に確定情報として混ぜない
+- ブリーフに確定メタディスクリプションがない場合は執筆完了扱いにせず、`article-designer`へ差し戻す
 
 ## Agent: `content-asset-planner`
 
@@ -612,6 +621,7 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 - 不合格なら「どの見出しの何をどう直すか」まで具体化する
 - 迷う用語はWeb検索で浸透度を確認してから指摘する
 - レビュアー自身は本文を書き換えず、指摘に徹する
+- 確定メタディスクリプションの欠落、空欄、仮値、またはブリーフとJSON-LDの`Article.description`の不一致は点数にかかわらず不合格とする
 - 次も必ず確認する: 冒頭構成、H2「この記事でわかること」、FAQ位置、数字タイトルとの整合、内部リンク提案、図解提案、出典の妥当性、創作の有無、CTAの自然さ、各セクションが結論先出しになっているか（出典情報を原文順のまま羅列していないか）、情報量が多い箇所が箇条書き・表に整理されているか
 
 ## Agent: `legal-reviewer`
@@ -658,6 +668,7 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 
 - HTMLの基本構造、見出しIDの重複、TOCリンクとの一致
 - JSON-LDの構文と必須値
+- JSON-LDに`Article`ノードがあり、`Article.description`に空欄・仮値ではない確定メタディスクリプションが入っていること
 - FAQがまとめの直前にあること
 - FAQ質問が `Q.` で始まり、3〜5問あること
 - H2「この記事でわかること」と4〜6項目のリストがあること
@@ -735,7 +746,7 @@ Shopify投入直前に、記事HTMLと関連メモを最終確認する。公開
 ### Tasks
 
 1. `【要記入: ...】`、`<!-- 要確認 -->`、未置換プレースホルダの残りを確認する
-2. タイトル、メタ、本文、JSON-LDの整合性を確認する
+2. ブリーフに確定メタディスクリプションが1つあり、空欄・仮値・未解決プレースホルダを含まないことを確認する。さらにJSON-LDの`Article.description`と完全一致することを確認する
 3. FAQがまとめ直前にあるか確認する
 4. 数字タイトルと本文項目数が一致しているか確認する
 5. 監修者情報、最終更新日、出典、CTA、内部リンク案、図解案の扱いを確認する
@@ -743,16 +754,18 @@ Shopify投入直前に、記事HTMLと関連メモを最終確認する。公開
 7. `article-validator` が合格済みか確認する
 8. `drafts/<handle>-drive.md` が `passed` で、Google Drive保存・readbackが完了しているか確認する
 9. `drafts/<handle>-japanese-review.md` が合格済みで、記録されたHTMLのSHA-256が現在のHTMLと一致するか確認する
+10. Shopify投入仕様として、確定メタディスクリプションを`global.description_tag` / `single_line_text_field`に設定し、`summary`では代替しないことを確認する
 
 ### Output
 
-合否と、Shopify下書き作成へ進めるかを返す。不合格の場合は修正箇所を優先度順に示す。
+合否、Shopify下書き作成へ進めるか、Shopifyへ渡す確定メタディスクリプションを返す。不合格の場合は修正箇所を優先度順に示す。
 
 ### Constraints
 
 - 本文を書き換えない
 - 不合格の場合は `article-publisher` に進めない
 - 公開可否ではなく、下書き作成に進めるかだけを判定する
+- メタディスクリプションの欠落・不一致があれば不合格とする
 
 ## Agent: `article-publisher`
 
@@ -770,15 +783,18 @@ Shopify投入直前に、記事HTMLと関連メモを最終確認する。公開
 
 ### Tasks
 
-1. ブリーフからタイトル、handle、メタディスクリプション、タグ、投稿先ブログを確定する
-2. HTML内の JSON-LD プレースホルダを確定値へ置換する
+1. ブリーフからタイトル、handle、確定メタディスクリプション、タグ、投稿先ブログを取得する。確定メタディスクリプションが空、仮値、複数案、またはJSON-LDの`Article.description`と不一致なら停止する
+2. HTML内の JSON-LD プレースホルダを確定値へ置換し、`Article.description`を確定メタディスクリプションと完全一致させる
 3. Shopify Admin GraphQL のスキーマを確認する
 4. GraphQL を検証してから mutation を実行する
-5. `isPublished: false` で記事を作成する
+5. `isPublished: false`で記事を作成し、確定メタディスクリプションを`metafields`の`global.description_tag`（type: `single_line_text_field`）へ必ず設定する。`summary`は代替にしない
+6. コネクター経由でもShopify CLI経由でも、mutation実行前に実際のqueryとvariablesを`scripts/shopify_publish_guard.py`で検査し、`allow`の場合だけ実行する
+7. 作成直後に別queryで`global.description_tag { type value }`と`isPublished`をreadbackし、ブリーフとの完全一致、type、`isPublished: false`を確認する
+8. 欠落・不一致なら、`isPublished: false`と`global.description_tag`だけを明示した`articleUpdate`で1回だけ修復して再readbackする。それでも一致しなければ`failed`とする
 
 ### Output
 
-作成後、下書きURL、投稿先ブログ、タイトル、要確認点を返す。
+作成後、下書きURL、投稿先ブログ、タイトル、保存したMeta description、readback結果、要確認点を返し、`drafts/<handle>-shopify.md`へ記録する。
 
 ### Constraints
 
@@ -788,6 +804,7 @@ Shopify投入直前に、記事HTMLと関連メモを最終確認する。公開
 - `pre-publish-checker` が不合格の場合は実行しない
 - `article-validator` が不合格または未実行の場合は実行しない
 - `drafts/<handle>-drive.md` がない、または `passed` でない場合は実行しない
+- ShopifyからのreadbackでMeta descriptionと`isPublished: false`を確認できない限り、下書き保存完了と報告しない
 
 ## Workflow: `new-article`
 
@@ -815,9 +832,9 @@ Shopify投入直前に、記事HTMLと関連メモを最終確認する。公開
 12. 品質合格後に `legal-reviewer` を実行し、`drafts/<handle>-legal-review.md` に保存する。95点未満または高リスクがあれば `article-writer` に差し戻し、5、7、8、10、12を必ず再実行する。最大3周とする
 13. `article-validator` を `python3 scripts/article_validator.py --allow-draft-placeholders drafts/<handle>.html` で実行する。構造、TOC、JSON-LD、CSS、内部リンク、日本語の決定論的ルールの検証に失敗した場合は修正し、影響した品質ゲートから再実行する
 14. `drive-draft-saver` を実行し、指定Google Driveフォルダへ `[下書き] <記事タイトル>` のGoogle Docとして保存・readbackする。通常依頼での自動実行はここまでとする
-15. Shopify下書き作成を明示依頼された場合だけ、`drafts/<handle>-drive.md` が `passed` であることを確認し、`python3 scripts/article_validator.py drafts/<handle>.html` を通常モードで再実行してから `pre-publish-checker` を実行する
-16. `pre-publish-checker` 合格後、`article-publisher` を実行し、Shopify に `isPublished: false` の下書きとして保存する
-17. Google Drive URL、Shopify下書きURL（作成した場合のみ）、要確認点、`【要記入: ...】` の残件を報告する
+15. Shopify下書き作成を明示依頼された場合だけ、`drafts/<handle>-drive.md` が `passed` であることを確認し、`python3 scripts/article_validator.py drafts/<handle>.html` を通常モードで再実行してから `pre-publish-checker` を実行する。確定メタディスクリプションとJSON-LDの完全一致も合格条件にする
+16. `pre-publish-checker` 合格後、`article-publisher` を実行し、Shopify に `isPublished: false` の下書きとして保存する。確定メタディスクリプションを`global.description_tag`へ設定し、別queryのreadbackで値・型・下書き状態を確認する
+17. Google Drive URL、Shopify下書きURL（作成した場合のみ）、Shopifyへ保存したMeta description、readback結果、要確認点、`【要記入: ...】` の残件を報告する
 
 ### Stop Conditions
 
@@ -828,6 +845,7 @@ Shopify投入直前に、記事HTMLと関連メモを最終確認する。公開
 - `company-facts.md` がなくても一般論と確認済み出典で書ける場合は続行し、SOLSTAR固有情報は `【要記入: ...】` として残す
 - `company-facts.md` やキーデータが不足し、記事の主張そのものが成立しない場合は停止して不足を報告する
 - `pre-publish-checker` が不合格ならShopify下書き保存に進まず、修正点を報告する
+- 確定メタディスクリプションが欠落・仮値・不一致、またはShopify readbackで`global.description_tag`を確認できない場合は停止する
 - Shopify / Google Drive の接続や認証が不足している場合は、その時点で止めて必要な接続を報告する
 
 ### Output Expectations

@@ -64,6 +64,21 @@ class ArticleValidatorTests(unittest.TestCase):
         errors = self.validate_source(source)
         self.assertIn("禁止ダッシュ（──／—／―）が読者表示テキストに残っています", errors)
 
+    def test_rejects_empty_article_meta_description(self):
+        source = re.sub(
+            r'("description"\s*:\s*)"[^"]*"',
+            r'\1""',
+            self.source,
+            count=1,
+        )
+        errors = self.validate_source(source)
+        self.assertIn("JSON-LDのArticle.descriptionに確定メタディスクリプションが必要です", errors)
+
+    def test_rejects_missing_article_jsonld_node(self):
+        source = self.source.replace('"@type": "Article"', '"@type": "WebPage"', 1)
+        errors = self.validate_source(source)
+        self.assertIn("JSON-LDにArticleノードがありません", errors)
+
     def test_rejects_learn_list_outside_required_range(self):
         block = re.search(
             r'(<h2 id="sec-learn">この記事でわかること</h2>\s*<ul>)(.*?)(</ul>)',

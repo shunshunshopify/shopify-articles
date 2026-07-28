@@ -145,6 +145,31 @@ def contains_value(obj, expected):
     return obj == expected
 
 
+def article_jsonld_nodes(obj):
+    """JSON-LDからArticle型のノードを再帰的に抽出する。"""
+    nodes = []
+    if isinstance(obj, dict):
+        node_type = obj.get("@type")
+        types = node_type if isinstance(node_type, list) else [node_type]
+        if "Article" in types:
+            nodes.append(obj)
+        for value in obj.values():
+            nodes.extend(article_jsonld_nodes(value))
+    elif isinstance(obj, list):
+        for value in obj:
+            nodes.extend(article_jsonld_nodes(value))
+    return nodes
+
+
+def unresolved_description(value):
+    if not isinstance(value, str) or not value.strip():
+        return True
+    text = value.strip()
+    if text in {"DESCRIPTION", "META_DESCRIPTION"}:
+        return True
+    return bool(re.search(r"\{\{[^}]+\}\}|【(?:要記入|要確認)[：:].*?】", text))
+
+
 def normalized_text(value):
     return re.sub(r"\s+", " ", value).strip()
 
@@ -238,14 +263,20 @@ def validate(article, template, published, allow_draft_placeholders=False):
     )
     if not scripts:
         errors.append("JSON-LDがありません")
+    article_nodes = []
     for index, source in enumerate(scripts, 1):
         try:
             data = json.loads(source)
+            article_nodes.extend(article_jsonld_nodes(data))
             for value in ("HEADLINE", "DESCRIPTION"):
                 if contains_value(data, value):
                     errors.append(f"{value} が未置換です")
         except json.JSONDecodeError as exc:
             errors.append(f"JSON-LD {index} の構文エラー: {exc.msg}")
+    if scripts and not article_nodes:
+        errors.append("JSON-LDにArticleノードがありません")
+    elif article_nodes and any(unresolved_description(node.get("description")) for node in article_nodes):
+        errors.append("JSON-LDのArticle.descriptionに確定メタディスクリプションが必要です")
 
     if style_block(text) != style_block(template.read_text(encoding="utf-8")):
         errors.append("article-template.html のCSS枠が変更されています")

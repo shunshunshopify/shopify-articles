@@ -3,7 +3,8 @@
 PreToolUse ガード（Shopify graphql_mutation 用）
 
 記事の作成・更新は isPublished:false が明示された場合だけ許可し、
-公開操作は拒否(deny)する。
+記事作成は有効なMeta description（global.description_tag）が含まれる場合だけ許可する。
+公開操作やSEOメタフィールドが欠けた記事作成は拒否(deny)する。
 
 判定が曖昧・パース不能な場合は安全側（deny）に倒す。
 SOLSTARワークスペースの最重要ルール「自動公開は禁止」を機械的に担保する。
@@ -48,6 +49,53 @@ def is_true(value):
 
 def is_false(value):
     return value is False or (isinstance(value, str) and value.strip().lower() == "false")
+
+
+def valid_description(value):
+    """Shopify SEO欄へ保存できる、未解決でない説明文かを返す。"""
+    if not isinstance(value, str) or not value.strip():
+        return False
+    text = value.strip()
+    if text in {"DESCRIPTION", "META_DESCRIPTION"}:
+        return False
+    return not re.search(r"\{\{[^}]+\}\}|【(?:要記入|要確認)[：:].*?】|<!--\s*要確認", text)
+
+
+def seo_descriptions(obj):
+    """variablesを再帰走査し、global.description_tag の値と型を返す。"""
+    found = []
+    if isinstance(obj, dict):
+        namespace = obj.get("namespace")
+        key = obj.get("key")
+        if namespace == "global" and key == "description_tag":
+            found.append((obj.get("value"), obj.get("type")))
+        for value in obj.values():
+            found.extend(seo_descriptions(value))
+    elif isinstance(obj, list):
+        for value in obj:
+            found.extend(seo_descriptions(value))
+    return found
+
+
+def inline_seo_descriptions(query, variables):
+    """GraphQL内へ直接記述されたglobal.description_tagを抽出する。"""
+    found = []
+    for block in re.findall(r"\{[^{}]*\}", query, re.DOTALL):
+        if not re.search(r'namespace\s*:\s*"global"', block):
+            continue
+        if not re.search(r'key\s*:\s*"description_tag"', block):
+            continue
+        type_match = re.search(r'type\s*:\s*"([^"]+)"', block)
+        value_match = re.search(r'value\s*:\s*(?:"([^"]*)"|\$([A-Za-z_][A-Za-z0-9_]*))', block)
+        if not value_match:
+            found.append((None, type_match.group(1) if type_match else None))
+            continue
+        literal, variable_name = value_match.groups()
+        value = literal
+        if variable_name and isinstance(variables, dict):
+            value = variables.get(variable_name)
+        found.append((value, type_match.group(1) if type_match else None))
+    return found
 
 
 def main():
@@ -104,7 +152,27 @@ def main():
     if is_article_write and not (literal_false or variable_false):
         decide("deny", "articleCreate/articleUpdate には isPublished:false の明示が必要です。")
 
-    decide("allow", "公開操作ではなく、記事操作には isPublished:false が明示されています。")
+    # 新規記事はShopifyの検索結果用SEO欄を必須にする。summaryは代替にならない。
+    is_article_create = bool(re.search(r"\barticleCreate\b", query, re.IGNORECASE))
+    if is_article_create:
+        descriptions = seo_descriptions(vars_obj)
+        descriptions.extend(inline_seo_descriptions(query, vars_obj))
+        valid = any(
+            field_type == "single_line_text_field" and valid_description(value)
+            for value, field_type in descriptions
+        )
+        if not valid:
+            decide(
+                "deny",
+                "articleCreate には有効なMeta descriptionを metafields の "
+                "global.description_tag（single_line_text_field）として必ず設定してください。"
+            )
+
+    decide(
+        "allow",
+        "公開操作ではなく、記事操作には isPublished:false が明示され、"
+        "記事作成にはMeta descriptionが設定されています。"
+    )
 
 
 if __name__ == "__main__":

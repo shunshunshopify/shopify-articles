@@ -18,6 +18,7 @@ developer_instructions = """
 - ユーザーがShopify下書き作成を明示的に依頼した場合だけ、`drafts/<handle>-drive.md` が `passed` であることを確認し、`python3 scripts/article_validator.py drafts/<handle>.html` を通常モードで再実行してから `pre-publish-checker` → `article-publisher` を実行する。
 - `needs_human_input`、`failed`、未確認事実、残プレースホルダ、validator不合格、日本語品質・総合品質・法務の不合格のいずれかがあればShopify工程へ進めない。
 - Shopify記事作成は必ず `isPublished: false`。公開操作は絶対に行わない。
+- `pre-publish-checker` はブリーフの確定メタディスクリプションとJSON-LDの`Article.description`の完全一致を確認する。`article-publisher` は同じ値をShopifyの`global.description_tag`へ必ず設定し、作成後readbackで値・型・`isPublished: false`を確認する。欠落や不一致があれば完了扱いにしない。
 
 ## 実行原則
 - 各工程の成果物パスと合否を記録し、前工程の成果物がなければ後工程を起動しない。
