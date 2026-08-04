@@ -18,12 +18,16 @@ class ArticleValidatorTests(unittest.TestCase):
         supervisor = re.search(
             r'<p class="article-supervisor">.*?</p>', template_source, re.DOTALL
         ).group(0)
-        cls.source = re.sub(
+        source = re.sub(
             r'<p class="article-supervisor">.*?</p>',
             supervisor,
             article_source,
             count=1,
             flags=re.DOTALL,
+        )
+        template_style = re.search(r"<style>.*?</style>", template_source, re.DOTALL).group(0)
+        cls.source = re.sub(
+            r"<style>.*?</style>", template_style, source, count=1, flags=re.DOTALL
         )
 
     def validate_source(self, source, allow_draft_placeholders=True):
@@ -98,6 +102,38 @@ class ArticleValidatorTests(unittest.TestCase):
             warnings = lint_warnings(candidate)
         self.assertTrue(any("導入文は300字程度" in warning for warning in warnings))
         self.assertIn("導入文に固定的な「単に〜だけでなく」構文があります", warnings)
+
+    def test_rejects_template_style_that_is_not_latest(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            candidate = root / "article.html"
+            candidate.write_text(self.source, encoding="utf-8")
+            template = root / "article-template.html"
+            template.write_text(
+                self.template.read_text(encoding="utf-8").replace("#AB8C52", "#1a73e8", 1),
+                encoding="utf-8",
+            )
+            theme_dir = root / "theme-css"
+            theme_dir.mkdir()
+            (theme_dir / "solstar-article.css").write_text(
+                (self.root / "theme-css/solstar-article.css").read_text(encoding="utf-8"),
+                encoding="utf-8",
+            )
+            errors = validate(candidate, template, self.published, allow_draft_placeholders=True)
+        self.assertIn(
+            "article-template.html のStyleが theme-css/solstar-article.css の最新版と一致しません",
+            errors,
+        )
+
+    def test_rejects_missing_canonical_style(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            candidate = root / "article.html"
+            candidate.write_text(self.source, encoding="utf-8")
+            template = root / "article-template.html"
+            template.write_text(self.template.read_text(encoding="utf-8"), encoding="utf-8")
+            errors = validate(candidate, template, self.published, allow_draft_placeholders=True)
+        self.assertIn("最新版Styleがありません: theme-css/solstar-article.css", errors)
 
 
 if __name__ == "__main__":

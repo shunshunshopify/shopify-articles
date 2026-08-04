@@ -70,6 +70,18 @@
   margin-bottom: 1em;
   line-height: 1.8;
 }
+.custom-content .article-updated,
+.custom-content .article-supervisor {
+  color: #4b5563;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.custom-content .article-updated {
+  margin-bottom: 0.35em;
+}
+.custom-content .article-supervisor {
+  margin-bottom: 1.5em;
+}
 
 /* === HR（大セクション区切り） === */
 .custom-content hr.section-divider {

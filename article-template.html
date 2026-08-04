@@ -12,7 +12,7 @@
   -webkit-background-clip: border-box;
           background-clip: border-box;
   -webkit-text-fill-color: currentColor;
-  color: #0040b8;
+  color: #695632;
   display: inline;
   padding: 0;
   text-decoration: underline;
@@ -20,11 +20,11 @@
 .rte .custom-content a::after { content: none; display: none; }
 .rte .custom-content a:hover,
 .rte .custom-content a:focus {
-  color: #002d82;
-  -webkit-text-fill-color: #002d82;
+  color: #AB8C52;
+  -webkit-text-fill-color: #AB8C52;
 }
 .rte .custom-content a:focus-visible {
-  outline: 2px solid #0040b8;
+  outline: 2px solid #AB8C52;
   outline-offset: 2px;
   border-radius: 3px;
 }
@@ -32,7 +32,7 @@
 .custom-content {
   color: #1a1a1a;
   background: transparent;
-  --heading-accent: #1a73e8;
+  --heading-accent: #AB8C52;
   --tbl-border: #d1cdc4;
 }
 
@@ -134,11 +134,11 @@
 }
 .rte .custom-content .toc a:hover,
 .rte .custom-content .toc a:focus {
-  color: #0040b8;
-  -webkit-text-fill-color: #0040b8;
+  color: #695632;
+  -webkit-text-fill-color: #695632;
 }
 .rte .custom-content .toc a:focus-visible {
-  outline: 2px solid #0040b8;
+  outline: 2px solid #AB8C52;
   outline-offset: 2px;
   border-radius: 3px;
 }
@@ -147,7 +147,7 @@
 .custom-content ul,
 .custom-content ol {
   margin: 16px 0 24px 0;
-  padding-left: 32px; /* ★ここで記号用の左余白をしっかり確保 */
+  padding-left: 32px;
 }
 .custom-content ul {
   list-style-type: disc;
@@ -169,19 +169,18 @@
   border-collapse: collapse;
   border: 1px solid var(--tbl-border);
   table-layout: auto;
-  font-size: 14px;
 }
 .custom-content table col { width: auto !important; }
 .custom-content table th,
 .custom-content table td {
   border: 1px solid var(--tbl-border);
-  padding: 10px 12px;
+  padding: 12px 14px;
   vertical-align: middle;
   text-align: left;
   line-height: 1.6;
   white-space: normal;
-  word-break: break-word;
-  overflow-wrap: anywhere;
+  word-break: normal;
+  overflow-wrap: normal;
 }
 .custom-content table thead th,
 .custom-content table thead td {
@@ -204,11 +203,22 @@
 
 /* ===== 画像 ===== */
 .custom-content img { max-width: 100%; height: auto; display: block; }
+/* 本文・セクション内に単独で置かれた画像（セクション挿絵・図版）。
+   管理画面から段落として挿入される画像を想定。
+   中央寄せ＋角丸＋淡い枠で「記事内の図版」として整え、
+   見出し直下でも余白を確保する。 */
 .custom-content p img,
-.custom-content div img,
 .custom-content li img {
-  margin-top: 12px;
-  margin-bottom: 12px;
+  margin: 20px auto 24px;
+  border-radius: 10px;
+  border: 1px solid #e8e4df;
+}
+
+/* 表内の画像は枠・角丸を付けず素のまま */
+.custom-content table img {
+  margin: 0 auto;
+  border: 0;
+  border-radius: 0;
 }
 
 /* Tailwindクラスの干渉対策 */
@@ -227,15 +237,17 @@
   .custom-content hr:not(.section-divider) {
     border-top-color: rgba(255,255,255,.15);
   }
-  .rte .custom-content a { color: #80ccff; -webkit-text-fill-color: #80ccff; }
+  .rte .custom-content a { color: #695632; -webkit-text-fill-color: #695632; }
   .rte .custom-content a:hover,
-  .rte .custom-content a:focus { color: #b3e0ff; -webkit-text-fill-color: #b3e0ff; }
+  .rte .custom-content a:focus { color: #AB8C52; -webkit-text-fill-color: #AB8C52; }
   .rte .custom-content .toc a { color: inherit; -webkit-text-fill-color: currentColor; }
   .custom-content .tw-text-fg-secondary {
     color: unset !important; -webkit-text-fill-color: unset !important;
   }
   .custom-content table thead th,
   .custom-content table thead td { background-color: rgba(255,255,255,0.06) !important; }
+  .custom-content p img,
+  .custom-content li img { border-color: rgba(255,255,255,.12); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -247,32 +259,31 @@
   .custom-content .toc { padding: 24px; border-radius: 10px; max-width: 100%; }
   .custom-content .toc ol { padding-left: 24px; }
   .custom-content .toc ol ol { padding-left: 18px; }
-  .custom-content table { font-size: 12px; }
+  .custom-content table { font-size: 13px; }
   .custom-content table th,
   .custom-content table td { padding: 8px 10px; }
   .custom-content hr.section-divider { margin: 2rem 0 1.75rem; }
 
-  /* ★スマホでの箇条書きの余白を最適化（画面を広く使えるようPCより少し狭く） */
   .custom-content ul,
   .custom-content ol {
     padding-left: 24px;
   }
-}
-/* tbl-scroll: 全デバイスで横スクロール有効。モバイルのみ最小幅を強制 */
-.custom-content .tbl-scroll {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-x: contain;
-  border-radius: 6px;
-}
-@media (max-width: 768px) {
-  .custom-content .tbl-scroll > table { min-width: 600px; width: 100%; }
-}
-@media (max-width: 768px) {
-  .custom-content table th,
-  .custom-content table th * {
+
+  .custom-content .tbl-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    border-radius: 6px;
+  }
+  .custom-content .tbl-scroll > table { min-width: 100%; width: auto; }
+
+  /* tbl-scroll内のセルは折り返さず横スクロールで表示 */
+  .custom-content .tbl-scroll table th,
+  .custom-content .tbl-scroll table td,
+  .custom-content .tbl-scroll table th *,
+  .custom-content .tbl-scroll table td * {
     white-space: nowrap !important;
-    word-break: normal !important;
+    word-break: keep-all !important;
     overflow-wrap: normal !important;
   }
 }
@@ -349,7 +360,7 @@
 <p>{{CONCLUSION}}</p>
 <!-- 必要に応じて自社（SOLSTAR）への自然な誘導を1段落入れる -->
 
-<!-- 参考文献：必要な場合のみ設置。Shopify公式、官公庁、論文、信頼できる調査を優先する -->
+<!-- 参考文献：必要な場合のみ設置。テーマに合う一次情報、官公庁、論文、信頼できる調査を優先する -->
 <!--
 <h2 id="sec-references">参考文献</h2>
 <ul>

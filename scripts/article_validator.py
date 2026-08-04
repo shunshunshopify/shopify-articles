@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Shopify記事HTMLの決定論的な公開前検証。"""
+"""SOLSTAR記事HTMLの決定論的な公開前検証。"""
 
 import argparse
 import json
@@ -125,6 +125,15 @@ def style_block(text):
     return match.group(1).strip() if match else None
 
 
+def normalized_css(text):
+    """CSSの意味を変えない空白・コメント差を除いて比較できる形へ整える。"""
+    if text is None:
+        return None
+    value = re.sub(r"/\*.*?\*/", "", text, flags=re.DOTALL)
+    value = re.sub(r"\s+", " ", value).strip()
+    return re.sub(r"\s*([{}:;,>])\s*", r"\1", value)
+
+
 def published_handles(path):
     if not path.exists():
         return set()
@@ -210,7 +219,18 @@ def validate(article, template, published, allow_draft_placeholders=False):
     parser = ArticleParser()
     parser.feed(text)
     template_parser = ArticleParser()
-    template_parser.feed(template.read_text(encoding="utf-8"))
+    template_text = template.read_text(encoding="utf-8")
+    template_parser.feed(template_text)
+
+    canonical_style_path = template.parent / "theme-css" / "solstar-article.css"
+    if not canonical_style_path.exists():
+        errors.append("最新版Styleがありません: theme-css/solstar-article.css")
+    elif normalized_css(style_block(template_text)) != normalized_css(
+        canonical_style_path.read_text(encoding="utf-8")
+    ):
+        errors.append(
+            "article-template.html のStyleが theme-css/solstar-article.css の最新版と一致しません"
+        )
 
     if parser.custom_content_roots != 1:
         errors.append("custom-contentルートは1つ必要です")
@@ -278,7 +298,7 @@ def validate(article, template, published, allow_draft_placeholders=False):
     elif article_nodes and any(unresolved_description(node.get("description")) for node in article_nodes):
         errors.append("JSON-LDのArticle.descriptionに確定メタディスクリプションが必要です")
 
-    if style_block(text) != style_block(template.read_text(encoding="utf-8")):
+    if style_block(text) != style_block(template_text):
         errors.append("article-template.html のCSS枠が変更されています")
 
     handles = published_handles(published)
