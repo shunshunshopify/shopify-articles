@@ -1,0 +1,69 @@
+{
+  "blog": {
+    "id": "gid://shopify/Blog/96528236766",
+    "title": "Marketing",
+    "handle": "marketing",
+    "articles": {
+      "nodes": [
+        {
+          "id": "gid://shopify/Article/659910099166",
+          "title": "価格の心理学とは？ECサイトで安く見える価格設定7つのテクニック",
+          "handle": "physiology-about-price",
+          "isPublished": true
+        },
+        {
+          "id": "gid://shopify/Article/663850877150",
+          "title": "JSON-LDとは？SEO効果とShopifyでの実装方法を初心者向けに解説",
+          "handle": "json-ld-shopify-seo",
+          "isPublished": true
+        },
+        {
+          "id": "gid://shopify/Article/665161924830",
+          "title": "価格設定テクニック12選｜心理学・行動経済学でEC売上を伸ばす方法",
+          "handle": "ec-pricing-techniques",
+          "isPublished": true
+        },
+        {
+          "id": "gid://shopify/Article/665171329246",
+          "title": "ECサイトの購買心理学｜CVRを上げる売れる導線9の法則【保存版】",
+          "handle": "ecommerce-psychology",
+          "isPublished": true
+        },
+        {
+          "id": "gid://shopify/Article/665203081438",
+          "title": "ブランドコンセプトの作り方｜初心者でも今日書ける5ステップ【EC実践】",
+          "handle": "brand-concept-how-to",
+          "isPublished": false
+        },
+        {
+          "id": "gid://shopify/Article/665378816222",
+          "title": "ECサイトのCVR改善チェックリスト9項目｜売上が伸びない原因の診断法",
+          "handle": "ec-cvr-improvement-checklist",
+          "isPublished": true
+        },
+        {
+          "id": "gid://shopify/Article/665423184094",
+          "title": "Shopifyの商品ページ改善ガイド｜購入率を高めるPDP設計のポイント",
+          "handle": "shopify-product-page-improvement",
+          "isPublished": true
+        },
+        {
+          "id": "gid://shopify/Article/665473646814",
+          "title": "AI検索時代のマーケティング戦略｜SEOから可視性設計へ",
+          "handle": "ai-search-marketing-strategy",
+          "isPublished": true
+        },
+        {
+          "id": "gid://shopify/Article/665548914910",
+          "title": "ECサイトのトップページ設計｜初心者向け構成と作り方",
+          "handle": "ec-homepage-design-guide",
+          "isPublished": true
+        }
+      ],
+      "pageInfo": {
+        "hasNextPage": false,
+        "endCursor": "eyJsYXN0X2lkIjo2NjU1NDg5MTQ5MTAsImxhc3RfdmFsdWUiOiI2NjU1NDg5MTQ5MTAifQ=="
+      }
+    }
+  }
+}

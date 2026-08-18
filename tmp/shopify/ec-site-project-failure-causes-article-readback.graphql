@@ -1,0 +1,22 @@
+query ArticleById($id: ID!) {
+  article(id: $id) {
+    id
+    title
+    handle
+    isPublished
+    body
+    summary
+    tags
+    author {
+      name
+    }
+    blog {
+      id
+      handle
+    }
+    metafield(namespace: "global", key: "description_tag") {
+      type
+      value
+    }
+  }
+}
