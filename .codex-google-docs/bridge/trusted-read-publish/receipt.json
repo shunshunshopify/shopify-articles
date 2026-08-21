@@ -1,0 +1,31 @@
+{
+  "bridgeVersion": "3.6",
+  "kind": "google-docs-trusted-read-receipt",
+  "status": "complete",
+  "target": {
+    "documentId": "1iLBhudMsY5WlpFar8DGSQJE4GTX0XffdkYD3k9lnAsM",
+    "title": "[下書き] Qoo10とShopifyを比較｜コスメECはどちらを選ぶ？",
+    "revisionId": "AIroW37O3l5FWQPyNszlazaM7IhKXBOsOhadSN7txJPe6Od9iJLYhqX-HEV1gjq0HJfe5-bJUzm7kkA_tzSEwVPRKrUja9p0w-UAbcSuWhs",
+    "documentUrl": "https://docs.google.com/document/d/1iLBhudMsY5WlpFar8DGSQJE4GTX0XffdkYD3k9lnAsM",
+    "selectedTabId": "t.0"
+  },
+  "dropdownMetadata": {
+    "status": "unavailable",
+    "resolvedTool": null,
+    "authoritative": false,
+    "count": 0
+  },
+  "controlAwareness": {
+    "hasProtectedControls": false,
+    "authoritativeDropdownCount": 0,
+    "opaqueControlCount": 0,
+    "affectedParagraphCount": 0,
+    "nativeElementCounts": {
+      "dateElement": 1
+    },
+    "preservationRequired": false,
+    "recommendedBehavior": "No protected controls were detected in the scanned scope."
+  },
+  "warnings": [],
+  "error": null
+}

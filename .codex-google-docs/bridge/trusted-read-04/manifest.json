@@ -1,0 +1,59 @@
+{
+  "bridgeVersion": "3.6",
+  "kind": "google-docs-trusted-read",
+  "status": "complete",
+  "outputDir": "/Users/garrypanda/Documents/shopify-articles/.codex-google-docs/bridge/trusted-read-04",
+  "target": {
+    "documentId": "1iLBhudMsY5WlpFar8DGSQJE4GTX0XffdkYD3k9lnAsM",
+    "title": "[下書き] Qoo10とShopifyを比較｜コスメECはどちらを選ぶ？",
+    "revisionId": "AIroW341cVKEeJ6IFZ3VMlg7lPAhD-7FMFSnPRGuSPUbcO9L1wx7HWhjZCC1m-i3UwtSgHivk1BARA-5XxIBo45KxGW4bWagNbROpXoxcAs",
+    "documentUrl": "https://docs.google.com/document/d/1iLBhudMsY5WlpFar8DGSQJE4GTX0XffdkYD3k9lnAsM",
+    "selectedTabId": "t.0"
+  },
+  "dropdownMetadata": {
+    "status": "unavailable",
+    "resolvedTool": null,
+    "authoritative": false,
+    "count": 0
+  },
+  "controlAwareness": {
+    "hasProtectedControls": false,
+    "authoritativeDropdownCount": 0,
+    "opaqueControlCount": 0,
+    "affectedParagraphCount": 0,
+    "nativeElementCounts": {
+      "dateElement": 1
+    },
+    "preservationRequired": false,
+    "recommendedBehavior": "No protected controls were detected in the scanned scope."
+  },
+  "warnings": [],
+  "files": {
+    "document_result": {
+      "path": "/Users/garrypanda/Documents/shopify-articles/.codex-google-docs/bridge/trusted-read-04/document-result.json",
+      "bytes": 630131,
+      "sha256": "8417e815c52c28311163eaa9dda72ad6eea384309e0ffc472a920bb848eeadb6"
+    },
+    "control_inventory": {
+      "path": "/Users/garrypanda/Documents/shopify-articles/.codex-google-docs/bridge/trusted-read-04/control-inventory.json",
+      "bytes": 1850,
+      "sha256": "8bef4b5c889e421dc61dcd5636ac23eca19ea9b0b96d3d8a762e3cb870777536"
+    },
+    "document_outline": {
+      "path": "/Users/garrypanda/Documents/shopify-articles/.codex-google-docs/bridge/trusted-read-04/document-outline.json",
+      "bytes": 135186,
+      "sha256": "694aecc0e1c68ca6c9160072a587a213eb88c447d4130c99b1227239a17a6398"
+    },
+    "document_text": {
+      "path": "/Users/garrypanda/Documents/shopify-articles/.codex-google-docs/bridge/trusted-read-04/document-text.md",
+      "bytes": 33162,
+      "sha256": "8cc8b926699b99ecba8ac42d1bb7acfe0bd8a079611197c4270e889fe91b8b18"
+    },
+    "receipt": {
+      "path": "/Users/garrypanda/Documents/shopify-articles/.codex-google-docs/bridge/trusted-read-04/receipt.json",
+      "bytes": 1039,
+      "sha256": "31f5f6a966fb2060c7e79e6a34c82eb19c16342a648a59dac15940d2ac8e162c"
+    }
+  },
+  "error": null
+}

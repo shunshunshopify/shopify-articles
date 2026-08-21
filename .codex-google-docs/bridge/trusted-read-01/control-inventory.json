@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "kind": "google-docs-trusted-read-context",
+  "target": {
+    "documentId": "1iLBhudMsY5WlpFar8DGSQJE4GTX0XffdkYD3k9lnAsM",
+    "title": "[下書き] Qoo10とShopifyを比較｜コスメECはどちらを選ぶ？",
+    "revisionId": "AIroW34uzHDz_nSZMCQOl8NaT6to9oRjl4DsgSCk1mHMi83QL4Gtaob6jFd71buxHmv2mJthBSN3-qq4TCO-YM1A84LDohYXxG5rcwvJNwU",
+    "documentUrl": "https://docs.google.com/document/d/1iLBhudMsY5WlpFar8DGSQJE4GTX0XffdkYD3k9lnAsM",
+    "selectedTabId": "t.0"
+  },
+  "dropdownMetadata": {
+    "status": "unavailable",
+    "resolvedTool": null,
+    "authoritative": false,
+    "count": 0
+  },
+  "derivedControlInventory": {
+    "hasProtectedControls": false,
+    "authoritativeDropdownCount": 0,
+    "opaqueControlCount": 0,
+    "nativeElementCounts": {
+      "dateElement": 1
+    },
+    "tabsScanned": [
+      "t.0"
+    ],
+    "controls": [],
+    "nativeElements": [
+      {
+        "type": "dateElement",
+        "startIndex": 38,
+        "endIndex": 39,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[2]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 32,
+          "endIndex": 40,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": {
+          "timestamp": "2026-08-21T12:00:00Z",
+          "locale": "ja",
+          "dateFormat": "DATE_FORMAT_ISO8601",
+          "timeFormat": "TIME_FORMAT_DISABLED",
+          "displayText": "2026-08-21"
+        }
+      }
+    ]
+  },
+  "editGuidance": {
+    "advisoryOnly": true,
+    "requiresTargetedPreservation": false,
+    "recommendedBehavior": "No protected controls were detected in the scanned scope.",
+    "warnings": []
+  }
+}
