@@ -1,0 +1,57 @@
+{
+  "bridgeVersion": "3.6",
+  "kind": "google-docs-trusted-read",
+  "status": "complete",
+  "outputDir": "/Users/garrypanda/Documents/shopify-articles/tmp/price-taxonomy-copy-initial",
+  "target": {
+    "documentId": "1GFUBpxL21wgZPalI_m8RQbGFM80nmzx2k0TImiIygQw",
+    "title": "[レビュー済み・構成整理版] 価格の心理学とは？ECで使える価格設定8選と検証方法",
+    "revisionId": "ANLCKQmiXznN01akrWKZanI6ZCwUIfH90eQyhfchiKHx_Rz8g_y5xSkNRG5wPVPI7wmpvOEMstbHQ-uSVjs-ALul-sR2aTIBuvW8aRMh6TY",
+    "documentUrl": "https://docs.google.com/document/d/1GFUBpxL21wgZPalI_m8RQbGFM80nmzx2k0TImiIygQw",
+    "selectedTabId": null
+  },
+  "dropdownMetadata": {
+    "status": "unavailable",
+    "resolvedTool": null,
+    "authoritative": false,
+    "count": 0
+  },
+  "controlAwareness": {
+    "hasProtectedControls": false,
+    "authoritativeDropdownCount": 0,
+    "opaqueControlCount": 0,
+    "affectedParagraphCount": 0,
+    "nativeElementCounts": {},
+    "preservationRequired": false,
+    "recommendedBehavior": "No protected controls were detected in the scanned scope."
+  },
+  "warnings": [],
+  "files": {
+    "document_result": {
+      "path": "/Users/garrypanda/Documents/shopify-articles/tmp/price-taxonomy-copy-initial/document-result.json",
+      "bytes": 528178,
+      "sha256": "4ffa4fee0ecdf3699a7fce7cd747f38b48405cedb921c5e45290366ab8922b66"
+    },
+    "control_inventory": {
+      "path": "/Users/garrypanda/Documents/shopify-articles/tmp/price-taxonomy-copy-initial/control-inventory.json",
+      "bytes": 1116,
+      "sha256": "e494c5eba88f3d7ea01d3dbea479a1cb08b01622a5f90a85d71c224b9697dda3"
+    },
+    "document_outline": {
+      "path": "/Users/garrypanda/Documents/shopify-articles/tmp/price-taxonomy-copy-initial/document-outline.json",
+      "bytes": 178493,
+      "sha256": "53522e54778267d6bede206f4cef2d38194db9383be28af4c210b0dcf16540f5"
+    },
+    "document_text": {
+      "path": "/Users/garrypanda/Documents/shopify-articles/tmp/price-taxonomy-copy-initial/document-text.md",
+      "bytes": 51218,
+      "sha256": "d13f07ec31aacf2d5c3fa47851d0830b35f107adb7c41e5d78362b5fe1142f6b"
+    },
+    "receipt": {
+      "path": "/Users/garrypanda/Documents/shopify-articles/tmp/price-taxonomy-copy-initial/receipt.json",
+      "bytes": 1047,
+      "sha256": "a6acc8d4e472a81cc6dde9021b459ae62e6179d52ecf9cc2dcecdfc3a325305b"
+    }
+  },
+  "error": null
+}

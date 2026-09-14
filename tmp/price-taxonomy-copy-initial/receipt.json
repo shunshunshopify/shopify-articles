@@ -1,0 +1,29 @@
+{
+  "bridgeVersion": "3.6",
+  "kind": "google-docs-trusted-read-receipt",
+  "status": "complete",
+  "target": {
+    "documentId": "1GFUBpxL21wgZPalI_m8RQbGFM80nmzx2k0TImiIygQw",
+    "title": "[レビュー済み・構成整理版] 価格の心理学とは？ECで使える価格設定8選と検証方法",
+    "revisionId": "ANLCKQmiXznN01akrWKZanI6ZCwUIfH90eQyhfchiKHx_Rz8g_y5xSkNRG5wPVPI7wmpvOEMstbHQ-uSVjs-ALul-sR2aTIBuvW8aRMh6TY",
+    "documentUrl": "https://docs.google.com/document/d/1GFUBpxL21wgZPalI_m8RQbGFM80nmzx2k0TImiIygQw",
+    "selectedTabId": null
+  },
+  "dropdownMetadata": {
+    "status": "unavailable",
+    "resolvedTool": null,
+    "authoritative": false,
+    "count": 0
+  },
+  "controlAwareness": {
+    "hasProtectedControls": false,
+    "authoritativeDropdownCount": 0,
+    "opaqueControlCount": 0,
+    "affectedParagraphCount": 0,
+    "nativeElementCounts": {},
+    "preservationRequired": false,
+    "recommendedBehavior": "No protected controls were detected in the scanned scope."
+  },
+  "warnings": [],
+  "error": null
+}

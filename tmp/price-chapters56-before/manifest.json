@@ -1,0 +1,57 @@
+{
+  "bridgeVersion": "3.6",
+  "kind": "google-docs-trusted-read",
+  "status": "complete",
+  "outputDir": "/Users/garrypanda/Documents/shopify-articles/tmp/price-chapters56-before",
+  "target": {
+    "documentId": "1GFUBpxL21wgZPalI_m8RQbGFM80nmzx2k0TImiIygQw",
+    "title": "[レビュー済み・構成整理版] 価格の心理学とは？ECで使える価格設定8選と検証方法",
+    "revisionId": "ANLCKQlIpTGH0xPgtzTz7SvuUUK1ql9IXjBhTaWqKmWpewE90vuILfHJpT9ywMV233Rt0ym3x_j8F-fV0hgqCloCY7xewQSZ5HtadXTCxWI",
+    "documentUrl": "https://docs.google.com/document/d/1GFUBpxL21wgZPalI_m8RQbGFM80nmzx2k0TImiIygQw",
+    "selectedTabId": "t.0"
+  },
+  "dropdownMetadata": {
+    "status": "unavailable",
+    "resolvedTool": null,
+    "authoritative": false,
+    "count": 0
+  },
+  "controlAwareness": {
+    "hasProtectedControls": false,
+    "authoritativeDropdownCount": 0,
+    "opaqueControlCount": 0,
+    "affectedParagraphCount": 0,
+    "nativeElementCounts": {},
+    "preservationRequired": false,
+    "recommendedBehavior": "No protected controls were detected in the scanned scope."
+  },
+  "warnings": [],
+  "files": {
+    "document_result": {
+      "path": "/Users/garrypanda/Documents/shopify-articles/tmp/price-chapters56-before/document-result.json",
+      "bytes": 561526,
+      "sha256": "dda0d3539ec5b8d4acb10ef4166d48d47792b190e7db833c0484f34c550e878f"
+    },
+    "control_inventory": {
+      "path": "/Users/garrypanda/Documents/shopify-articles/tmp/price-chapters56-before/control-inventory.json",
+      "bytes": 1117,
+      "sha256": "fc304489a477b2077bd32096719446ab835885c340d493f50a946d688bf4bff5"
+    },
+    "document_outline": {
+      "path": "/Users/garrypanda/Documents/shopify-articles/tmp/price-chapters56-before/document-outline.json",
+      "bytes": 142589,
+      "sha256": "c5bdb1e924dcdc0b05212698afdf80369265aea4fbb5b30d0fd1016a004ae03c"
+    },
+    "document_text": {
+      "path": "/Users/garrypanda/Documents/shopify-articles/tmp/price-chapters56-before/document-text.md",
+      "bytes": 42760,
+      "sha256": "219ff3f6651406cc709ee1278e73bf7fac03c830021b2606f85e2d519f8bafab"
+    },
+    "receipt": {
+      "path": "/Users/garrypanda/Documents/shopify-articles/tmp/price-chapters56-before/receipt.json",
+      "bytes": 1048,
+      "sha256": "cf8fec39c81571d1a471f2cdccf81d23c9fdd7ef3cef2035828d0662b7f9a5dd"
+    }
+  },
+  "error": null
+}

@@ -1,0 +1,59 @@
+{
+  "bridgeVersion": "3.6",
+  "kind": "google-docs-trusted-read",
+  "status": "complete",
+  "outputDir": "/Users/garrypanda/Documents/shopify-articles/tmp/price-copyedit-trusted-destination",
+  "target": {
+    "documentId": "13IVbP8-c60wy_y7hPh4vqioxGsums2o0EFGfYT3_I9I",
+    "title": "[レビュー済み] 価格の心理学とは？ECで使える価格設定8選と検証方法",
+    "revisionId": "ANLCKQlguGyHef5k1OD3h8rRC46vrhdXDEc6tdeRWNo2uJGt9D_Bn0buezHWUk-C--r2FaS_ce6kUvxVE-K9G7ZDG8KCT3NAL8HsmSfJpOo",
+    "documentUrl": "https://docs.google.com/document/d/13IVbP8-c60wy_y7hPh4vqioxGsums2o0EFGfYT3_I9I",
+    "selectedTabId": null
+  },
+  "dropdownMetadata": {
+    "status": "unavailable",
+    "resolvedTool": null,
+    "authoritative": false,
+    "count": 0
+  },
+  "controlAwareness": {
+    "hasProtectedControls": false,
+    "authoritativeDropdownCount": 0,
+    "opaqueControlCount": 0,
+    "affectedParagraphCount": 0,
+    "nativeElementCounts": {
+      "inlineObjectElement": 3
+    },
+    "preservationRequired": false,
+    "recommendedBehavior": "No protected controls were detected in the scanned scope."
+  },
+  "warnings": [],
+  "files": {
+    "document_result": {
+      "path": "/Users/garrypanda/Documents/shopify-articles/tmp/price-copyedit-trusted-destination/document-result.json",
+      "bytes": 507794,
+      "sha256": "4f53cc392c0fab4f664e1a5aa54ea8f365ff12087dceaae200a9a37e50278633"
+    },
+    "control_inventory": {
+      "path": "/Users/garrypanda/Documents/shopify-articles/tmp/price-copyedit-trusted-destination/control-inventory.json",
+      "bytes": 3007,
+      "sha256": "e7123b29c954b1a3540c4782bc0107a46fa2a3acef285a50a6c410cd77dbb51f"
+    },
+    "document_outline": {
+      "path": "/Users/garrypanda/Documents/shopify-articles/tmp/price-copyedit-trusted-destination/document-outline.json",
+      "bytes": 143433,
+      "sha256": "55a4497d8ff1b3ae1f7197889f02d4e820ada3a849eca551331c2c8934e7894b"
+    },
+    "document_text": {
+      "path": "/Users/garrypanda/Documents/shopify-articles/tmp/price-copyedit-trusted-destination/document-text.md",
+      "bytes": 41605,
+      "sha256": "ebb6d3950f0092d221efc9acfc672692843c609eb27c4c1c1b7b8fd2f5598de1"
+    },
+    "receipt": {
+      "path": "/Users/garrypanda/Documents/shopify-articles/tmp/price-copyedit-trusted-destination/receipt.json",
+      "bytes": 1065,
+      "sha256": "650059ecb1fc2d0ec6969c3ac3d19e1c12ba1d205b835d23bf689ee41275b79b"
+    }
+  },
+  "error": null
+}

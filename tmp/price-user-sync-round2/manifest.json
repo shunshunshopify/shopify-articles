@@ -1,0 +1,57 @@
+{
+  "bridgeVersion": "3.6",
+  "kind": "google-docs-trusted-read",
+  "status": "complete",
+  "outputDir": "/Users/garrypanda/Documents/shopify-articles/tmp/price-user-sync-round2",
+  "target": {
+    "documentId": "13IVbP8-c60wy_y7hPh4vqioxGsums2o0EFGfYT3_I9I",
+    "title": "[レビュー済み] 価格の心理学とは？ECで使える価格設定8選と検証方法",
+    "revisionId": "ANLCKQlYpaiJeLJE6S-vs08qVdSDQ3qyKrf0yDQA541z1CEQasUW0P2axDxLwE9xQWwu1xlFkZZYGtiaYTZtwy_94c1XbT4rrWTISWLqwbo",
+    "documentUrl": "https://docs.google.com/document/d/13IVbP8-c60wy_y7hPh4vqioxGsums2o0EFGfYT3_I9I",
+    "selectedTabId": null
+  },
+  "dropdownMetadata": {
+    "status": "unavailable",
+    "resolvedTool": null,
+    "authoritative": false,
+    "count": 0
+  },
+  "controlAwareness": {
+    "hasProtectedControls": false,
+    "authoritativeDropdownCount": 0,
+    "opaqueControlCount": 0,
+    "affectedParagraphCount": 0,
+    "nativeElementCounts": {},
+    "preservationRequired": false,
+    "recommendedBehavior": "No protected controls were detected in the scanned scope."
+  },
+  "warnings": [],
+  "files": {
+    "document_result": {
+      "path": "/Users/garrypanda/Documents/shopify-articles/tmp/price-user-sync-round2/document-result.json",
+      "bytes": 528160,
+      "sha256": "231b8c77817b4463ad5a86dd2b855f61f407c8a7b47709155373854f325154b9"
+    },
+    "control_inventory": {
+      "path": "/Users/garrypanda/Documents/shopify-articles/tmp/price-user-sync-round2/control-inventory.json",
+      "bytes": 1098,
+      "sha256": "cf4b27582491a90a9ad851a3ddaf6a075313effaeda4e0cdb208707eb275ccab"
+    },
+    "document_outline": {
+      "path": "/Users/garrypanda/Documents/shopify-articles/tmp/price-user-sync-round2/document-outline.json",
+      "bytes": 178475,
+      "sha256": "f538fefc2436473095a172c4d72d9997648304a116516f5a4a23530a2533cae4"
+    },
+    "document_text": {
+      "path": "/Users/garrypanda/Documents/shopify-articles/tmp/price-user-sync-round2/document-text.md",
+      "bytes": 51200,
+      "sha256": "30f47d435d09d8fa032650aff809e8eb0cc5144dddc64a4ec0f1128d8b95cd99"
+    },
+    "receipt": {
+      "path": "/Users/garrypanda/Documents/shopify-articles/tmp/price-user-sync-round2/receipt.json",
+      "bytes": 1029,
+      "sha256": "c45dd0057338b97f381128ee027b9c126ff648d6fcab1e61e6dafac176d38390"
+    }
+  },
+  "error": null
+}

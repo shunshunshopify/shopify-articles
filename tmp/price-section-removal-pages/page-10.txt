@@ -1,0 +1,52 @@
+Q. セール価格と通常価格を並べても問題ありませんか？
+比較する価格に根拠があり、条件を正確に示せる場合に検討できます。販売実績のない価格や
+実際と異なる通常価格を元値として見せると、不当表示に該当するおそれがあります。消費者庁
+の価格表示に関する案内を確認し、販売記録を保管してください。
+まとめ
+価格の心理学は、購入者が何と比べ、どこで迷い、何を根拠に判断しているのかを理解し、値付
+けや表示に活かす考え方です。値下げを決める前に、比較対象、価格や送料の表示、商品価値
+の伝え方を確認してみてください。自社の課題に合う施策を一つ選ぶところから始めましょう。
+施策を試す前に、利益が残るか、ブランドに合うか、価格表示に根拠があるかを確かめます。変
+更後は、購入につながる行動と利益の両方を見て、続けるか、元に戻すか、判断を保留するかを
+決めてください。商品ページや料金表を含め、EC全体のどこから見直すべきか整理したい場合
+は、SOLSTARへご相談ください。
+参考文献
+Ranyard, Charlton & Williamson (2001), 参照価格に関する研究
+Huang & Cheng (2015), 送料無料条件に関する研究
+Chen, Monroe & Lou (1998), 割引率・割引額の表示に関する研究
+Thomas & Morwitz (2005),
+“Penny Wise and Pound Foolish: The Left-Digit Effect in
+Price Cognition”
+Simonson & Tversky (1992),
+“Choice in Context: Tradeoff Contrast and Extremeness
+Aversion”
+●
+●
+●
+●
+●
+●
+●
+Huber, Payne & Puto (1982),
+“Adding Asymmetrically Dominated Alternatives”
+Cronley et al. (2005),
+“A Selective Hypothesis Testing Perspective on Price-Quality
+Inference and Inference-Based Choice”
+●
+●
+●
+●
+●
+●
+●
+Nielsen Norman Group,
+“Proximity: Gestalt Principle for User Interface Design”
+Nielsen Norman Group,
+“Similarity: Gestalt Principle 1 for UI Design”
+Kohavi et al. (2009),
+“Controlled experiments on the web”
+GOV.UK,
+“A/B testing: comparative studies”
+消費者庁「表示に関するQ&A」
+消費者庁「二重価格表示」
+消費者庁・特定商取引法ガイド「通信販売広告について」

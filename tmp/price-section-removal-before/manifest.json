@@ -1,0 +1,57 @@
+{
+  "bridgeVersion": "3.6",
+  "kind": "google-docs-trusted-read",
+  "status": "complete",
+  "outputDir": "/Users/garrypanda/Documents/shopify-articles/tmp/price-section-removal-before",
+  "target": {
+    "documentId": "1GFUBpxL21wgZPalI_m8RQbGFM80nmzx2k0TImiIygQw",
+    "title": "[レビュー済み・構成整理版] 価格の心理学とは？ECで使える価格設定8選と検証方法",
+    "revisionId": "ANLCKQk789KKDNmsqU_MjP5LKTSsuu0FeUN-MQGMNoY81DmXmaf9-7hRhN3I_A7DWvxpUod5yJlo9pQYmzUwrIB4QkmqQwMKvLmy_bPz9vU",
+    "documentUrl": "https://docs.google.com/document/d/1GFUBpxL21wgZPalI_m8RQbGFM80nmzx2k0TImiIygQw",
+    "selectedTabId": "t.0"
+  },
+  "dropdownMetadata": {
+    "status": "unavailable",
+    "resolvedTool": null,
+    "authoritative": false,
+    "count": 0
+  },
+  "controlAwareness": {
+    "hasProtectedControls": false,
+    "authoritativeDropdownCount": 0,
+    "opaqueControlCount": 0,
+    "affectedParagraphCount": 0,
+    "nativeElementCounts": {},
+    "preservationRequired": false,
+    "recommendedBehavior": "No protected controls were detected in the scanned scope."
+  },
+  "warnings": [],
+  "files": {
+    "document_result": {
+      "path": "/Users/garrypanda/Documents/shopify-articles/tmp/price-section-removal-before/document-result.json",
+      "bytes": 605462,
+      "sha256": "8e1fb21672b6e0253358f12eb8ad65a89872b419c221c6c7da8556551f903b4f"
+    },
+    "control_inventory": {
+      "path": "/Users/garrypanda/Documents/shopify-articles/tmp/price-section-removal-before/control-inventory.json",
+      "bytes": 1117,
+      "sha256": "eca3fbc3c968728906c1f56e91edb0a94aa9c273499e23b9361f50e780bb6d95"
+    },
+    "document_outline": {
+      "path": "/Users/garrypanda/Documents/shopify-articles/tmp/price-section-removal-before/document-outline.json",
+      "bytes": 152834,
+      "sha256": "a61aaece383a084b77ccd5edda96fc03055620124fac3073defc4508210ca95b"
+    },
+    "document_text": {
+      "path": "/Users/garrypanda/Documents/shopify-articles/tmp/price-section-removal-before/document-text.md",
+      "bytes": 44677,
+      "sha256": "28fc6fa7f5331c99ea6d55d9ea8d30a75664bb605eb367c1304b0388c734a572"
+    },
+    "receipt": {
+      "path": "/Users/garrypanda/Documents/shopify-articles/tmp/price-section-removal-before/receipt.json",
+      "bytes": 1048,
+      "sha256": "687edfa28906c4487c9237a83aec3f52b90ec4e7b05433dc354d66f09ba79d47"
+    }
+  },
+  "error": null
+}

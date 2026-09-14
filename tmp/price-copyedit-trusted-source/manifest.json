@@ -1,0 +1,59 @@
+{
+  "bridgeVersion": "3.6",
+  "kind": "google-docs-trusted-read",
+  "status": "complete",
+  "outputDir": "/Users/garrypanda/Documents/shopify-articles/tmp/price-copyedit-trusted-source",
+  "target": {
+    "documentId": "1tzxjZogiaJ1eYKIwx9V7meFtwEdoV7unNw9HKrNY6iM",
+    "title": "[レビュー済み] 価格の心理学とは？ECで使える価格設定8選と検証方法",
+    "revisionId": "ANLCKQksYvYGZCIrzFRizEi4IvXqEDr_vylaZLCBMQW--KdQmkbEhScPVmFpppSAc1wIy0d9Slafzz9k_LINkVCuv_gDHDoBZN9Si5q_cIg",
+    "documentUrl": "https://docs.google.com/document/d/1tzxjZogiaJ1eYKIwx9V7meFtwEdoV7unNw9HKrNY6iM",
+    "selectedTabId": null
+  },
+  "dropdownMetadata": {
+    "status": "unavailable",
+    "resolvedTool": null,
+    "authoritative": false,
+    "count": 0
+  },
+  "controlAwareness": {
+    "hasProtectedControls": false,
+    "authoritativeDropdownCount": 0,
+    "opaqueControlCount": 0,
+    "affectedParagraphCount": 0,
+    "nativeElementCounts": {
+      "inlineObjectElement": 3
+    },
+    "preservationRequired": false,
+    "recommendedBehavior": "No protected controls were detected in the scanned scope."
+  },
+  "warnings": [],
+  "files": {
+    "document_result": {
+      "path": "/Users/garrypanda/Documents/shopify-articles/tmp/price-copyedit-trusted-source/document-result.json",
+      "bytes": 507788,
+      "sha256": "64b66ae6f95603c736c86244829ef29986765200e75669382c6466c2574fe4ad"
+    },
+    "control_inventory": {
+      "path": "/Users/garrypanda/Documents/shopify-articles/tmp/price-copyedit-trusted-source/control-inventory.json",
+      "bytes": 3007,
+      "sha256": "af62577c073299fb4c723ccb2ed7bc33a906bdd5bdf9113513d33e63f05e5bb5"
+    },
+    "document_outline": {
+      "path": "/Users/garrypanda/Documents/shopify-articles/tmp/price-copyedit-trusted-source/document-outline.json",
+      "bytes": 143433,
+      "sha256": "c56b5f00d698c99d95db8dca36bee2a45536e7f0f6c4b115402f5833fa2fbcd0"
+    },
+    "document_text": {
+      "path": "/Users/garrypanda/Documents/shopify-articles/tmp/price-copyedit-trusted-source/document-text.md",
+      "bytes": 41605,
+      "sha256": "13f19a1107f980e281a46073d64a5f16eb84dd800d115facd40fcbaef6260f7b"
+    },
+    "receipt": {
+      "path": "/Users/garrypanda/Documents/shopify-articles/tmp/price-copyedit-trusted-source/receipt.json",
+      "bytes": 1065,
+      "sha256": "cf85533be9bef71d15473747f6ac793fe081244dd08461cf8cb7cbdf1b8b4af8"
+    }
+  },
+  "error": null
+}

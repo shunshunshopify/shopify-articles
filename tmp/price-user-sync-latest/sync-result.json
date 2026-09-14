@@ -1,0 +1,117 @@
+{
+  "status": "passed_with_image_url_embedding",
+  "reviewStatus": "not_re_reviewed_after_user_edit",
+  "documentId": "1GFUBpxL21wgZPalI_m8RQbGFM80nmzx2k0TImiIygQw",
+  "revisionId": "ANLCKQmALpvTW_izRU6XoTAV57ZS1bMnot1kpLtQNEVWEbBOEOFKVpUejXqRUo8i-SYHTUKCBQSMwUxTxVRhwN4EpZR9XekD4scs1ukal1s",
+  "url": "https://docs.google.com/document/d/1GFUBpxL21wgZPalI_m8RQbGFM80nmzx2k0TImiIygQw/edit",
+  "syncedAt": "2026-09-14T19:50:08.305390+09:00",
+  "htmlSha256": "e87b06887aee66653bc0ce0d3a8bd2840fb04994a479ed00d7da4557f5d00683",
+  "archive": "drafts/archive/2026-09-14-195008-user-sync",
+  "images": [
+    {
+      "url": "https://cdn.shopify.com/s/files/1/0704/2642/7614/files/ChatGPT_Image_2026_9_14_16_52_13.png?v=1789372340",
+      "afterHeading": "1. 価格の感じ方は「何と比べるか」で変わる",
+      "width": 1672,
+      "height": 941,
+      "alt": "単品価格とセット価格による3,000円の見え方の比較",
+      "localPath": "drafts/physiology-about-price-assets/image-1.png",
+      "bytes": 825331,
+      "sha256": "f51ac4393a6c953409930ef893bd0c98ae4113e782b0355ffe13982ad7d13b84"
+    },
+    {
+      "url": "https://cdn.shopify.com/s/files/1/0704/2642/7614/files/ChatGPT_Image_2026_6_3_21_22_05.png?v=1780489342",
+      "afterHeading": "1. 端数価格｜左端の桁が変わる価格で試す",
+      "width": 1536,
+      "height": 1024,
+      "alt": "2,000円と1,980円の端数価格の比較",
+      "localPath": "drafts/physiology-about-price-assets/image-2.png",
+      "bytes": 1047025,
+      "sha256": "98728d0c04590ce9ca8f15301672fc582896077e0b86780daa73b9a9ac200995"
+    },
+    {
+      "url": "https://cdn.shopify.com/s/files/1/0704/2642/7614/files/ChatGPT_Image_2026_9_14_17_05_06.png?v=1789373115",
+      "afterHeading": "2. アンカリング｜最初に示す価格の根拠を明確にする",
+      "width": 1672,
+      "height": 941,
+      "alt": "単品合計3,600円とセット価格3,000円の比較",
+      "localPath": "drafts/physiology-about-price-assets/image-3.png",
+      "bytes": 1051118,
+      "sha256": "fa479a01282edb36d3d11e711656d8f1bf95872f55ca9c613baf56c5e6856ba4"
+    },
+    {
+      "url": "https://cdn.shopify.com/s/files/1/0704/2642/7614/files/ChatGPT_Image_2026_6_3_21_14_59.png?v=1780488914",
+      "afterHeading": "3. 松竹梅｜3つの選択肢で中間を選びやすくする",
+      "width": 1672,
+      "height": 941,
+      "alt": "松・竹・梅の3段階の価格と内容の比較",
+      "localPath": "drafts/physiology-about-price-assets/image-4.png",
+      "bytes": 1300913,
+      "sha256": "5f931414beb729ae7b8806f50ee8c6ca84ce1f52ed2fd688c071f9bb30578642"
+    },
+    {
+      "url": "https://cdn.shopify.com/s/files/1/0704/2642/7614/files/ChatGPT_Image_2026_9_14_17_21_44.png?v=1789374216",
+      "afterHeading": "4. おとり効果｜比較する選択肢によって魅力が変わる",
+      "width": 1672,
+      "height": 941,
+      "alt": "選択肢A・BにCを加えるおとり効果の説明",
+      "localPath": "drafts/physiology-about-price-assets/image-5.png",
+      "bytes": 1295856,
+      "sha256": "e938af04a8a7520c15c72a0153e53d373fea5218e562171d51ce8d0be9c24a8b"
+    },
+    {
+      "url": "https://cdn.shopify.com/s/files/1/0704/2642/7614/files/ChatGPT_Image_2026_9_14_17_27_01.png?v=1789374430",
+      "afterHeading": "5. バンドル販売｜関連商品をセットで購入しやすくする",
+      "width": 1672,
+      "height": 941,
+      "alt": "スキンケア商品の単品購入とセット購入の比較",
+      "localPath": "drafts/physiology-about-price-assets/image-6.png",
+      "bytes": 1265759,
+      "sha256": "0b30a664e8063030f85b6f07902569c1ce3c67a0e8d3d3202aafb9591af25277"
+    },
+    {
+      "url": "https://cdn.shopify.com/s/files/1/0704/2642/7614/files/ChatGPT_Image_2026_9_14_19_10_54.png?v=1789380662",
+      "afterHeading": "6. 送料無料条件｜「あと◯円」で追加購入を促す",
+      "width": 1672,
+      "height": 941,
+      "alt": "カート金額4,200円から5,000円で送料無料になる例",
+      "localPath": "drafts/physiology-about-price-assets/image-7.png",
+      "bytes": 1233579,
+      "sha256": "fdb98b03d4a8410b3d562679da1b0a2c9c5ce213c4ecb5b83ed684961a193fb4"
+    },
+    {
+      "url": "https://cdn.shopify.com/s/files/1/0704/2642/7614/files/ChatGPT_Image_2026_9_14_19_21_07.png?v=1789381276",
+      "afterHeading": "7. 割引率・割引額｜最終的な支払額まで分かりやすく示す",
+      "width": 1672,
+      "height": 941,
+      "alt": "20％OFFと2,000円OFFの表示と最終支払額",
+      "localPath": "drafts/physiology-about-price-assets/image-8.png",
+      "bytes": 1331968,
+      "sha256": "cbcb2a7e0b226fd1c2a71fa12c68722126d3f197c5d26cd73efa6b41afa33f9b"
+    },
+    {
+      "url": "https://cdn.shopify.com/s/files/1/0704/2642/7614/files/ChatGPT_Image_2026_9_14_19_37_25.png?v=1789382254",
+      "afterHeading": "8. 名声価格｜高い価格に見合う価値を伝える",
+      "width": 1672,
+      "height": 941,
+      "alt": "高価格の商品と素材・製法・保証・サポートの説明",
+      "localPath": "drafts/physiology-about-price-assets/image-9.png",
+      "bytes": 1369772,
+      "sha256": "d4473cc93e26680a2498c5431fd453432cf1ee5f9e5d1892ed7d624eafb887f3"
+    },
+    {
+      "url": "https://cdn.shopify.com/s/files/1/0704/2642/7614/files/ChatGPT_Image_2026_9_14_19_47_30.png?v=1789382858",
+      "afterHeading": "3. ゲシュタルトの法則を使い、価格と条件を分かりやすくまとめる",
+      "width": 1672,
+      "height": 941,
+      "alt": "近接の法則と類似の法則による情報のまとまり",
+      "localPath": "drafts/physiology-about-price-assets/image-10.png",
+      "bytes": 1238308,
+      "sha256": "43f979cb504ead9720a16e4716e93f88a983080a191d6a5490c843396b84dce4"
+    }
+  ],
+  "tables": 3,
+  "cells": 73,
+  "paragraphs": 114,
+  "sourceComparison": "passed",
+  "normalization": "User image URL paragraphs embedded as images; image alt/actual dimensions/lazy decoding added. No copyediting."
+}

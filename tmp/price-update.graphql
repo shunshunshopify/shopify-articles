@@ -1,0 +1,1 @@
+mutation ReplacePricingArticle($id: ID!, $article: ArticleUpdateInput!) { articleUpdate(id: $id, article: $article) { article { id title handle isPublished updatedAt } userErrors { field message } } }
