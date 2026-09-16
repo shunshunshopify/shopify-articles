@@ -26,23 +26,25 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 - Codex実行時はリポジトリ直下の `AGENTS.md` を正本とする
 - 記事は SOLSTAR 向けの実務的なSEOコンテンツとして扱う
 - 事実が不明な内容は創作しない
-- 事実、数値、実績、口コミ、導入事例、支援実績は追加・変更・創作しない
+- 未確認の事実、数値、実績、口コミ、導入事例、支援実績は追加・変更・創作しない。確認済み出典による事実の記述・訂正は許可し、根拠と変更理由をsourcesへ残す。人間原稿の実績・体験は推測で補わない
 - 不足情報は埋めず、「追加すると E-E-A-T 向上につながる内容」として提案する
 - 記事内容と矛盾する情報を追加しない
 - `article-template.html` の CSS / TOC / JSON-LD の枠は改変しない
+- JSON-LDの例外は、確認済み著者の`author`追加、未公開で実際の公開日がない場合の`datePublished`省略、および指定プレースホルダの置換だけとする。テンプレート保守は記事生成と分け、検査も更新する
 - 記事生成・Rewriteのたびに、その時点の `article-template.html` を読み直す。過去記事や既存下書きの `<style>` を流用せず、最新版テンプレートの `<style>` をそのまま使う
 - 既存記事との重複を避ける
 - 海外記事や研究は参考にしてよいが、翻訳転載はしない
 - 検索上位記事の単なるリライトではなく、SOLSTARならではの価値を加える
 - SEOだけでなく、読者体験（UX）を最優先にする
 - 2026年時点の SEO / AIO / E-E-A-T を意識する
+- AIO・AEO・GEO・LLMOは下記「AI Search And Answer Quality」の共通基準で扱い、略語ごとに同じ審査を重複させない
 - AIでも書ける一般論だけの記事にしない
 - スマホでも読みやすいよう、1段落は3〜4行程度を目安にする
 - 公開前提で進めず、まずは設計・執筆・レビュー用成果物を保存する
 
 ## Pipeline
 
-`keyword-strategist` -> `article-designer` -> `fact-checker (pre-write)` -> `article-writer` -> `fact-checker (post-write)` -> `content-asset-planner (必要時)` -> `japanese-editor` -> `japanese-quality-reviewer` -> `article-reviewer` -> `legal-reviewer` -> `article-validator` -> `drive-draft-saver`（Google Drive保存・readback）-> （Shopify下書きを明示依頼された場合のみ）`pre-publish-checker` -> `article-publisher`
+`keyword-strategist` -> `article-designer` -> `fact-checker (pre-write)` -> `article-writer` -> `fact-checker (post-write)` -> `content-asset-planner (必要時)` -> `japanese-editor` -> `japanese-quality-reviewer` -> `article-reviewer` -> `legal-reviewer` -> `article-validator` -> `drive-draft-saver`（Google Drive保存・readback）-> （Shopify下書きを明示依頼された場合のみ）`Shopify Input Preparation` -> `pre-publish-checker` -> `article-publisher`
 
 必要なキーワードがすでに決まっている場合は `keyword-strategist` を省略してよい。通常の `new-article` は `drive-draft-saver` によるGoogle Drive保存・readbackまで自動で実施する。Shopify下書き保存は明示依頼時だけ実施し、その場合に限り `pre-publish-checker` と `article-publisher` を起動する。
 
@@ -51,6 +53,7 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 - Codex運用の判断基準、工程順、責務分担、停止条件はこの `AGENTS.md` を唯一の正本とする
 - 周辺ファイルは、この `AGENTS.md` に書かれた契約を実装するための補助資料または実装詳細として扱う
 - 周辺ファイルの記述が `AGENTS.md` と矛盾する場合は、Codexは `AGENTS.md` を優先する
+- 中央指揮と工程の実行判断はメインのCodexが担う。`article-orchestrator` 定義はメインが参照する進行手順の補助であり、別の中央指揮サブエージェントとして起動しない
 
 ## Dependency Map
 
@@ -83,20 +86,24 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 - `data/published-articles.md`
   公開済み記事の正本（handle・タグ・公開状態・カニバリ注意）。`keyword-strategist` の重複確認、`article-designer` のカニバリ確認・内部リンク選定、`article-writer` の内部リンクhandle確定、`scripts/article_validator.py` の内部リンク検証が参照する
 - `drafts/<handle>-sources.md`
-  `fact-checker` の成果物。あれば `article-writer` `content-asset-planner` `pre-publish-checker` は必ず参照
+  `fact-checker` の成果物。新規・人間原稿ともpre-writeで作成し、writer以降の編集・審査では必須参照。外部検証対象がない場合もその理由と独自考察の根拠を記録する
 - `drafts/<handle>-assets.md`
   `content-asset-planner` の成果物。`pre-publish-checker` と公開前の人間確認で使う
 - `drafts/<handle>-japanese-review.md`
   `japanese-quality-reviewer` の成果物。自然な日本語、段落論理、用語、リズム、文体統一の合格記録として使う
 - `drafts/<handle>-drive.md`
   `drive-draft-saver` の保存記録。Google Doc URL、file ID、MIME type、readback結果、未解決事項を記録する。Shopify下書き工程はこの記録の合格結果を必須入力とする
+- `drafts/<handle>-shopify.html`
+  Shopify下書きが明示依頼された場合にメインの実行主体が作る投入用コピー。審査済みHTMLとの差分は承認されたJSON-LDの値確定だけに限定する
+- `drafts/<handle>-search-performance.md`
+  公開後に依頼された `review-search-performance` の記録。設計・改稿では該当記事の記録があれば参照する
 
 ## Dependency Rules
 
 - Codexが最初に読むべきファイルは `AGENTS.md` のみでよい
 - その後は、実行する工程に必要な依存だけを追加で読む
 - `article-template.html` は `article-writer` 着手前に必ず読む
-- `theme-css/solstar-article.css` と `article-template.html` のStyle整合は `article-validator` が検査する。不一致時は記事生成を続けず、先にテンプレートを最新版へ同期する
+- `theme-css/solstar-article.css` と `article-template.html` のStyle整合はメインがwriter着手前に確認し、`article-validator` が完成後にも検査する。不一致時は先にテンプレートを最新版へ同期する
 - `company-facts.md` は SOLSTAR固有情報を書く必要が出た時点で必ず読む
 - `data/published-articles.md` は `keyword-strategist` の重複確認、`article-designer` の設計着手前、`article-writer` の内部リンク確定前に必ず読む
 
@@ -107,7 +114,7 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 - `keyword-strategist` はテーマ未定またはキーワード未指定で起動してよい
 - `article-designer` はキーワードと投稿先ブログが決まってから起動する
 - `fact-checker` は `drafts/<handle>-brief.md` 生成後に起動する
-- `article-writer` は `drafts/<handle>-brief.md` を必須入力とし、`drafts/<handle>-sources.md` があれば必須参照とする
+- `article-writer` は `drafts/<handle>-brief.md` とpre-write済みの `drafts/<handle>-sources.md` を必須入力とする
 - Google Drive保存前は、`article-writer`、`fact-checker (post-write)`、必要時の`content-asset-planner`、`japanese-editor`、`japanese-quality-reviewer`、`article-reviewer`、`legal-reviewer`、`article-validator` をすべて完了させる
 - `drive-draft-saver` は `article-validator` 合格後にのみ起動し、Google Driveへの保存とURL・file IDのreadbackを完了させる
 - `pre-publish-checker` と `article-publisher` は、Shopify下書き作成を明示依頼された時点でのみ実行する
@@ -116,8 +123,8 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 - `japanese-quality-reviewer` は `japanese-editor` 完了後に起動し、`drafts/<handle>.html` と `drafts/<handle>-brief.md` を必須入力とする
 - `article-reviewer` は `drafts/<handle>.html` と `drafts/<handle>-brief.md` がそろってから起動する
 - `legal-reviewer` は `article-reviewer` 合格後に起動する
-- `article-validator` は `legal-reviewer` 合格後に `scripts/article_validator.py --allow-draft-placeholders` を実行する。Shopify下書き作成を明示依頼された場合は、`pre-publish-checker` の直前にプレースホルダを許可しない通常モードで再実行する
-- `pre-publish-checker` は `drafts/<handle>.html` 完成後に起動する
+- `article-validator` は `legal-reviewer` 合格後に `scripts/article_validator.py --allow-draft-placeholders` を実行する。どのモードも確定メタを含むブリーフを必須入力とする。Shopify下書きの明示依頼時は、メインの実行主体が「Shopify Input Preparation」に従って投入用コピーを準備し、`pre-publish-checker` の直前にコピーを通常モードで検査する
+- `pre-publish-checker` は審査済み原稿と投入用コピーがそろい、コピーの通常モード検査が合格してから起動する
 - `pre-publish-checker` はブリーフの確定メタディスクリプションとJSON-LDの`Article.description`が完全一致しない場合は不合格とする
 - `article-publisher` は `pre-publish-checker` 合格後しか起動せず、確定メタディスクリプションをShopifyの`global.description_tag`へ設定する
 
@@ -134,7 +141,7 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 - `legal-reviewer` は `drafts/<handle>-legal-review.md` に法務リスクと合否を保存し、本文は編集しない
 - `article-validator` は決定論的な検査結果を返すが、本文は編集しない
 - `drive-draft-saver` は `drafts/<handle>-drive.md` に保存記録を残し、Google Doc URL・file ID・MIME type・readback結果を返す
-- `pre-publish-checker` は合否と修正点を返すが、本文は編集しない
+- `pre-publish-checker` は合否と修正点、元原稿・投入用コピーのSHA-256を `drafts/<handle>-pre-publish.md` に記録する。本文は編集しない
 - `article-publisher` は Shopify に下書きを作成し、`global.description_tag`と`isPublished: false`をreadbackして、管理用URL・保存したMeta description・確認結果を`drafts/<handle>-shopify.md`へ記録する
 
 ### Fallback Contracts
@@ -144,6 +151,16 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 - 出典確認ができない主張は本文へ断定的に書かない
 - Google Drive や Shopify に接続できない場合は、その工程で止めて必要な接続を報告する
 
+### Gate Lifecycle And Draft Exceptions
+
+- 各ゲートの不合格は「後工程へ進めない」という意味であり、修正可能なら指定担当へ差し戻す。最大3周は初回を含む同じゲートの審査3回とし、上限に達しても不合格ならタスクを停止する。writerへ戻しても回数をリセットしない。validatorの修正・再検査も最大3回とする
+- 本文・タイトル・メタ・構成・事実をwriterが変えたら、fact-checker（post-write）→必要時の素材計画更新→japanese-editor→日本語審査→総合審査→法務→validatorの順で、後工程へ渡すまでに再合格させる。日本語editorだけの意味不変編集でも、日本語審査以降の既存合格は失効する
+- 各審査は対象HTMLのSHA-256を記録する。法務・Drive・投入準備は直前の日本語・総合・法務の合格が現在の原稿に対するものか照合する。fact-checker後の意味不変編集はeditorの変更報告で追跡し、意味の変化が疑われる場合はwriterとfact-checkerへ戻す
+- 日本語editorが見出しを変えた場合、HTMLとTOCを同期し、メインがbriefの見出し文だけを同じIDに対して同期する。意味・SEO意図の変更はwriterへ戻す。これによりeditorの編集対象はHTMLだけに保つ
+- 記事の主要な結論に影響しない不足情報は `【要記入: ...】`、`【要確認: ...】`、`【内部リンク要記入: ...】` または `<!-- 要確認: ... -->` で明示し、各審査は未確認の事実として断定されていないことと本文の成立を確認して下書き合格にできる。Driveは必ず `needs_human_input` とする。本文の主張が成立しない不足はこの例外を使わず停止する
+- `{{...}}`、確定タイトル・確定メタの欠落は下書きでも許さない。公開用JSON-LDトークンだけは通常の下書きで許容し、回答品質ゲートでは値の確定を投入準備で行う旨を記録する。未確認任意情報の省略理由や本文外の将来提案は、それ自体を未解決の本文として扱わない
+- 下書きの目安と機械検査の上限を区別する。FAQは3〜5問、「この記事でわかること」は4〜6項目を現行テンプレートの必須範囲とする。記事別の例外が必要なら契約・検査を先に変更する
+
 ## Files
 
 - `article-template.html`: 記事HTMLテンプレート
@@ -152,6 +169,37 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 - `company-facts.md`: SOLSTAR固有の実績・事例・料金の参照元。存在しない場合は創作せず `【要記入: ...】` を残す
 
 ## Article Requirements
+
+### AI Search And Answer Quality
+
+- AIOはAI検索全般（GoogleのAI Overviewsを含む）への対応、AEOは質問に直接答える構成、GEOは生成AIが根拠として参照できる情報品質、LLMOは名称・関係・条件を誤解しにくい情報設計として運用する。これらは独立した必須HTML規格ではない
+- 設計ブリーフに「質問・回答・条件・根拠の対応表」を必ず作る。列は `質問ID / 読者の質問 / 主・補足 / 回答する見出し・ID / 答えの要点 / 適用条件・例外 / 根拠IDまたは確認予定 / 独自の判断・次の行動` とする。主検索意図の回答漏れは設計で差し戻す。無関係な質問や検索語の全変種を増やさない
+- 主要な質問には本文で直接答え、必要な対象・時点・条件・例外を近くに置く。「この記事でわかること」の予告を回答の代わりにしない。簡潔な1〜2文は目安であり、固定文字数や全見出しの疑問文化は要求しない
+- 重要な数値・比較・変化しやすい事実は、該当文・表の近くに出典リンクまたは参照番号を置き、対象・確認時点を示す。根拠のない一般化を避け、事実とSOLSTARの考察・助言を区別する
+- 出典台帳には `根拠ID / 支える主張・質問ID / 本文位置 / 出典URL・該当箇所 / 公表・更新日 / 確認日 / 対象・適用条件 / 検証結果` を記録する。日付不明は不明と書き、確認日と混同しない。助言は根拠と推論のつながりを示し、未確認の経験談へ変えない
+- 専門用語は必要性を確認し、平易な説明を先に置く。初出だけでなく、表・FAQ・独立した節から読み始めても主要な判断を理解できるか点検する。必要な短い補足だけを加え、毎回同じ説明を繰り返さない
+- 著者・監修者・発行者を区別する。構造化データの名前・役割・主題・日付・URLは確認済み情報と一致させる。監修者を自動的に著者にしない。未確認の任意情報は省略して理由を記録する。公開ページではテーマが出力するデータも含めて重複・矛盾を確認する
+- `article-reviewer` は下記の「回答品質ゲート」を独立した合否表として記録する。各行に `passed / failed / not_applicable`、対象箇所、根拠、修正先を記載する。該当なしは理由が必要で、主要質問への直接回答・初心者理解・独自価値を該当なしにしない
+  1. 主検索意図への直接回答と対応表の充足
+  2. 回答に不可欠な条件・例外・対象・時点の保持
+  3. 重要な主張と出典の対応、出典が支える範囲
+  4. 初心者理解と、表・FAQを含む独立した箇所の明瞭さ
+  5. 確認済み事実に基づく独自の判断・次の行動
+  6. 会社・人物・主題・日付など、本文と構造化データの整合
+- 上記に重大な欠落があれば総合点にかかわらず不合格。対応表・出典台帳・合否表の欠落も完了扱いにしない。文章調整後も条件・根拠が失われていないか審査する。定義や事実が変わる修正はwriterへ戻し、fact-checkerから再実行する
+- AIへの掲載・引用・モデル学習への採用を保証しない。引用数、質問文の個数、専用スキーマ、llms.txt、細かい文章分割を合格条件にしない。公式ガイドの確認日を記録し、変更される仕様を過去の記憶だけで断定しない
+
+### Brief Metadata Contract
+
+- 確定メタディスクリプションは、ブリーフの `## 機械検証用メタデータ` に置くJSONコードブロック1つを正本とする。キーは `meta_description` のみ、値は確定した1行の文字列。別の見出し・案・表に確定値を重複管理しない
+- 記述形式は次のとおり（例文は実際の記事に合った80〜120字程度の確定値へ置換する）。この節にはコードブロック以外を書かず、次の節はH2見出しで始める
+
+```json
+{"meta_description": "記事の主題・対象読者・読了メリットを反映した確定文"}
+```
+
+- 新規・Rewrite・人間原稿の改稿すべてに適用する。既存ブリーフを使うときは、designerまたはhuman-draft-reviewerが既存の確定値を確認してこの形式へ移す。HTMLの値を無条件で正本へコピーしない。候補が複数ある場合は内容と照合して1つに確定する
+- validatorは既定で記事と同じ場所の `<stem>-brief.md` を読む。別名の投入用コピーでは `--brief drafts/<handle>-brief.md` を指定する。ブリーフの欠落・形式不備・仮値・メタ不一致は下書きモードでも不合格
 
 ### Reader First
 
@@ -222,7 +270,7 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 ### What Readers Will Learn
 
 - 導入文の直後に、H2「この記事でわかること」を必ず置く
-- 箇条書きは4〜6項目を目安にする
+- 箇条書きは4〜6項目とする
 - 本文で実際に解説する内容と一致させる
 - 数秒で読むメリットが伝わる内容にする
 
@@ -297,7 +345,7 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 - FAQは記事末に設置する
 - 配置は「まとめ」の直前を基本とする
 - 各質問のH3見出しは必ず先頭に「Q.」を付ける（例: `<h3>Q. 〇〇はどのくらいですか？</h3>`）。回答本文に「A.」は付けない
-- 3〜5問程度を目安にし、本文の補足になる内容を入れる
+- 3〜5問とし、本文の補足になる内容を入れる
 - 本文と重複しすぎる内容は避ける
 - ロングテールの疑問や検索ユーザーの不安を意識する
 
@@ -387,6 +435,7 @@ Codexはこのファイルをプロジェクト共通ルールとして参照し
 - 本文で使うべき箇所
 - 使用禁止または要確認の情報
 - E-E-A-T向上のために追加するとよい不足情報
+- 「AI Search And Answer Quality」に従った出典台帳。post-writeでは主張の対応、限定条件、本文近くの出典表示を照合し、審査したHTMLのSHA-256と合否を記録する
 
 ### Constraints
 
@@ -418,6 +467,7 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 3. 3C分析で、SOLSTARが勝てるかどうかを補正する
 4. 既存記事と重複しない候補を優先順位付きで整理する
 5. UXとE-E-A-Tの観点から、一般論に寄りにくいテーマを優先する
+6. 関連する `drafts/<handle>-search-performance.md` があれば、確認期間と欠測を区別して既存記事の改善候補へ反映する。AI表示・引用指標をGSCの順位・CTRや成果と混同せず、既定のスコアへ根拠のない加点をしない
 
 ### Scoring Details
 
@@ -476,6 +526,8 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 
 - **handle（URLスラッグ）**: 内容を表す半角英小文字ハイフン区切り。以降の全工程がこの handle をファイル名に使うため、設計工程で必ず確定する
 - タイトル案3つ
+- **採用タイトル**: 3案から1つを確定する。本文完成後にwriterが内容に合わせて修正した場合はbrief・JSON-LD・保存タイトルを同期して再審査する
+- **投稿先ブログ**: Shopify / Marketing / Branding の確定値。未指定ならメインが主題から選んで設計へ渡す
 - **確定メタディスクリプション**（80〜120字を目安に1つ。記事の主題、対象読者、読了メリットを含める）
 - 想定読者と検索意図
 - **Shopify関連度**: `直接関連` / `一部関連` / `非関連` の判定、理由、本文で触れる範囲
@@ -489,6 +541,9 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 - FAQ案
 - **内部リンク候補**: `data/published-articles.md` から選んだ関連公開済み記事2〜3本を目安に記載する（handle・相対URL・本文のどの見出しから張るか）。カニバリ懸念がある既存記事があればその注意も明記する。関連する記事が少ない場合は本数を無理に満たさず理由を書く
 - 図解 / 画像提案と挿入位置
+- 質問・回答・条件・根拠の対応表（「AI Search And Answer Quality」に準拠）
+- 用語計画（必要な専門用語 / 平易な説明 / 初出予定 / 表・FAQでの補足予定）
+- 確定メタは「Brief Metadata Contract」のJSONブロックへ記載する
 
 ### Constraints
 
@@ -512,7 +567,7 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 ### Inputs
 
 - `drafts/<handle>-brief.md`
-- `drafts/<handle>-sources.md` があれば必ず参照する
+- `drafts/<handle>-sources.md`（必須）
 - 差し戻し時は `drafts/<handle>-japanese-review.md`、`drafts/<handle>-review.md`、`drafts/<handle>-legal-review.md` のうち該当する指摘
 
 ### Tasks
@@ -521,8 +576,8 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 2. ブリーフに沿って、最終更新日、監修者情報、導入文、H2「この記事でわかること」、本文、FAQ、まとめを書く
 3. TOCアンカーと見出し `id` を一致させる
 4. JSON-LD の `HEADLINE` を確定タイトルで、`DESCRIPTION` をブリーフの確定メタディスクリプションと完全に同じ文字列で埋める。空欄・仮値・別案は禁止する
-5. `PAGE_URL` `DATE_*` `BLOG_NAME` `BLOG_URL` は公開工程用プレースホルダとして残す
-6. 確認済みの出典は本文または参考文献として自然に入れる
+5. 新規記事の `PAGE_URL` `DATE_*` `BLOG_NAME` `BLOG_URL` は公開工程用プレースホルダとして残す。公開済み原稿の確認済みURL・実際の公開日は維持し、dateModifiedは本文の実際の更新日に合わせる
+6. 重要な主張は本文の近くに出典リンクまたは参照番号を置き、必要に応じて参考文献一覧にも掲載する
 7. 出典（`drafts/<handle>-sources.md`）から得た情報は、原文の順序や分量をそのまま反映せず、読者が知りたい結論を先に立ててから詳細・根拠を続ける形に再構成する
 8. 項目・手順・条件・数値の比較など情報量が多い内容は、地の文の羅列にせず箇条書きや表にする
 9. 説明順を「経営・業務への影響 → 判断基準 → 次に取る行動 → 必要な場合だけ仕組みの補足」とし、Non-technicalな読者の判断に不要な実装詳細を入れない
@@ -530,6 +585,8 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 11. 代表者が読者へ直接助言するような短い実務コメントを、記事全体で2〜4か所を目安に自然に入れる。署名や専用ラベルは付けず、未確認の経験談は書かない
 12. 執筆後に全文を見直し、硬い表現、難しい漢字、不要な専門用語、長すぎる文を、意味と正確さを保ったまま分かりやすく整える
 13. 執筆後にH2 / H3だけを通読し、主語や対象がなく意味が曖昧な見出し、抽象的な分類ラベル、本文の結論が分からない見出しを具体的なコピーへ直す。変更時はTOC表示文も同期する
+14. 質問対応表に沿って直接回答と必要な条件・例外を書き、重要な主張の近くに出典を置く。見出し変更時は対応表も同期する。対応表・用語計画がない場合はdesigner（人間原稿ならhuman-draft-reviewer）へ差し戻す
+15. 著者が確認できた場合だけJSON-LDに名前とPerson/Organizationの型、確認できたプロフィールURLを追加する。監修者表記から著者を推定しない。未確認ならauthorを省略し、sourcesへ理由を残す
 
 ### Output
 
@@ -561,7 +618,7 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 
 - `drafts/<handle>-brief.md`
 - `drafts/<handle>.html`
-- `drafts/<handle>-sources.md` があれば参照する
+- `drafts/<handle>-sources.md`（必須）
 
 ### Tasks
 
@@ -597,6 +654,7 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 
 - `drafts/<handle>.html`
 - `drafts/<handle>-brief.md`
+- `drafts/<handle>-sources.md`
 
 ### Tasks
 
@@ -611,6 +669,7 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 9. 中学2〜3年生でも理解できる言葉を基本に、硬い熟語、抽象語、回りくどい表現を日常的で具体的な言葉へ整える。ただし、専門性と正確さは維持する
 10. 一文に複数の内容が詰め込まれている場合は、HTML構造を変えない範囲で文を分ける。専門用語は必要性を確認し、難しい用語には初出で短い説明を加える
 11. 見出しに主語や対象がなく意味が曖昧な場合、「概要」「ポイント」「原因」「対策」などの分類語だけで内容が伝わらない場合は、本文にある具体的な問題・結果・行動を使って書き直す
+12. 質問への答え、適用条件、対象、出典との対応を短文化で落とさない。表・FAQから読んでも理解できる補足を確認し、代表的な難解表現の修正前後と理由を報告する。既存の用語判断コメントに誤りがあればwriterへ差し戻す
 
 ### Output
 
@@ -634,7 +693,7 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 
 - `drafts/<handle>.html`
 - `drafts/<handle>-brief.md`
-- `drafts/<handle>-sources.md` があれば参照する
+- `drafts/<handle>-sources.md`（必須）
 
 ### Review Axes
 
@@ -657,6 +716,7 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 - 該当箇所、問題の理由、具体的な修正案
 - `japanese-editor` と `article-writer` のどちらへ差し戻すべきか
 - 良い点と維持すべき表現
+- 用語確認表（用語 / 平易な説明 / 初出位置 / 表・FAQでの補足要否 / 正確性 / 合否）。専門用語がない場合はその旨を記録する。代表的な言い換えの修正前後と理由も確認する
 
 ### Constraints
 
@@ -679,7 +739,7 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 
 - `drafts/<handle>.html`
 - `drafts/<handle>-brief.md`
-- `drafts/<handle>-sources.md` があれば参照する
+- `drafts/<handle>-sources.md`（必須）
 - `drafts/<handle>-japanese-review.md` の合格結果
 - 4観点（`SEO` / `E-E-A-T` / `独自性・非定型性` / `UX・可読性`）を1回でまとめて審査する
 
@@ -699,6 +759,8 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 - 合否
 - 修正指示
 - 良い点
+- 回答品質ゲート（「AI Search And Answer Quality」の6項目を箇所・根拠付きで判定）
+- 審査したHTMLのSHA-256
 
 ### Constraints
 
@@ -725,6 +787,7 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 - `drafts/<handle>.html`
 - `drafts/<handle>-brief.md`
 - `drafts/<handle>-sources.md`
+- `drafts/<handle>-review.md` の合格結果（現在のHTMLとSHA-256が一致すること）
 
 ### Tasks
 
@@ -741,6 +804,7 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 - 高・中・低別のリスク
 - 合否
 - 不合格時の具体的な修正指示
+- 審査したHTMLのSHA-256（総合審査の対象と同じ原稿であることを確認してから採点する）
 
 ### Constraints
 
@@ -774,6 +838,25 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 - 検査失敗時は `pre-publish-checker` と `article-publisher` に進まない
 - 本文は編集しない
 
+### Metadata And Delivery Checks
+
+- ブリーフの機械検証用メタデータと、すべてのArticle.descriptionが完全一致すること
+- 本文の最終更新日は実在する暦日であること。確定したdateModifiedは本文の日付とJST基準で一致し、datePublishedがあればdateModified以前であること
+- 下書きモードでは既定の公開用トークンを許す。通常モードではJSON-LDのPAGE_URL・DATE_*・BLOG_NAME・BLOG_URLの残存、無効な日付・URLを不合格とする
+- authorを記載する場合はPerson/Organizationと名前を確認する。著者であるという事実やリンク先の妥当性はエージェントが審査する
+- `--source` 指定時はJSON-LDを除いた原稿との完全一致を検査する。これはJSON-LD変更の意味的な妥当性やAIへの掲載を保証する検査ではない
+
+## Component: `Shopify Input Preparation`
+
+Shopify下書きの明示依頼時だけ、Drive保存・readback後にメインの実行主体が行う。
+
+1. 元原稿 `drafts/<handle>.html` と日本語・総合・法務審査、Drive記録のSHA-256を照合する。元原稿を変更せず `drafts/<handle>-shopify.html` へコピーする
+2. コピーのJSON-LDだけを確定する。PAGE_URLは確認したドメイン・ブログhandle・記事handleから作る予定URL、BLOG_NAME/BLOG_URLは確認済みの投稿先とする。dateModifiedは本文の実際の最終更新日をISO8601で記載する
+3. 新規未公開記事のdatePublishedは省略し、作業日を公開日として入れない。既存公開記事では確認済みの実際の公開日を保持する。人間が公開する際に実際の公開日を設定・確認すべきことを引き継ぐ
+4. 確定メタ、本文、CSS、見出し、リンクは変更しない。authorの追加・訂正など審査未実施の意味変更が必要ならwriterへ戻し、該当するゲートとDrive保存を再実行する
+5. `python3 scripts/article_validator.py drafts/<handle>-shopify.html --brief drafts/<handle>-brief.md --source drafts/<handle>.html` を実行する。JSON-LD差分、値の根拠、元原稿とコピーそれぞれのSHA-256、検査結果を `drafts/<handle>-pre-publish.md` へ記録する
+6. pre-publish-checkerは元原稿の審査結果と、投入用コピーの差分・通常モード検査を確認する。publisherは合格したコピーをそのままbodyへ渡す。直前にコピーのSHA-256と通常モード検査を再確認し、変更があれば再審査する
+
 ## Agent: `drive-draft-saver`
 
 ### Role
@@ -794,9 +877,10 @@ Google Search Console の実データ、Ahrefs の候補、3C分析をもとに�
 ### Tasks
 
 1. 日本語品質レビューに記録されたHTMLのSHA-256が現在のHTMLと一致することを確認する。一致しなければ保存しない
+   総合品質・法務レビューのSHA-256と合格、回答品質ゲート、日本語審査の用語確認表も確認する。公開用JSON-LDトークンは下書きで許容するが、未確認事実・要記入事項は未解決として扱う
 2. ブリーフから確定タイトルを取得し、`new_article` は `[下書き] <記事タイトル>`、`reviewed_human_draft` は `[レビュー済み] <記事タイトル>` のGoogle Docを指定フォルダに新規作成する
 3. HTMLの本文をGoogle Docs向けに変換し、見出し、段落、リスト、表、リンクを可能な範囲で保持する。CSS、JSON-LD、公開用プレースホルダはGoogle Doc本文へ混在させない
-4. 記事本文に `【要記入...】` または `<!-- 要確認 -->` が残る場合は、Google Docの先頭に未解決事項として明示し、保存記録を `needs_human_input` とする。Shopify下書き工程へは進めない
+4. 記事本文の `【要記入...】`、`【要確認...】`、`【内部リンク要記入...】`、`<!-- 要確認... -->` と審査記録の未解決事項を確認する。残る場合はGoogle Docの先頭に明示し、保存記録を `needs_human_input` とする。Shopify下書き工程へは進めない
 5. 作成後、返されたURL、file ID、MIME typeを記録する
 6. Google Docsコネクターで作成済み文書をreadbackし、タイトル、フォルダ、本文冒頭、主要見出し、リンクの保存を確認する
 
@@ -826,16 +910,18 @@ Shopify投入直前に、記事HTMLと関連メモを最終確認する。公開
 ### Inputs
 
 - `drafts/<handle>.html`
+- `drafts/<handle>-shopify.html` と `drafts/<handle>-pre-publish.md` の準備記録
 - `drafts/<handle>-brief.md`
-- `drafts/<handle>-sources.md` があれば参照する
+- `drafts/<handle>-sources.md`（必須）
 - `drafts/<handle>-assets.md` があれば参照する
 - `drafts/<handle>-japanese-review.md` の合格結果
+- `drafts/<handle>-review.md` と `drafts/<handle>-legal-review.md` の合格結果
 - `article-validator` の合格結果
 - `drafts/<handle>-drive.md` の `passed` 結果（Google Drive URL・file ID・readback結果を含む）
 
 ### Tasks
 
-1. `【要記入: ...】`、`<!-- 要確認 -->`、未置換プレースホルダの残りを確認する
+1. 投入用コピーに `【要記入: ...】`、`<!-- 要確認 -->`、未置換プレースホルダが残っていないことを確認する。審査済み元原稿の公開用JSON-LDトークンはコピーの確定値と照合する
 2. ブリーフに確定メタディスクリプションが1つあり、空欄・仮値・未解決プレースホルダを含まないことを確認する。さらにJSON-LDの`Article.description`と完全一致することを確認する
 3. FAQがまとめ直前にあるか確認する
 4. 数字タイトルと本文項目数が一致しているか確認する
@@ -843,8 +929,9 @@ Shopify投入直前に、記事HTMLと関連メモを最終確認する。公開
 6. 自動公開につながる設定がないか確認する
 7. `article-validator` が合格済みか確認する
 8. `drafts/<handle>-drive.md` が `passed` で、Google Drive保存・readbackが完了しているか確認する
-9. `drafts/<handle>-japanese-review.md` が合格済みで、記録されたHTMLのSHA-256が現在のHTMLと一致するか確認する
+9. `drafts/<handle>-japanese-review.md` と総合品質・法務レビューが合格済みで、記録されたHTMLのSHA-256が審査済み元原稿と一致するか確認する
 10. Shopify投入仕様として、確定メタディスクリプションを`global.description_tag` / `single_line_text_field`に設定し、`summary`では代替しないことを確認する
+11. 「Shopify Input Preparation」のJSON-LD差分と根拠を確認する。投入用コピーと元原稿の本文同一性、コピーに対する通常モード検査、回答品質ゲート6項目の合格を確認し、両HTMLのSHA-256と合否をpre-publish記録へ追記する
 
 ### Output
 
@@ -865,7 +952,7 @@ Shopify投入直前に、記事HTMLと関連メモを最終確認する。公開
 
 ### Inputs
 
-- `drafts/<handle>.html`
+- `drafts/<handle>-shopify.html`（投入用コピー）と `drafts/<handle>.html`（審査済み原稿）
 - `drafts/<handle>-brief.md`
 - `pre-publish-checker` の合格結果
 - `article-validator` の合格結果
@@ -874,13 +961,14 @@ Shopify投入直前に、記事HTMLと関連メモを最終確認する。公開
 ### Tasks
 
 1. ブリーフからタイトル、handle、確定メタディスクリプション、タグ、投稿先ブログを取得する。確定メタディスクリプションが空、仮値、複数案、またはJSON-LDの`Article.description`と不一致なら停止する
-2. HTML内の JSON-LD プレースホルダを確定値へ置換し、`Article.description`を確定メタディスクリプションと完全一致させる
+2. `drafts/<handle>-pre-publish.md` の合格と投入用コピーのSHA-256を確認し、`python3 scripts/article_validator.py drafts/<handle>-shopify.html --brief drafts/<handle>-brief.md --source drafts/<handle>.html` を再実行する。合格したコピーを変更せずbodyへ渡す。著者は確認済みの場合だけ設定し、監修者から推定しない
 3. Shopify Admin GraphQL のスキーマを確認する
 4. GraphQL を検証してから mutation を実行する
 5. `isPublished: false`で記事を作成し、確定メタディスクリプションを`metafields`の`global.description_tag`（type: `single_line_text_field`）へ必ず設定する。`summary`は代替にしない
 6. コネクター経由でもShopify CLI経由でも、mutation実行前に実際のqueryとvariablesを`scripts/shopify_publish_guard.py`で検査し、`allow`の場合だけ実行する
 7. 作成直後に別queryで`global.description_tag { type value }`と`isPublished`をreadbackし、ブリーフとの完全一致、type、`isPublished: false`を確認する
 8. 欠落・不一致なら、`isPublished: false`と`global.description_tag`だけを明示した`articleUpdate`で1回だけ修復して再readbackする。それでも一致しなければ`failed`とする
+9. guardへはJSON入力 `{"tool_input":{"query":"実際のmutation","variables":{}}}` を標準入力で渡し、出力の `hookSpecificOutput.permissionDecision` が `allow` であることを確認する。終了コード0だけでは許可を意味しない。hookの自動起動に依存せずCLIでも同じ検査を行う
 
 ### Output
 
@@ -895,6 +983,7 @@ Shopify投入直前に、記事HTMLと関連メモを最終確認する。公開
 - `article-validator` が不合格または未実行の場合は実行しない
 - `drafts/<handle>-drive.md` がない、または `passed` でない場合は実行しない
 - ShopifyからのreadbackでMeta descriptionと`isPublished: false`を確認できない限り、下書き保存完了と報告しない
+- mutationガードは単一の明示的なmutationを対象に、各記事の実際の入力を個別に検査する。未対応構文・欠落変数・公開日時`publishedAt`の指定は拒否する。CLIでも同じガードを実行し、GraphQLの構文・型は別途Shopifyスキーマで確認する
 
 ## Workflow: `new-article`
 
@@ -908,7 +997,7 @@ Shopify投入直前に、記事HTMLと関連メモを最終確認する。公開
 
 ### Steps
 
-1. キーワードが未指定なら `keyword-strategist` を実行し、最有力候補を1つ決める
+1. キーワードが未指定なら `keyword-strategist` を実行し、最有力候補を1つ決める。投稿先ブログが未指定ならメインが主題から選び、キーワードとともに設計へ渡す
 2. `article-designer` を実行し、`drafts/<handle>-brief.md` を作る
 3. `fact-checker` を実行し、`drafts/<handle>-sources.md` を作る
 4. `article-writer` を実行し、`drafts/<handle>.html` を作る
@@ -922,14 +1011,14 @@ Shopify投入直前に、記事HTMLと関連メモを最終確認する。公開
 12. 品質合格後に `legal-reviewer` を実行し、`drafts/<handle>-legal-review.md` に保存する。95点未満または高リスクがあれば `article-writer` に差し戻し、5、7、8、10、12を必ず再実行する。最大3周とする
 13. `article-validator` を `python3 scripts/article_validator.py --allow-draft-placeholders drafts/<handle>.html` で実行する。構造、TOC、JSON-LD、CSS、内部リンク、日本語の決定論的ルールの検証に失敗した場合は修正し、影響した品質ゲートから再実行する
 14. `drive-draft-saver` を実行し、指定Google Driveフォルダへ `[下書き] <記事タイトル>` のGoogle Docとして保存・readbackする。通常依頼での自動実行はここまでとする
-15. Shopify下書き作成を明示依頼された場合だけ、`drafts/<handle>-drive.md` が `passed` であることを確認し、`python3 scripts/article_validator.py drafts/<handle>.html` を通常モードで再実行してから `pre-publish-checker` を実行する。確定メタディスクリプションとJSON-LDの完全一致も合格条件にする
+15. Shopify下書き作成を明示依頼された場合だけ、`drafts/<handle>-drive.md` が `passed` であることを確認し、「Shopify Input Preparation」に従って投入用コピーの値確定・通常モード検査を完了してから `pre-publish-checker` を実行する。確定メタディスクリプションとJSON-LDの完全一致も合格条件にする
 16. `pre-publish-checker` 合格後、`article-publisher` を実行し、Shopify に `isPublished: false` の下書きとして保存する。確定メタディスクリプションを`global.description_tag`へ設定し、別queryのreadbackで値・型・下書き状態を確認する
 17. Google Drive URL、Shopify下書きURL（作成した場合のみ）、Shopifyへ保存したMeta description、readback結果、要確認点、`【要記入: ...】` の残件を報告する
 
 ### Stop Conditions
 
 - 日本語品質、総合品質、法務のいずれかが最大3周しても合格しない場合は停止して残課題を報告する
-- 日本語品質または総合品質のいずれかの観点が90点未満、法務高リスクが残る、または `article-validator` が失敗した場合は停止する
+- 日本語品質・総合品質・法務・validatorが不合格なら後工程を止め、「Gate Lifecycle And Draft Exceptions」に従って差し戻す。上限到達、必要な根拠の欠如、接続不足など修正不能な場合はタスクを停止する
 - 指定Google Driveフォルダへの保存とreadbackが完了しない場合は、Google Drive下書き作成として失敗を報告し、Shopifyへ進まない
 - `drive-draft-saver` が `needs_human_input` の場合はGoogle Drive URLと未解決事項を報告して停止し、Shopifyへ進まない
 - `company-facts.md` がなくても一般論と確認済み出典で書ける場合は続行し、SOLSTAR固有情報は `【要記入: ...】` として残す
@@ -959,12 +1048,12 @@ Shopify投入直前に、記事HTMLと関連メモを最終確認する。公開
 
 1. 指定URLからファイルID、MIME type、タイトルを取得し、対象ファイルを固定する
 2. Google DocsならDocsコネクターで本文・見出し・表・リンクを読み、原本の現在内容を取得する
-3. `human-draft-reviewer` が検索意図、構成、SEO、E-E-A-T、事実、独自性、日本語、CTAをレビューし、`drafts/<handle>-human-review.md` と `drafts/<handle>-brief.md` を作る
-4. `article-writer` を人間原稿の改稿モードで実行し、原文の有用な内容と筆者の意図を保持しながら `article-template.html` に統合して `drafts/<handle>.html` を作る
+3. `human-draft-reviewer` が検索意図、構成、SEO、E-E-A-T、事実、独自性、日本語、CTAをレビューし、`drafts/<handle>-human-review.md` と `drafts/<handle>-brief.md` を作る。新規記事と同じ質問対応表・用語計画・機械検証用メタデータを必須とする
+4. `fact-checker (pre-write)` でsourcesを作成してから、`article-writer` を人間原稿の改稿モードで実行する。原文の有用な内容と筆者の意図を保持しながら `article-template.html` に統合して `drafts/<handle>.html` を作る
 5. `fact-checker (post-write)`、必要時の `content-asset-planner`、`japanese-editor` を実行する
-6. `japanese-quality-reviewer`、`article-reviewer`、`legal-reviewer`、`article-validator`（`--allow-draft-placeholders`）の順でゲートを通す。Rewrite後は `fact-checker (post-write)`、`japanese-editor`、`japanese-quality-reviewer`、`article-reviewer` を省略せず、差し戻しは各最大3周とする
+6. `japanese-quality-reviewer`、`article-reviewer`、`legal-reviewer`、`article-validator`（`--allow-draft-placeholders`）の順でゲートを通す。Rewrite後は「Gate Lifecycle And Draft Exceptions」に従い `fact-checker (post-write)` から法務・validatorまで再実行し、差し戻しは各最大3周とする
 7. `drive-draft-saver` を `reviewed_human_draft` モードで実行し、レビュー済み原稿を指定フォルダへ `[レビュー済み] <記事タイトル>` として別ファイル保存・readbackする
-8. Shopify下書き作成を明示依頼された場合だけ、Drive保存記録が `passed` であることを確認し、プレースホルダを許可しない通常モードで `article-validator` を再実行する。Drive保存URL、記事タイトル、handle、投稿先ブログ、残課題をユーザーへ要約してから `pre-publish-checker` を実行する
+8. Shopify下書き作成を明示依頼された場合だけ、Drive保存記録が `passed` であることを確認し、「Shopify Input Preparation」に従って投入用コピーの値確定・通常モード検査を完了する。Drive保存URL、記事タイトル、handle、投稿先ブログ、残課題をユーザーへ要約してから `pre-publish-checker` を実行する
 9. Shopify下書き作成を明示依頼され、全ゲートに合格した場合に限り、`article-publisher` がShopifyへ `isPublished: false` で下書き作成する
 10. Google Driveのレビュー済みURLと、作成した場合だけShopify管理URLを報告する
 
@@ -976,8 +1065,36 @@ Shopify投入直前に、記事HTMLと関連メモを最終確認する。公開
 - `【要記入...】`、未確認事実、重大なレビュー指摘、法務高リスク、validatorエラーが残る場合はShopifyへ進まない
 - Shopifyへの反映は下書きのみとし、公開操作は行わない
 
+## Workflow: `review-search-performance`
+
+人間が公開した記事について、依頼時にメインの実行主体が行う読み取り専用の評価。新規記事の下書き保存とは別の工程とし、定期実行の設定・自動公開・本番設定変更は行わない。
+
+### Input
+
+- 対象の公開記事URLまたはhandle（複数可）、任意の評価期間・比較期間
+- 対象記事のbrief、sources、利用可能なSearch Console・Bing Webmaster Tools・アクセス解析の資料
+- 日付指定がなければ、取得できる直近の確定28日間とその直前28日間を運用上の比較期間とし、取得範囲と時間帯を記録する。仕様上取得できない指標は推定しない
+
+### Steps
+
+1. 対象URL・公開状態・記事を固定する。下書きや対象不明のURLは分析せず対象の指定を求める
+2. サイト取得と検索登録を点検する。HTTP応答、robots.txt、noindex・スニペット制御、canonical、主要本文の取得可否、内部リンク、公開ページと構造化データの人物・主題・日付の整合を確認する。取得不能・管理権限不足は `unverified` と記録し、問題なしと判定しない
+3. 各サービスの最新公式資料で計測できる範囲を確認する。GoogleのAI検索での表示、Bingの引用、通常検索の順位・クリック、参照元別流入・問い合わせ成果は別の列で記録する。データ源・期間・単位・抽出条件を残す。欠測は `unavailable` とし、ゼロや推定値に置き換えない
+4. AI回答を確認できる場合はbriefの主な質問を使い、サービス・モデル（表示される場合）・質問文・日時・言語/地域・回答記録・引用URL・誤引用/条件脱落を記録する。確認できない場合は未実施とする。少数の試行から全体の引用率や順位を推定しない
+5. 前期間との差を確認し、観測事実・原因仮説・推奨対応を分ける。引用数や表示数の変化だけで売上効果や因果関係を断定しない。重大な誤情報、巡回障害、回答不足を優先して改善案を作る
+6. `drafts/<handle>-search-performance.md` に結果、未確認事項、改稿候補と担当、次回確認の目安を保存する。既存記事の改善はarticle-designer、用語問題はjapanese-editor、事実問題はfact-checker、新規テーマはkeyword-strategist、サイト設定は人間の管理担当への作業案として記録する
+
+### Output And Follow-up
+
+- 記録の必須列は `対象URL / 評価・比較期間 / データ源 / 指標・単位 / 値または欠測理由 / 観測事実 / 仮説 / 推奨対応 / 担当 / 優先度 / 次回確認目安`
+- briefの対応表に戻す質問IDと修正理由を明記する。次の設計・改稿時に参照し、同じ問題の再発を確認する
+- 接続がない場合も公開ページなど確認できた範囲の評価を保存し、必要な資料・接続を明記する。未確認項目があれば全体を合格とはしない
+- このワークフロー単独では本文・Drive・Shopify・robots設定を変更しない。改稿も依頼されている場合は通常の品質ゲートを通してDriveの別下書きまで進める。Shopify下書きは明示依頼時だけ、公開は人間が行う
+- 公開直後の取得可否確認と、その後の定期確認を引き継ぎ事項とする。次回日付の記載は予約実行を意味しない
+
 ## How To Ask Codex
 
 - `new-article を "Shopify 越境EC 始め方" で実行して`
 - `Marketing向けに、価格設定 心理学の記事を最初から下書き作成まで進めて`
 - `キーワード未定なので keyword-strategist から始めて`
+- `review-search-performance を <公開記事URL> で実行して`

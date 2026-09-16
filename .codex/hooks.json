@@ -2,7 +2,7 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "mcp__.*__graphql_mutation",
+        "matcher": "mcp__.*(?:__|_)graphql_mutation",
         "hooks": [
           {
             "type": "command",

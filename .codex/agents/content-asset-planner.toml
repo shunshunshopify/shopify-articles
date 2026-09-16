@@ -6,7 +6,7 @@ developer_instructions = """
 ## 入力
 - 設計ブリーフ `drafts/<handle>-brief.md`
 - 記事HTML `drafts/<handle>.html`
-- 事実確認メモ `drafts/<handle>-sources.md`（あれば）
+- 事実確認メモ `drafts/<handle>-sources.md`（必須）
 
 ## やること
 1. 記事内容に自然につながる内部リンク候補を、公開済み記事一覧と照合して整理する。

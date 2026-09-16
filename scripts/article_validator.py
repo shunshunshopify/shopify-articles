@@ -5,9 +5,137 @@ import argparse
 import json
 import re
 import sys
+from datetime import date, datetime, timedelta, timezone
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urlparse
+
+
+JSONLD_PATTERN = re.compile(
+    r'<script\b[^>]*\btype=["\']application/ld\+json["\'][^>]*>(.*?)</script>',
+    re.DOTALL | re.IGNORECASE,
+)
+PUBLICATION_TOKENS = ("PAGE_URL", "DATE_PUBLISHED", "DATE_MODIFIED", "BLOG_NAME", "BLOG_URL")
+JST = timezone(timedelta(hours=9))
+
+
+def unique_json_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(f"重複したJSONキー: {key}")
+        result[key] = value
+    return result
+
+
+def load_json(source):
+    return json.loads(source, object_pairs_hook=unique_json_object)
+
+
+def brief_meta_description(brief):
+    """自由文から推測せず、ブリーフ内の唯一の確定値を読む。"""
+    text = brief.read_text(encoding="utf-8")
+    headings = list(re.finditer(r"^## 機械検証用メタデータ[ \t]*$", text, re.MULTILINE))
+    if len(headings) != 1:
+        raise ValueError("ブリーフに `## 機械検証用メタデータ` が1件必要です")
+    section = re.split(r"^#{1,2} ", text[headings[0].end():], maxsplit=1, flags=re.MULTILINE)[0]
+    match = re.fullmatch(r"\s*```json\s*\n(.*?)\n```\s*", section, re.DOTALL)
+    if not match:
+        raise ValueError("機械検証用メタデータにはJSONコードブロックを1つだけ記載してください")
+    data = load_json(match.group(1))
+    if not isinstance(data, dict) or set(data) != {"meta_description"}:
+        raise ValueError("機械検証用メタデータには meta_description を1つだけ指定してください")
+    value = data["meta_description"]
+    if unresolved_description(value) or value != value.strip() or "\n" in value or "\r" in value:
+        raise ValueError("ブリーフの確定メタディスクリプションが空欄・仮値・複数行です")
+    return value
+
+
+def json_objects(value):
+    if isinstance(value, dict):
+        yield value
+        for item in value.values():
+            yield from json_objects(item)
+    elif isinstance(value, list):
+        for item in value:
+            yield from json_objects(item)
+
+
+def absolute_http_url(value):
+    if not isinstance(value, str) or re.search(r"\s", value):
+        return False
+    try:
+        parsed = urlparse(value)
+        return parsed.scheme in {"http", "https"} and bool(parsed.hostname) and not parsed.username
+    except ValueError:
+        return False
+
+
+def iso_date(value):
+    """日付かタイムゾーン付きISO8601日時をJSTの暦日へ変換する。"""
+    if not isinstance(value, str):
+        raise ValueError("日付は文字列で指定してください")
+    if re.fullmatch(r"\d{4}-\d{2}-\d{2}", value):
+        return date.fromisoformat(value)
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})", value):
+        raise ValueError("ISO8601日付またはタイムゾーン付き日時が必要です")
+    return datetime.fromisoformat(value.replace("Z", "+00:00")).astimezone(JST).date()
+
+
+def publication_errors(documents, articles, updated, allow_draft_placeholders):
+    errors = []
+    objects = [node for document in documents for node in json_objects(document)]
+    named_nodes = {node.get("@id"): node for node in objects if isinstance(node.get("@id"), str) and node.get("name")}
+    for node in objects:
+        for key, value in node.items():
+            if key in {"@id", "url"} and not isinstance(value, str):
+                errors.append(f"JSON-LDの{key}は絶対HTTP(S) URLの文字列で指定してください")
+            if isinstance(value, str):
+                tokens = [token for token in PUBLICATION_TOKENS if token in value]
+                if tokens:
+                    if not allow_draft_placeholders:
+                        errors.append(f"JSON-LDの{key}に公開用プレースホルダが残っています: {value}")
+                    continue
+                if key in {"url", "@id", "item", "mainEntityOfPage"} and not absolute_http_url(value):
+                    errors.append(f"JSON-LDの{key}は絶対HTTP(S) URLで指定してください: {value}")
+    for node in articles:
+        if not isinstance(node.get("headline"), str) or not node["headline"].strip():
+            errors.append("Article.headlineがありません")
+        page = node.get("mainEntityOfPage")
+        page_url = (page.get("@id") or page.get("url")) if isinstance(page, dict) else page
+        if not (allow_draft_placeholders and isinstance(page_url, str) and "PAGE_URL" in page_url) and not absolute_http_url(page_url):
+            errors.append("Article.mainEntityOfPageに絶対HTTP(S) URLが必要です")
+        dates = {}
+        # 未公開の新規記事はdatePublishedを省略する。公開済み記事の値は保持する。
+        for key in ("datePublished", "dateModified"):
+            if key == "datePublished" and key not in node:
+                continue
+            value = node.get(key)
+            if allow_draft_placeholders and value == ("DATE_PUBLISHED" if key == "datePublished" else "DATE_MODIFIED"):
+                continue
+            try:
+                dates[key] = iso_date(value)
+            except ValueError:
+                errors.append(f"Article.{key}が有効なISO8601日付ではありません: {value}")
+        if "dateModified" in dates and updated and dates["dateModified"] != updated:
+            errors.append("Article.dateModifiedと本文の最終更新日が一致しません")
+        if len(dates) == 2 and dates["datePublished"] > dates["dateModified"]:
+            errors.append("Article.datePublishedがdateModifiedより後です")
+        if "author" in node:
+            authors = node["author"] if isinstance(node["author"], list) else [node["author"]]
+            if not authors:
+                errors.append("Article.authorは空にせず、未確認なら省略してください")
+            for author in authors:
+                if isinstance(author, dict) and not author.get("name") and isinstance(author.get("@id"), str):
+                    author = named_nodes.get(author["@id"], author)
+                if (
+                    not isinstance(author, dict)
+                    or author.get("@type") not in ("Person", "Organization")
+                    or not isinstance(author.get("name"), str)
+                    or not author["name"].strip()
+                ):
+                    errors.append("Article.authorには確認済みのPerson/Organizationのnameが必要です（未確認なら省略）")
+    return errors
 
 
 class ArticleParser(HTMLParser):
@@ -54,7 +182,8 @@ class ArticleParser(HTMLParser):
             href = data.get("href", "")
             if self._in_toc and href.startswith("#"):
                 self.toc_targets.append(href[1:])
-            if href.startswith("/blogs/"):
+            parsed = urlparse(href)
+            if parsed.path.startswith("/blogs/") and (not parsed.netloc or parsed.hostname in {"solstar.co.jp", "www.solstar.co.jp"}):
                 self.internal_links.append(href)
         if tag == "h2":
             self._in_h2 = True
@@ -138,11 +267,15 @@ def published_handles(path):
     if not path.exists():
         return set()
     handles = set()
+    blog = None
     for line in path.read_text(encoding="utf-8").splitlines():
+        if line.startswith("## "):
+            match = re.search(r"handle:\s*([a-z0-9-]+)", line)
+            blog = match.group(1) if match else None
         if line.startswith("|") and "| 公開 |" in line:
             cells = [cell.strip() for cell in line.strip("|").split("|")]
-            if cells:
-                handles.add(cells[0])
+            if cells and blog:
+                handles.add(f"/blogs/{blog}/{cells[0]}")
     return handles
 
 
@@ -174,7 +307,7 @@ def unresolved_description(value):
     if not isinstance(value, str) or not value.strip():
         return True
     text = value.strip()
-    if text in {"DESCRIPTION", "META_DESCRIPTION"}:
+    if text in {"DESCRIPTION", "META_DESCRIPTION", "TODO", "TBD", "仮", "未定"} or any(token in text for token in PUBLICATION_TOKENS):
         return True
     return bool(re.search(r"\{\{[^}]+\}\}|【(?:要記入|要確認)[：:].*?】", text))
 
@@ -213,9 +346,21 @@ def lint_warnings(article):
     return warnings
 
 
-def validate(article, template, published, allow_draft_placeholders=False):
+def validate(article, template, published, allow_draft_placeholders=False, brief=None, source=None):
     errors = []
     text = article.read_text(encoding="utf-8")
+    brief = brief if brief is not None else article.with_name(article.stem + "-brief.md")
+    expected_description = None
+    try:
+        expected_description = brief_meta_description(brief)
+    except (OSError, ValueError) as exc:
+        errors.append(f"確定メタディスクリプションを取得できません: {brief}: {exc}")
+    if source is not None:
+        try:
+            if JSONLD_PATTERN.sub("", text) != JSONLD_PATTERN.sub("", source.read_text(encoding="utf-8")):
+                errors.append("投入用HTMLが審査済み原稿と異なります（JSON-LD以外の変更は禁止）")
+        except OSError as exc:
+            errors.append(f"審査済み原稿を読み込めません: {exc}")
     parser = ArticleParser()
     parser.feed(text)
     template_parser = ArticleParser()
@@ -259,10 +404,16 @@ def validate(article, template, published, allow_draft_placeholders=False):
     if invalid_faq:
         errors.append("FAQ質問は先頭を `Q. ` にしてください: " + " / ".join(invalid_faq))
 
+    updated = None
     if len(parser.updated_texts) != 1 or not re.fullmatch(
         r"最終更新日：\d{4}年\d{1,2}月\d{1,2}日", parser.updated_texts[0] if parser.updated_texts else ""
     ):
         errors.append("最終更新日は `最終更新日：YYYY年MM月DD日` 形式で1件必要です")
+    else:
+        try:
+            updated = date(*map(int, re.findall(r"\d+", parser.updated_texts[0])))
+        except ValueError:
+            errors.append("本文の最終更新日が実在しない日付です")
     expected_supervisor = [normalized_text(value) for value in template_parser.supervisor_texts]
     actual_supervisor = [normalized_text(value) for value in parser.supervisor_texts]
     if actual_supervisor != expected_supervisor:
@@ -271,32 +422,34 @@ def validate(article, template, published, allow_draft_placeholders=False):
     if re.search(r"──|—|―", visible):
         errors.append("禁止ダッシュ（──／—／―）が読者表示テキストに残っています")
 
-    if not allow_draft_placeholders and re.search(r"【(?:要記入|内部リンク要記入)[：:].*?】", text):
+    if not allow_draft_placeholders and re.search(r"【(?:要記入|要確認|内部リンク要記入)[：:].*?】", text):
         errors.append("要記入プレースホルダが残っています")
     if not allow_draft_placeholders and re.search(r"<!--\s*要確認", text):
         errors.append("要確認コメントが残っています")
     if re.search(r"\{\{[^}]+\}\}", text):
         errors.append("テンプレートプレースホルダ {{...}} が残っています")
-    scripts = re.findall(
-        r'<script[^>]+type=["\']application/ld\+json["\'][^>]*>(.*?)</script>',
-        text, re.DOTALL | re.IGNORECASE,
-    )
+    scripts = JSONLD_PATTERN.findall(text)
     if not scripts:
         errors.append("JSON-LDがありません")
     article_nodes = []
-    for index, source in enumerate(scripts, 1):
+    documents = []
+    for index, json_source in enumerate(scripts, 1):
         try:
-            data = json.loads(source)
+            data = load_json(json_source)
+            documents.append(data)
             article_nodes.extend(article_jsonld_nodes(data))
             for value in ("HEADLINE", "DESCRIPTION"):
                 if contains_value(data, value):
                     errors.append(f"{value} が未置換です")
-        except json.JSONDecodeError as exc:
-            errors.append(f"JSON-LD {index} の構文エラー: {exc.msg}")
+        except ValueError as exc:
+            errors.append(f"JSON-LD {index} の構文エラー: {exc}")
     if scripts and not article_nodes:
         errors.append("JSON-LDにArticleノードがありません")
     elif article_nodes and any(unresolved_description(node.get("description")) for node in article_nodes):
         errors.append("JSON-LDのArticle.descriptionに確定メタディスクリプションが必要です")
+    if expected_description is not None and any(node.get("description") != expected_description for node in article_nodes):
+        errors.append("ブリーフの確定メタディスクリプションとArticle.descriptionが完全一致しません")
+    errors.extend(publication_errors(documents, article_nodes, updated, allow_draft_placeholders))
 
     if style_block(text) != style_block(template_text):
         errors.append("article-template.html のCSS枠が変更されています")
@@ -304,7 +457,7 @@ def validate(article, template, published, allow_draft_placeholders=False):
     handles = published_handles(published)
     for href in parser.internal_links:
         parts = [part for part in urlparse(href).path.split("/") if part]
-        if len(parts) >= 3 and parts[0] == "blogs" and parts[2] not in handles:
+        if len(parts) >= 3 and urlparse(href).path.rstrip("/") not in handles:
             errors.append(f"未公開または未登録の内部リンク: {href}")
 
     return errors
@@ -316,10 +469,12 @@ def main():
     ap.add_argument("article", type=Path)
     ap.add_argument("--template", type=Path, default=root / "article-template.html")
     ap.add_argument("--published", type=Path, default=root / "data/published-articles.md")
+    ap.add_argument("--brief", type=Path, help="確定メタを含むブリーフ。省略時は記事と同じ場所の <stem>-brief.md")
+    ap.add_argument("--source", type=Path, help="投入用HTMLと比較する審査済み原稿（JSON-LD以外の同一性を検査）")
     ap.add_argument(
         "--allow-draft-placeholders",
         action="store_true",
-        help="Google Drive下書き保存時だけ、要記入・要確認の残存を警告扱いにする",
+        help="Google Drive下書き用。要記入・要確認と公開用JSON-LDトークンを許す。確定メタは必須",
     )
     args = ap.parse_args()
     if not args.article.exists():
@@ -330,6 +485,8 @@ def main():
         args.template,
         args.published,
         allow_draft_placeholders=args.allow_draft_placeholders,
+        brief=args.brief,
+        source=args.source,
     )
     if errors:
         for error in errors:

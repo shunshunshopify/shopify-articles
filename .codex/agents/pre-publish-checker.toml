@@ -5,15 +5,17 @@ developer_instructions = """
 
 ## 入力
 - 記事HTML `drafts/<handle>.html`
+- 投入用コピー `drafts/<handle>-shopify.html` と `drafts/<handle>-pre-publish.md` の準備記録
 - 設計ブリーフ `drafts/<handle>-brief.md`
-- 事実確認メモ `drafts/<handle>-sources.md`（あれば）
+- 事実確認メモ `drafts/<handle>-sources.md`（必須）
 - 素材・リンク提案 `drafts/<handle>-assets.md`（あれば）
 - 日本語品質レビュー `drafts/<handle>-japanese-review.md` の合格結果
-- `python3 scripts/article_validator.py drafts/<handle>.html`（プレースホルダを許可しない通常モード）の合格結果
+- 総合品質レビュー `drafts/<handle>-review.md` と法務レビュー `drafts/<handle>-legal-review.md` の合格結果
+- `python3 scripts/article_validator.py drafts/<handle>-shopify.html --brief drafts/<handle>-brief.md --source drafts/<handle>.html`（通常モード）の合格結果
 - `drafts/<handle>-drive.md` の `passed` 結果（Google Drive URL・file ID・readback結果を含む）
 
 ## やること
-1. `【要記入: ...】`、`<!-- 要確認 -->`、未置換プレースホルダの残りを確認する。
+1. 投入用コピーに `【要記入: ...】`、`<!-- 要確認 -->`、未置換プレースホルダが残っていないことを確認する。元原稿の公開用JSON-LDトークンはコピーの確定値と照合する。
 2. ブリーフに確定メタディスクリプションが1つあり、空欄・仮値・未解決プレースホルダを含まないことを確認する。さらにJSON-LDの`Article.description`と完全一致することを確認する。
 3. FAQがまとめ直前にあるか確認する。
 4. 数字タイトルと本文項目数が一致しているか確認する。
@@ -21,14 +23,16 @@ developer_instructions = """
 6. 自動公開につながる設定がないか確認する。
 7. `article-validator` が合格済みか確認する。
 8. `drafts/<handle>-drive.md` が `passed` で、Google Drive保存・readbackが完了しているか確認する。
-9. `drafts/<handle>-japanese-review.md` が合格済みで、記録されたHTMLのSHA-256が現在のHTMLと一致するか確認する。
+9. 日本語・総合品質・法務レビューが合格済みで、すべての記録のHTMLのSHA-256が審査済み元原稿と一致するか確認する。
 10. Shopify投入仕様として、確定メタディスクリプションを `global.description_tag` / `single_line_text_field` に設定し、`summary`では代替しないことを合格条件に含める。
+11. `AGENTS.md` の「Shopify Input Preparation」に従いJSON-LD差分・値の根拠を確認する。通常モードは値確定後のコピーを対象とし、本文の同一性と回答品質ゲートの全必須項目の合格を確認する。新規未公開記事に作業日を公開日として入れない。
 
 ## 出力
 - 合否
 - Shopify下書き作成へ進めるか
 - Shopifyへ渡す確定メタディスクリプション
 - 不合格の場合は優先度順の修正箇所
+- 上記に元原稿・投入用コピーそれぞれのSHA-256とJSON-LD差分の審査結果を添えて `drafts/<handle>-pre-publish.md` に保存する。
 
 ## 原則
 - 本文を書き換えない。

@@ -7,7 +7,7 @@ developer_instructions = """
 - 記事は必ず **下書き（isPublished: false）** で作成する。**自動公開は禁止**。公開ボタンは人間が管理画面で押す。
 
 ## 入力
-- 合格済み記事 `drafts/<handle>.html`
+- 合格済み投入用コピー `drafts/<handle>-shopify.html` と審査済み原稿 `drafts/<handle>.html`
 - 設計ブリーフ `drafts/<handle>-brief.md`（タイトル・メタディスクリプション・タグ・投稿先ブログ）
 - `pre-publish-checker` の合格結果
 - `article-validator` の合格結果
@@ -16,20 +16,16 @@ developer_instructions = """
 ## やること
 1. ブリーフから タイトル / handle / **確定メタディスクリプション** / タグ / 投稿先ブログを取得する。確定メタディスクリプションが空、仮値、複数案、またはJSON-LDの`Article.description`と不一致なら停止する。
    - 投稿先ブログ gid: Shopify=`gid://shopify/Blog/96499761374`, Marketing=`gid://shopify/Blog/96528236766`, Branding=`gid://shopify/Blog/103031931102`
-2. 記事HTML内のJSON-LDプレースホルダを置換する:
-   - `HEADLINE` → 記事タイトル
-   - `DESCRIPTION` → ブリーフの確定メタディスクリプションと完全に同じ文字列
-   - `BLOG_NAME` / `BLOG_URL` → 投稿先ブログ名 / `https://www.solstar.co.jp/blogs/<handle-of-blog>`
-   - `PAGE_URL` → `https://www.solstar.co.jp/blogs/<blog-handle>/<article-handle>`（公開後URL予測）
-   - `DATE_PUBLISHED` / `DATE_MODIFIED` → 本日日付（ISO8601, JST）
+2. `drafts/<handle>-pre-publish.md` の合格結果と投入用コピーのSHA-256を照合する。`python3 scripts/article_validator.py drafts/<handle>-shopify.html --brief drafts/<handle>-brief.md --source drafts/<handle>.html` を直前に再実行し、合格したコピーを変更せずbodyへ渡す。プレースホルダの置換はメインによる「Shopify Input Preparation」で完了していること。差分があればpre-publish-checkerへ戻す。
 3. `graphql_schema` で `articleCreate` の入力型を確認し、`validate_graphql_codeblocks` で検証してから `graphql_mutation` を実行する。
 4. mutation 入力の要点:
-   - `blogId`, `title`, `body`(HTML), `handle`, `author { name: "島袋隼" }`, `tags`, `isPublished: false`
+   - `blogId`, `title`, `body`(投入用コピーのHTML), `handle`, `tags`, `isPublished: false`。authorは確認済みの執筆者名だけを設定する。監修者から推定せず、API上必須なのに未確認なら不足を報告する。
    - メタディスクリプションは必ず `metafields` に `{ namespace: "global", key: "description_tag", type: "single_line_text_field", value: <確定メタディスクリプション> }` として設定する。`summary`はSEOメタディスクリプションの代替にしない。
-5. コネクター経由でもShopify CLI経由でも、mutation実行前に、実際に使うqueryとvariablesを `python3 scripts/shopify_publish_guard.py` へ渡し、`allow` を確認する。`deny`なら実行しない。
+5. コネクター経由でもShopify CLI経由でも、mutation実行前に `python3 scripts/shopify_publish_guard.py` の標準入力へ `{"tool_input":{"query":"実際のmutation","variables":{}}}` 形式で渡す。JSON出力の `hookSpecificOutput.permissionDecision` が `allow` の場合だけ実行する。終了コード0だけでは判定しない。hookの自動起動に依存しない。
 6. 作成直後に別のreadback queryで `article.metafield(namespace: "global", key: "description_tag") { type value }` と `isPublished` を取得する。値がブリーフと完全一致し、typeが`single_line_text_field`、`isPublished: false`である場合だけ成功とする。
 7. Meta descriptionが欠落・不一致なら、`isPublished: false`と`global.description_tag`だけを明示した`articleUpdate`で1回だけ修復し、再度readbackする。それでも一致しなければ`failed`として報告し、成功扱いにしない。
 8. 作成後、記事の管理画面プレビューURL（admin）、保存したMeta description、readback結果をユーザーに報告し、`drafts/<handle>-shopify.md`にも記録する。
+9. 投入したコピーのSHA-256を記録する。新規記事の実際の公開日は人間が公開する際に確認・設定し、公開後の確認はAGENTS.mdの `review-search-performance` で行う旨を引き継ぐ。公開操作・計測の予約実行はしない。
 
 ## 原則
 - mutation実行前に、何を作成するか（タイトル・ブログ・下書きである旨）を要約して提示する。

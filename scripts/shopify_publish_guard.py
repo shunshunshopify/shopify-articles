@@ -1,179 +1,188 @@
 #!/usr/bin/env python3
+"""Shopify mutation guard. Read hook JSON from stdin and return an allow/deny JSON.
+
+Only a single explicit mutation is supported. Unsupported syntax fails closed;
+this restricted input parser does not replace Shopify's schema validation.
+Callers must read permissionDecision: exit status 0 only means the hook ran.
 """
-PreToolUse ガード（Shopify graphql_mutation 用）
-
-記事の作成・更新は isPublished:false が明示された場合だけ許可し、
-記事作成は有効なMeta description（global.description_tag）が含まれる場合だけ許可する。
-公開操作やSEOメタフィールドが欠けた記事作成は拒否(deny)する。
-
-判定が曖昧・パース不能な場合は安全側（deny）に倒す。
-SOLSTARワークスペースの最重要ルール「自動公開は禁止」を機械的に担保する。
-
-入力: stdin の JSON  { "tool_name": ..., "tool_input": { "query": ..., "variables": {...} } }
-出力: stdout の JSON  { "hookSpecificOutput": { "hookEventName": "PreToolUse",
-                        "permissionDecision": "allow"|"deny", "permissionDecisionReason": ... } }
-"""
-import sys
-import re
 import json
+import re
+import sys
 
 
-def decide(decision, reason):
-    print(json.dumps({
-        "hookSpecificOutput": {
-            "hookEventName": "PreToolUse",
-            "permissionDecision": decision,
-            "permissionDecisionReason": reason,
-        }
-    }))
-    sys.exit(0)
+class InvalidInput(ValueError):
+    pass
 
 
-def published_values(obj):
-    """variablesを再帰走査し、isPublished の値をすべて返す。"""
-    values = []
-    if isinstance(obj, dict):
-        for k, v in obj.items():
-            if isinstance(k, str) and k.lower() == "ispublished":
-                values.append(v)
-            values.extend(published_values(v))
-    elif isinstance(obj, list):
-        for v in obj:
-            values.extend(published_values(v))
-    return values
-
-
-def is_true(value):
-    return value is True or (isinstance(value, str) and value.strip().lower() == "true")
-
-
-def is_false(value):
-    return value is False or (isinstance(value, str) and value.strip().lower() == "false")
+def unique_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise InvalidInput('重複したキーがあります')
+        result[key] = value
+    return result
 
 
 def valid_description(value):
-    """Shopify SEO欄へ保存できる、未解決でない説明文かを返す。"""
-    if not isinstance(value, str) or not value.strip():
+    if not isinstance(value, str) or not value.strip() or '\n' in value or '\r' in value:
         return False
-    text = value.strip()
-    if text in {"DESCRIPTION", "META_DESCRIPTION"}:
+    if value.strip() in {'DESCRIPTION', 'META_DESCRIPTION', 'TODO', 'TBD', '仮', '未定'}:
         return False
-    return not re.search(r"\{\{[^}]+\}\}|【(?:要記入|要確認)[：:].*?】|<!--\s*要確認", text)
+    return not re.search(r'\{\{[^}]+\}\}|【(?:要記入|要確認|内部リンク要記入)[：:].*?】|<!--\s*要確認', value)
 
 
-def seo_descriptions(obj):
-    """variablesを再帰走査し、global.description_tag の値と型を返す。"""
-    found = []
-    if isinstance(obj, dict):
-        namespace = obj.get("namespace")
-        key = obj.get("key")
-        if namespace == "global" and key == "description_tag":
-            found.append((obj.get("value"), obj.get("type")))
-        for value in obj.values():
-            found.extend(seo_descriptions(value))
-    elif isinstance(obj, list):
-        for value in obj:
-            found.extend(seo_descriptions(value))
-    return found
+TOKEN = re.compile(r'\s+|,|\#[^\r\n]*|"(?:[^"\\\x00-\x1f]|\\["\\/bfnrt]|\\u[0-9a-fA-F]{4})*"|[_A-Za-z][_0-9A-Za-z]*|-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?|[!$():=@\[\]{}]')
+NAME = re.compile(r'[_A-Za-z][_0-9A-Za-z]*\Z')
 
 
-def inline_seo_descriptions(query, variables):
-    """GraphQL内へ直接記述されたglobal.description_tagを抽出する。"""
-    found = []
-    for block in re.findall(r"\{[^{}]*\}", query, re.DOTALL):
-        if not re.search(r'namespace\s*:\s*"global"', block):
+class MutationParser:
+    def __init__(self, query, variables):
+        if not isinstance(query, str) or not query.strip():
+            raise InvalidInput('mutationが空または文字列ではありません')
+        self.tokens = []
+        pos = 0
+        while pos < len(query):
+            match = TOKEN.match(query, pos)
+            if not match:
+                raise InvalidInput('未対応または不正なGraphQL構文です')
+            token = match.group()
+            pos = match.end()
+            if not token.isspace() and token != ',' and not token.startswith('#'):
+                self.tokens.append(token)
+        self.index = 0
+        self.variables = variables
+
+    def peek(self):
+        return self.tokens[self.index] if self.index < len(self.tokens) else None
+
+    def take(self, expected=None):
+        token = self.peek()
+        if token is None or (expected is not None and token != expected):
+            raise InvalidInput('GraphQL構文を確認できません')
+        self.index += 1
+        return token
+
+    def name(self):
+        token = self.take()
+        if not NAME.fullmatch(token):
+            raise InvalidInput('GraphQL名が不正です')
+        return token
+
+    def value(self):
+        token = self.peek()
+        if token == '$':
+            self.take('$')
+            name = self.name()
+            if name not in self.variables:
+                raise InvalidInput('実際のvariablesに必要な変数がありません')
+            return self.variables[name]
+        if token == '{':
+            return self.mapping('{', '}')
+        if token == '[':
+            self.take('[')
+            values = []
+            while self.peek() != ']':
+                values.append(self.value())
+            self.take(']')
+            return values
+        token = self.take()
+        if token.startswith('"') or token in {'true', 'false', 'null'} or re.match(r'-?\d', token):
+            return json.loads(token)
+        if NAME.fullmatch(token):
+            return token
+        raise InvalidInput('入力値を解析できません')
+
+    def mapping(self, opening, closing):
+        self.take(opening)
+        pairs = []
+        while self.peek() != closing:
+            key = self.name()
+            self.take(':')
+            pairs.append((key, self.value()))
+        self.take(closing)
+        return unique_object(pairs)
+
+    def skip_group(self):
+        closing = {'(': ')', '{': '}', '[': ']'}
+        end = closing[self.take()]
+        while self.peek() != end:
+            if self.peek() in closing:
+                self.skip_group()
+            elif self.peek() in {None, ')', '}', ']'}:
+                raise InvalidInput('括弧が対応していません')
+            else:
+                self.take()
+        self.take(end)
+
+    def parse(self):
+        self.take('mutation')
+        if self.peek() not in {'(', '{'}:
+            self.name()
+        if self.peek() == '(':
+            # Default values are never treated as supplied variables by this guard.
+            self.skip_group()
+        self.take('{')
+        fields = []
+        while self.peek() != '}':
+            name = self.name()
+            if self.peek() == ':':
+                self.take(':')
+                name = self.name()
+            arguments = self.mapping('(', ')') if self.peek() == '(' else {}
+            fields.append((name, arguments))
+            if self.peek() == '{':
+                self.skip_group()
+        self.take('}')
+        if self.peek() is not None or not fields:
+            raise InvalidInput('複数operationまたは空のmutationは許可しません')
+        return fields
+
+
+def evaluate(data):
+    if not isinstance(data, dict) or not isinstance(data.get('tool_input'), dict):
+        raise InvalidInput('フック入力にはtool_inputオブジェクトが必要です')
+    tool_input = data['tool_input']
+    variables = tool_input.get('variables')
+    if isinstance(variables, str):
+        variables = json.loads(variables, object_pairs_hook=unique_object)
+    if variables is None:
+        variables = {}
+    if not isinstance(variables, dict):
+        raise InvalidInput('variablesはオブジェクトで指定してください')
+    fields = MutationParser(tool_input.get('query'), variables).parse()
+    for name, arguments in fields:
+        if 'publish' in name.lower():
+            raise InvalidInput('公開に関係するmutationは人間が行ってください')
+        if name not in {'articleCreate', 'articleUpdate'}:
+            if name.lower().startswith('article'):
+                raise InvalidInput('未対応の記事mutationは許可しません')
             continue
-        if not re.search(r'key\s*:\s*"description_tag"', block):
-            continue
-        type_match = re.search(r'type\s*:\s*"([^"]+)"', block)
-        value_match = re.search(r'value\s*:\s*(?:"([^"]*)"|\$([A-Za-z_][A-Za-z0-9_]*))', block)
-        if not value_match:
-            found.append((None, type_match.group(1) if type_match else None))
-            continue
-        literal, variable_name = value_match.groups()
-        value = literal
-        if variable_name and isinstance(variables, dict):
-            value = variables.get(variable_name)
-        found.append((value, type_match.group(1) if type_match else None))
-    return found
+        article = arguments.get('article')
+        if not isinstance(article, dict) or article.get('isPublished') is not False:
+            raise InvalidInput('各記事の実際のarticle入力にbooleanのisPublished:falseが必要です')
+        # Publication timing is outside this automated draft-only workflow.
+        if article.get('publishedAt') is not None:
+            raise InvalidInput('公開日時の指定は許可しません')
+        if name == 'articleCreate':
+            metafields = article.get('metafields', [])
+            if not isinstance(metafields, list) or not all(isinstance(field, dict) for field in metafields):
+                raise InvalidInput('記事のmetafieldsはオブジェクトの配列で指定してください')
+            descriptions = [field for field in metafields if field.get('namespace') == 'global' and field.get('key') == 'description_tag']
+            if len(descriptions) != 1 or descriptions[0].get('type') != 'single_line_text_field' or not valid_description(descriptions[0].get('value')):
+                raise InvalidInput('各articleCreateに有効なglobal.description_tagを1つ設定してください')
+    return 'allow', '実際の各記事入力の下書き指定と記事作成時のMeta descriptionを確認しました。'
 
 
 def main():
-    raw = sys.stdin.read()
     try:
-        data = json.loads(raw)
-    except Exception:
-        decide("deny", "フック入力をパースできないため、Shopify mutationを拒否します。")
-
-    tool_input = data.get("tool_input") or {}
-    query = tool_input.get("query") or ""
-    variables = tool_input.get("variables")
-
-    if not isinstance(query, str):
-        query = str(query)
-
-    # variables を辞書として走査（文字列で来た場合はパースを試みる）
-    vars_obj = variables
-    if isinstance(variables, str):
-        try:
-            vars_obj = json.loads(variables)
-        except Exception:
-            vars_obj = None
-            # 文字列のまま後段の文字列検査に回す
-
-    # --- 公開を示す兆候の検査 ---
-
-    # 1) variables 内に isPublished=true が含まれる
-    values = published_values(vars_obj)
-    if any(is_true(value) for value in values):
-        decide("deny", "variables に isPublished=true が含まれるため、公開操作を拒否します。")
-
-    # 2) query 文字列内で isPublished にリテラル true を代入している
-    if re.search(r"isPublished\s*:\s*true", query, re.IGNORECASE):
-        decide("deny", "mutation 内で isPublished:true が指定されているため、公開操作を拒否します。")
-
-    # 3) 公開系 mutation 名・キーワード
-    publish_markers = ["articlepublish", "publishablepublish", "publishpublish"]
-    low = query.lower()
-    for m in publish_markers:
-        if m in low:
-            decide("deny", f"公開系の操作（{m}）を検出したため拒否します。公開は管理画面で人間が行ってください。")
-
-    # 4) variables が文字列でパースできず、その中に isPublished と true の両方が出現
-    if isinstance(variables, str):
-        vlow = variables.lower()
-        if "ispublished" in vlow and "true" in vlow:
-            decide("deny", "解析不能なvariablesに公開指定の可能性があるため拒否します。")
-
-    # 記事作成・更新では、公開指定がないだけでは不十分。false の明示を必須にする。
-    is_article_write = bool(re.search(r"\barticle(?:Create|Update)\b", query, re.IGNORECASE))
-    literal_false = bool(re.search(r"isPublished\s*:\s*false", query, re.IGNORECASE))
-    variable_false = any(is_false(value) for value in values)
-    if is_article_write and not (literal_false or variable_false):
-        decide("deny", "articleCreate/articleUpdate には isPublished:false の明示が必要です。")
-
-    # 新規記事はShopifyの検索結果用SEO欄を必須にする。summaryは代替にならない。
-    is_article_create = bool(re.search(r"\barticleCreate\b", query, re.IGNORECASE))
-    if is_article_create:
-        descriptions = seo_descriptions(vars_obj)
-        descriptions.extend(inline_seo_descriptions(query, vars_obj))
-        valid = any(
-            field_type == "single_line_text_field" and valid_description(value)
-            for value, field_type in descriptions
-        )
-        if not valid:
-            decide(
-                "deny",
-                "articleCreate には有効なMeta descriptionを metafields の "
-                "global.description_tag（single_line_text_field）として必ず設定してください。"
-            )
-
-    decide(
-        "allow",
-        "公開操作ではなく、記事操作には isPublished:false が明示され、"
-        "記事作成にはMeta descriptionが設定されています。"
-    )
+        decision, reason = evaluate(json.loads(sys.stdin.read(), object_pairs_hook=unique_object))
+    except (ValueError, TypeError, RecursionError) as exc:
+        decision, reason = 'deny', '入力を安全に確認できないため拒否します: ' + str(exc)
+    print(json.dumps({'hookSpecificOutput': {
+        'hookEventName': 'PreToolUse', 'permissionDecision': decision,
+        'permissionDecisionReason': reason,
+    }}, ensure_ascii=False))
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

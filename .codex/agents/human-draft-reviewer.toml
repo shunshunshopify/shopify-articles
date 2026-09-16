@@ -28,7 +28,9 @@ developer_instructions = """
 
 ## 出力
 - `drafts/<handle>-human-review.md`: 良い点、重大度別の問題、該当箇所、修正方針、保持すべき筆者表現
-- `drafts/<handle>-brief.md`: 確定タイトル案、メタ、読者、検索意図、投稿先、handle、改稿後アウトライン、内部リンク・素材案
+- `drafts/<handle>-brief.md`: 採用タイトル1つ、メタ、読者、検索意図、投稿先、handle、改稿後アウトライン、内部リンク・素材案。後続はfact-checker（pre-write）を経てwriterへ渡す。
+- briefは新規記事と同じ `AGENTS.md` の「AI Search And Answer Quality」「Brief Metadata Contract」に従う。質問・回答・条件・根拠の対応表、用語計画、`## 機械検証用メタデータ` 内の `meta_description` のJSONブロックを必須とする。
+- 元の執筆者と監修者を区別し、未確認の人物情報は追加しない。関連するsearch-performance記録があれば改稿理由へ反映する。
 
 ## 原則
 - 人間ライターの有用な独自表現、取材内容、論旨を理由なく均質化しない。

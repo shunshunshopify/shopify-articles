@@ -307,9 +307,9 @@
 <li>{{LEARN_ITEM_4}}</li>
 </ul>
 
-<!-- 目次：H2と1対1のフラットなリスト（入れ子にしない）。番号は<ol>のネイティブ機能で自動採番。
-     ★Shopifyのエディタで文言を打ち替えても崩れない仕様。項目はH2の数だけ<li>を増減する。
-     H3は原則TOCに載せない。主要H3だけ必要に応じて載せる。各href(#sec-x)は本文H2のidと一致させること。 -->
+<!-- 目次：本文の主要H2を基本とするフラットなリスト（入れ子にしない）。番号は<ol>で自動採番。
+     読者が移動しやすい項目を選び<li>を増減する。「この記事でわかること」など全H2の掲載は必須でない。
+     主要H3も必要に応じて載せる。各href(#sec-x)は対応する本文H2またはH3のidと一致させること。 -->
 <div class="toc">
 <h2 class="no-style">目次</h2>
 <ol>
@@ -341,7 +341,7 @@
 <h2 id="sec-3">3. {{H2_3_TITLE}}</h2>
 <p>{{BODY}}</p>
 
-<!-- ▼ FAQ：まとめの直前に3〜5問を目安に設置 -->
+<!-- ▼ FAQ：まとめの直前に3〜5問を設置 -->
 <hr class="section-divider">
 <h2 id="sec-faq">よくある質問</h2>
 
@@ -374,7 +374,11 @@
 
 <!-- 構造化データ（JSON-LD）：PAGE_URL / HEADLINE / DESCRIPTION / DATE_* を実値に置換。
      blogのBreadcrumbはShopify/Marketingなど該当ブログに合わせる。
-     ※画像URLは記事に実在する画像のみを記載すること（偽装はNG） -->
+     ※画像URLは記事に実在する画像のみを記載すること（偽装はNG）。
+     authorは執筆者を確認できた場合だけArticleへ追加する（Person/Organization、name、確認済みurl）。
+     監修者を著者と推定しない。WebPage.aboutを発行会社へ一律に固定しない。
+     新規未公開記事はShopify投入用コピーでdatePublishedを省略する。作業日を公開日として入れない。
+     dateModifiedは本文の実際の最終更新日に合わせる。詳細はAGENTS.mdのShopify Input Preparation参照。 -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -404,7 +408,6 @@
       "url": "PAGE_URL",
       "name": "HEADLINE",
       "isPartOf": { "@id": "https://www.solstar.co.jp/#website" },
-      "about": { "@id": "https://www.solstar.co.jp/#organization" },
       "inLanguage": "ja-JP"
     },
     {
@@ -415,10 +418,6 @@
       "description": "DESCRIPTION",
       "datePublished": "DATE_PUBLISHED",
       "dateModified": "DATE_MODIFIED",
-      "author": {
-        "@type": "Person",
-        "@id": "https://www.solstar.co.jp/pages/about#person"
-      },
       "publisher": { "@id": "https://www.solstar.co.jp/#organization" },
       "inLanguage": "ja-JP"
     },

@@ -6,6 +6,7 @@ developer_instructions = """
 ## 入力
 - 記事HTML `drafts/<handle>.html`
 - 設計ブリーフ `drafts/<handle>-brief.md`
+- 事実確認メモ `drafts/<handle>-sources.md`
 - 差し戻し時は `drafts/<handle>-japanese-review.md`
 
 ## 目的
@@ -30,7 +31,7 @@ developer_instructions = """
 - SEOキーワードと検索意図
 - HTMLタグ、見出し階層、CSS、JSON-LD構造、リンク先URL
 - 監修者情報、最終更新日、FAQ位置、CTAの役割
-- `<!-- 用語判断: ... -->` で固定された用語
+- `<!-- 用語判断: ... -->` で固定された用語。ただし誤りが疑われる場合は根拠とともにwriterへ差し戻し、誤った判断を固定し続けない
 
 ## 判断基準
 - 「〜と言えるでしょう」「〜することができます」などを機械的に置換するだけで終わらせない。
@@ -43,4 +44,6 @@ developer_instructions = """
 
 ## 出力
 同じ `drafts/<handle>.html` に上書きし、変更箇所、主な編集観点、`article-writer` への差し戻し要否を簡潔に報告する。
+- 代表的な難解表現は修正前後と理由を報告する。重要な用語は初出だけでなく表・FAQ・独立した節で補足が必要か確認する。
+- `AGENTS.md` の質問対応表と照合し、直接回答・適用条件・対象・時点・出典との対応を短文化で落とさない。定義・事実・条件の意味が変わる修正はwriterへ戻し、fact-checkerから再審査する。
 """
