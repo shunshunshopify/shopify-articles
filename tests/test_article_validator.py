@@ -234,6 +234,28 @@ class ArticleValidatorTests(unittest.TestCase):
         errors = self.validate_source(source)
         self.assertIn("監修者情報が article-template.html の確認済み表記と一致しません", errors)
 
+    def test_draft_mode_allows_supervisor_review_placeholder(self):
+        source = re.sub(
+            r'<p class="article-supervisor">.*?</p>',
+            '<p class="article-supervisor">【要確認: 監修者情報】</p>',
+            self.source,
+            count=1,
+            flags=re.DOTALL,
+        )
+        self.assertEqual([], self.validate_source(source))
+
+    def test_strict_mode_rejects_supervisor_review_placeholder(self):
+        source = re.sub(
+            r'<p class="article-supervisor">.*?</p>',
+            '<p class="article-supervisor">【要確認: 監修者情報】</p>',
+            self.source,
+            count=1,
+            flags=re.DOTALL,
+        )
+        errors = self.validate_source(source, allow_draft_placeholders=False)
+        self.assertIn("監修者情報が article-template.html の確認済み表記と一致しません", errors)
+        self.assertIn("要記入プレースホルダが残っています", errors)
+
     def test_rejects_prohibited_dash(self):
         source = self.source.replace("広告やSNSから", "広告やSNSから—", 1)
         errors = self.validate_source(source)

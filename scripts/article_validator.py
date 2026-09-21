@@ -519,7 +519,12 @@ def validate(article, template, published, allow_draft_placeholders=False, brief
             errors.append("本文の最終更新日が実在しない日付です")
     expected_supervisor = [normalized_text(value) for value in template_parser.supervisor_texts]
     actual_supervisor = [normalized_text(value) for value in parser.supervisor_texts]
-    if actual_supervisor != expected_supervisor:
+    draft_supervisor_placeholder = (
+        allow_draft_placeholders
+        and len(actual_supervisor) == 1
+        and re.fullmatch(r"【(?:要記入|要確認)[：:].+】", actual_supervisor[0]) is not None
+    )
+    if actual_supervisor != expected_supervisor and not draft_supervisor_placeholder:
         errors.append("監修者情報が article-template.html の確認済み表記と一致しません")
     visible = normalized_text(" ".join(parser.visible_text))
     if re.search(r"──|—|―", visible):
