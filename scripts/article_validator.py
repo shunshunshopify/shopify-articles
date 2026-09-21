@@ -152,6 +152,7 @@ class ArticleParser(HTMLParser):
         self.supervisor_texts = []
         self.intro_paragraphs = []
         self.visible_text = []
+        self.lists = []
         self.custom_content_roots = 0
         self._in_toc = 0
         self._suppressed = 0
@@ -167,6 +168,7 @@ class ArticleParser(HTMLParser):
         self._capture_supervisor = False
         self._capture_intro = False
         self._paragraph_text = []
+        self._list_stack = []
 
     def handle_starttag(self, tag, attrs):
         data = dict(attrs)
@@ -194,6 +196,31 @@ class ArticleParser(HTMLParser):
             self._in_h3 = True
             self._h3_text = []
             self._h3_section = self._current_h2_id
+        if tag in {"ol", "ul"}:
+            start = 1
+            raw_start = data.get("start")
+            if tag == "ol" and isinstance(raw_start, str) and re.fullmatch(r"-?\d+", raw_start):
+                start = int(raw_start)
+            self._list_stack.append(
+                {
+                    "tag": tag,
+                    "section": self._current_h2_id,
+                    "depth": len(self._list_stack),
+                    "start": start,
+                    "values": [],
+                }
+            )
+        if tag == "li" and self._list_stack:
+            current = self._list_stack[-1]
+            if current["tag"] == "ol":
+                previous = current["values"][-1] if current["values"] else current["start"] - 1
+                value = previous + 1
+                raw_value = data.get("value")
+                if isinstance(raw_value, str) and re.fullmatch(r"-?\d+", raw_value):
+                    value = int(raw_value)
+                current["values"].append(value)
+            else:
+                current["values"].append(None)
         if tag == "ul" and self._current_h2_id == "sec-learn":
             self._learn_list_depth += 1
         if tag == "li" and self._learn_list_depth == 1:
@@ -223,6 +250,10 @@ class ArticleParser(HTMLParser):
             if self._h3_section == "sec-faq":
                 self.faq_questions.append(text)
             self._in_h3 = False
+        if tag in {"ol", "ul"} and self._list_stack:
+            current = self._list_stack.pop()
+            if current["tag"] == tag:
+                self.lists.append(current)
         if tag == "ul" and self._learn_list_depth:
             self._learn_list_depth -= 1
         if tag == "p":
@@ -316,6 +347,77 @@ def normalized_text(value):
     return re.sub(r"\s+", " ", value).strip()
 
 
+def integer_text(value):
+    return int(value.translate(str.maketrans("０１２３４５６７８９", "0123456789")))
+
+
+def declared_item_count(heading):
+    match = re.search(
+        r"(?<![0-9０-９])([1-9１-９][0-9０-９]*)\s*(?:つ|個|項目|問|点|ステップ|手順)",
+        heading,
+    )
+    return integer_text(match.group(1)) if match else None
+
+
+def heading_number(value):
+    match = re.match(r"^\s*([0-9０-９]+)\s*([.．、:：）)])", value)
+    return (integer_text(match.group(1)), match.group(2)) if match else None
+
+
+def numbering_warnings(parser):
+    """意味判断を避け、明示された件数・番号の疑わしい不整合だけを警告する。"""
+    warnings = []
+    h3_by_section = {}
+    for section, heading in parser.h3:
+        h3_by_section.setdefault(section, []).append(heading)
+    top_lists_by_section = {}
+    for item in parser.lists:
+        if item["depth"] == 0:
+            top_lists_by_section.setdefault(item["section"], []).append(item)
+
+    for section, title in parser.h2:
+        child_headings = h3_by_section.get(section, [])
+        numbered = [heading_number(value) for value in child_headings]
+        numbered = [value for value in numbered if value is not None]
+        declared = declared_item_count(title)
+
+        if numbered:
+            values = [value[0] for value in numbered]
+            expected = list(range(1, len(values) + 1))
+            if values != expected:
+                warnings.append(
+                    f"H2「{title}」配下の番号付き見出しが1からの連番ではありません: "
+                    + ", ".join(map(str, values))
+                )
+            formats = {value[1] for value in numbered}
+            if len(formats) > 1:
+                warnings.append(f"H2「{title}」配下で番号付き見出しの区切り形式が混在しています")
+            if declared is not None and declared != len(numbered):
+                warnings.append(
+                    f"H2「{title}」が宣言する{declared}項目と番号付き見出し{len(numbered)}項目が一致しません"
+                )
+            continue
+
+        lists = top_lists_by_section.get(section, [])
+        if declared is not None and len(lists) == 1 and declared != len(lists[0]["values"]):
+            warnings.append(
+                f"H2「{title}」が宣言する{declared}項目と直下リスト{len(lists[0]['values'])}項目が一致しません"
+            )
+
+    for item in parser.lists:
+        if item["tag"] != "ol" or not item["values"]:
+            continue
+        expected = list(range(1, len(item["values"]) + 1))
+        if item["values"] != expected:
+            section = item["section"] or "見出し前"
+            warnings.append(
+                f"{section} の番号付きリストが1からの連番ではありません: "
+                + ", ".join(map(str, item["values"]))
+                + "（意図的な継続番号か確認してください）"
+            )
+    return warnings
+
+
 def lint_warnings(article):
     parser = ArticleParser()
     parser.feed(article.read_text(encoding="utf-8"))
@@ -343,6 +445,7 @@ def lint_warnings(article):
     for phrase in ("いかがでしたか", "と言えるでしょう", "することができます", "ではないでしょうか"):
         if phrase in visible:
             warnings.append(f"定型的に見えやすい表現「{phrase}」を文脈に合わせて確認してください")
+    warnings.extend(numbering_warnings(parser))
     return warnings
 
 

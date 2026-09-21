@@ -307,5 +307,65 @@ class ArticleValidatorTests(unittest.TestCase):
         self.assertIn("最新版Styleがありません: theme-css/solstar-article.css", errors)
 
 
+class ArticleNumberingWarningTests(unittest.TestCase):
+    def lint_source(self, source):
+        with tempfile.TemporaryDirectory() as directory:
+            candidate = Path(directory) / "article.html"
+            candidate.write_text(source, encoding="utf-8")
+            return lint_warnings(candidate)
+
+    def test_warns_about_numbered_headings_that_start_at_nine(self):
+        source = """
+        <h2 id="concept">良いコンセプトかを3つの問いで確かめる</h2>
+        <h3>9. 誰に届けるか</h3><h3>10. 何を届けるか</h3><h3>11. なぜ選ばれるか</h3>
+        """
+        warnings = self.lint_source(source)
+        self.assertTrue(any("1からの連番ではありません: 9, 10, 11" in item for item in warnings))
+
+    def test_warns_when_declared_count_and_list_length_differ(self):
+        source = """
+        <h2 id="checks">確認する3つの項目</h2>
+        <ol><li>顧客</li><li>商品</li></ol>
+        """
+        warnings = self.lint_source(source)
+        self.assertTrue(any("宣言する3項目と直下リスト2項目が一致しません" in item for item in warnings))
+
+    def test_warns_about_ordered_list_gap_and_duplicate(self):
+        source = """
+        <h2 id="steps">確認手順</h2>
+        <ol><li>最初</li><li value="3">次</li><li value="3">最後</li></ol>
+        """
+        warnings = self.lint_source(source)
+        self.assertTrue(any("1からの連番ではありません: 1, 3, 3" in item for item in warnings))
+
+    def test_warns_about_mixed_number_heading_formats(self):
+        source = """
+        <h2 id="checks">確認する3つの項目</h2>
+        <h3>1. 顧客</h3><h3>2）商品</h3><h3>3. 違い</h3>
+        """
+        warnings = self.lint_source(source)
+        self.assertTrue(any("区切り形式が混在しています" in item for item in warnings))
+
+    def test_unnumbered_supplementary_heading_does_not_trigger_count_warning(self):
+        source = """
+        <h2 id="costs">確認する2つの費用</h2>
+        <h3>月額費用</h3><h3>決済手数料</h3><h3>費用を比べる際の注意</h3>
+        """
+        warnings = self.lint_source(source)
+        self.assertFalse(any("項目が一致しません" in item for item in warnings))
+
+    def test_numbering_checks_accept_consistent_nested_lists(self):
+        source = """
+        <h2 id="checks">確認する3つの項目</h2>
+        <ol>
+          <li>顧客<ul><li>年齢</li><li>悩み</li></ul></li>
+          <li>商品</li><li>違い</li>
+        </ol>
+        """
+        warnings = self.lint_source(source)
+        self.assertFalse(any("項目が一致しません" in item for item in warnings))
+        self.assertFalse(any("1からの連番ではありません" in item for item in warnings))
+
+
 if __name__ == "__main__":
     unittest.main()
