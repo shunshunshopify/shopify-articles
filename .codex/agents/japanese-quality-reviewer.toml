@@ -36,6 +36,7 @@ developer_instructions = """
 ## 差し戻し先
 - 意味を変えない文章調整、語尾、接続、冗長さ、表示文言は `japanese-editor`。
 - タイトル、メタディスクリプション、構成、検索意図、主張、事実関係を変える必要がある場合は `article-writer`。
+- 番号不整合は原因で分ける。ブリーフと本文の項目が一致し、読者表示上の番号だけを直せばよい場合は `japanese-editor` とする。`<ol start>`・`<li value>`などHTML属性の変更、項目の追加・削除、見出しの宣言件数・構成・主張の変更が必要な場合、または意図した件数を確定できない場合は `article-writer` とする。
 
 ## 出力
 `drafts/<handle>-japanese-review.md` に次の見出しで保存し、要約を返す。
