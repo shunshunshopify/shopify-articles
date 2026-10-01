@@ -293,6 +293,7 @@
 
 <!-- 最終更新日・監修者情報：記事冒頭に必ず設置 -->
 <p class="article-updated">最終更新日：{{LAST_UPDATED}}</p>
+<p class="article-author">著者：株式会社SOLSTAR代表取締役・島袋隼</p>
 <p class="article-supervisor">※この記事は、Shopify開発歴8年以上の株式会社SOLSTAR代表取締役・島袋隼が監修しています。</p>
 
 <!-- 導入文：読者の悩み・結論・本記事の切り口・読了メリットを300文字程度でまとめる -->
@@ -375,8 +376,10 @@
 <!-- 構造化データ（JSON-LD）：PAGE_URL / HEADLINE / DESCRIPTION / DATE_* を実値に置換。
      blogのBreadcrumbはShopify/Marketingなど該当ブログに合わせる。
      ※画像URLは記事に実在する画像のみを記載すること（偽装はNG）。
-     authorは執筆者を確認できた場合だけArticleへ追加する（Person/Organization、name、確認済みurl）。
-     監修者を著者と推定しない。WebPage.aboutを発行会社へ一律に固定しない。
+     標準著者はユーザー確認済みの島袋隼。Personのname / jobTitle / worksForはcompany-facts.mdを正本とする。
+     人間原稿で別の執筆者が確認されている場合はauthorと冒頭表記をwriterが調整する。
+     人物@idは識別子でありプロフィールページURLではない。未確認のurl・image・sameAsは追加しない。
+     監修者という役割だけから著者を推定しない。WebPage.aboutを発行会社へ一律に固定しない。
      新規未公開記事はShopify投入用コピーでdatePublishedを省略する。作業日を公開日として入れない。
      dateModifiedは本文の実際の最終更新日に合わせる。詳細はAGENTS.mdのShopify Input Preparation参照。 -->
 <script type="application/ld+json">
@@ -418,6 +421,13 @@
       "description": "DESCRIPTION",
       "datePublished": "DATE_PUBLISHED",
       "dateModified": "DATE_MODIFIED",
+      "author": {
+        "@type": "Person",
+        "@id": "https://www.solstar.co.jp/#hayato-shimabukuro",
+        "name": "島袋隼",
+        "jobTitle": "代表取締役",
+        "worksFor": { "@id": "https://www.solstar.co.jp/#organization" }
+      },
       "publisher": { "@id": "https://www.solstar.co.jp/#organization" },
       "inLanguage": "ja-JP"
     },
