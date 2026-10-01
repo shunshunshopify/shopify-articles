@@ -18,16 +18,9 @@ class ArticleValidatorTests(unittest.TestCase):
         cls.article = cls.root / "drafts/shopify-product-page-improvement.html"
         template_source = cls.template.read_text(encoding="utf-8")
         article_source = cls.article.read_text(encoding="utf-8")
-        supervisor = re.search(
-            r'<p class="article-supervisor">.*?</p>', template_source, re.DOTALL
-        ).group(0)
-        source = re.sub(
-            r'<p class="article-supervisor">.*?</p>',
-            supervisor,
-            article_source,
-            count=1,
-            flags=re.DOTALL,
-        )
+        source = re.sub(r'<p class="article-supervisor">.*?</p>',
+                        '<p class="article-author">著者：テスト著者（テスト会社）</p>',
+                        article_source, count=1, flags=re.DOTALL)
         template_style = re.search(r"<style>.*?</style>", template_source, re.DOTALL).group(0)
         cls.source = re.sub(
             r"<style>.*?</style>", template_style, source, count=1, flags=re.DOTALL
@@ -229,31 +222,28 @@ class ArticleValidatorTests(unittest.TestCase):
         errors = self.validate_source(source)
         self.assertTrue(any("FAQ質問は先頭" in error for error in errors))
 
-    def test_rejects_unapproved_supervisor_copy(self):
-        source = self.source.replace("Shopify開発歴8年以上", "Shopify開発歴9年以上", 1)
-        errors = self.validate_source(source)
-        self.assertIn("監修者情報が article-template.html の確認済み表記と一致しません", errors)
+    def test_author_only_is_valid(self):
+        self.assertEqual([], self.validate_source(self.source))
+
+    def test_rejects_missing_author(self):
+        source = re.sub(r'<p class="article-author">.*?</p>', '', self.source, flags=re.DOTALL)
+        self.assertIn("著者情報は article-author の段落で1件必要です", self.validate_source(source))
+
+    def test_rejects_duplicate_author_as_supervisor(self):
+        source = self.source.replace('</div>', '<p class="article-supervisor">監修：テスト著者（テスト会社）</p></div>', 1)
+        self.assertIn("著者と同じ人物の監修者情報が重複しています", self.validate_source(source))
+
+    def test_allows_distinct_reviewer(self):
+        source = self.source.replace('</div>', '<p class="article-supervisor">監修：別の監修者（テスト会社）</p></div>', 1)
+        self.assertEqual([], self.validate_source(source))
 
     def test_draft_mode_allows_supervisor_review_placeholder(self):
-        source = re.sub(
-            r'<p class="article-supervisor">.*?</p>',
-            '<p class="article-supervisor">【要確認: 監修者情報】</p>',
-            self.source,
-            count=1,
-            flags=re.DOTALL,
-        )
+        source = self.source.replace('</div>', '<p class="article-supervisor">【要確認: 監修者情報】</p></div>', 1)
         self.assertEqual([], self.validate_source(source))
 
     def test_strict_mode_rejects_supervisor_review_placeholder(self):
-        source = re.sub(
-            r'<p class="article-supervisor">.*?</p>',
-            '<p class="article-supervisor">【要確認: 監修者情報】</p>',
-            self.source,
-            count=1,
-            flags=re.DOTALL,
-        )
+        source = self.source.replace('</div>', '<p class="article-supervisor">【要確認: 監修者情報】</p></div>', 1)
         errors = self.validate_source(source, allow_draft_placeholders=False)
-        self.assertIn("監修者情報が article-template.html の確認済み表記と一致しません", errors)
         self.assertIn("要記入プレースホルダが残っています", errors)
 
     def test_rejects_prohibited_dash(self):

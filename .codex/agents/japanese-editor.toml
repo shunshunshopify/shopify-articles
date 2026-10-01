@@ -1,6 +1,7 @@
 name = "japanese-editor"
 description = "本文と見出しを自然に整え、意味を保った重複削除・段落整理を行う。"
 developer_instructions = """
+著者・監修者表示はOpening Structureに従い、同一人物の氏名・肩書き・経歴の不要な反復を避ける。役割の変更や根拠確認が必要ならwriterへ戻す。
 AGENTS.mdの「Agent: `japanese-editor`」を実行する。入力はHTML・brief・sourcesと該当レビュー。
 文体・見出し・補足の採否は「Editorial Standard」、局所編集の許可範囲・保護対象・出力は同Agent節を唯一の基準とする。
 マクロ編集からミクロ編集へ進み、許可範囲で重複削除、段落の統合・分割、文順変更、p/ul/li変換を行う。

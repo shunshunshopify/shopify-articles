@@ -149,6 +149,7 @@ class ArticleParser(HTMLParser):
         self.faq_questions = []
         self.learn_items = 0
         self.updated_texts = []
+        self.author_texts = []
         self.supervisor_texts = []
         self.intro_paragraphs = []
         self.visible_text = []
@@ -165,6 +166,7 @@ class ArticleParser(HTMLParser):
         self._h3_section = None
         self._learn_list_depth = 0
         self._capture_updated = False
+        self._capture_author = False
         self._capture_supervisor = False
         self._capture_intro = False
         self._paragraph_text = []
@@ -229,10 +231,12 @@ class ArticleParser(HTMLParser):
             classes = data.get("class", "").split()
             self._paragraph_text = []
             self._capture_updated = "article-updated" in classes
+            self._capture_author = "article-author" in classes
             self._capture_supervisor = "article-supervisor" in classes
             self._capture_intro = (
                 self._current_h2_id is None
                 and not self._capture_updated
+                and not self._capture_author
                 and not self._capture_supervisor
             )
 
@@ -260,11 +264,14 @@ class ArticleParser(HTMLParser):
             text = "".join(self._paragraph_text).strip()
             if self._capture_updated:
                 self.updated_texts.append(text)
+            elif self._capture_author:
+                self.author_texts.append(text)
             elif self._capture_supervisor:
                 self.supervisor_texts.append(text)
             elif self._capture_intro and text:
                 self.intro_paragraphs.append(text)
             self._capture_updated = False
+            self._capture_author = False
             self._capture_supervisor = False
             self._capture_intro = False
             self._paragraph_text = []
@@ -276,7 +283,7 @@ class ArticleParser(HTMLParser):
             self._h2_text.append(data)
         if self._in_h3:
             self._h3_text.append(data)
-        if self._capture_updated or self._capture_supervisor or self._capture_intro:
+        if self._capture_updated or self._capture_author or self._capture_supervisor or self._capture_intro:
             self._paragraph_text.append(data)
 
 
@@ -517,15 +524,24 @@ def validate(article, template, published, allow_draft_placeholders=False, brief
             updated = date(*map(int, re.findall(r"\d+", parser.updated_texts[0])))
         except ValueError:
             errors.append("本文の最終更新日が実在しない日付です")
-    expected_supervisor = [normalized_text(value) for value in template_parser.supervisor_texts]
-    actual_supervisor = [normalized_text(value) for value in parser.supervisor_texts]
-    draft_supervisor_placeholder = (
-        allow_draft_placeholders
-        and len(actual_supervisor) == 1
-        and re.fullmatch(r"【(?:要記入|要確認)[：:].+】", actual_supervisor[0]) is not None
-    )
-    if actual_supervisor != expected_supervisor and not draft_supervisor_placeholder:
-        errors.append("監修者情報が article-template.html の確認済み表記と一致しません")
+    authors = [normalized_text(value) for value in parser.author_texts]
+    if len(authors) != 1 or not re.fullmatch(r"著者[：:]\s*\S.+", authors[0] if authors else ""):
+        errors.append("著者情報は article-author の段落で1件必要です")
+    else:
+        author_name = re.sub(r"^著者[：:]\s*", "", authors[0]).split("（")[0].split("(")[0].strip()
+        for value in parser.supervisor_texts:
+            supervisor = normalized_text(value)
+            placeholder = re.fullmatch(r"【(?:要記入|要確認)[：:].+】", supervisor)
+            if allow_draft_placeholders and placeholder:
+                continue
+            if not re.fullmatch(r"監修[：:]\s*\S.+", supervisor):
+                errors.append("監修者情報は確認済みの別人だけを `監修：氏名（所属・役職）` 形式で記載してください")
+            else:
+                supervisor_name = re.sub(r"^監修[：:]\s*", "", supervisor).split("（")[0].split("(")[0].strip()
+                if author_name and re.sub(r"\s+", "", author_name) == re.sub(r"\s+", "", supervisor_name):
+                    errors.append("著者と同じ人物の監修者情報が重複しています")
+    if len(parser.supervisor_texts) > 1:
+        errors.append("監修者情報は1件にまとめてください")
     visible = normalized_text(" ".join(parser.visible_text))
     if re.search(r"──|—|―", visible):
         errors.append("禁止ダッシュ（──／—／―）が読者表示テキストに残っています")

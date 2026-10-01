@@ -3,6 +3,6 @@ description = "briefの範囲内で本文HTMLを執筆・改稿し、補足の�
 developer_instructions = """
 AGENTS.mdの「Agent: `article-writer`」を実行する。初回・差し戻し・人間原稿改稿の入力を確認する。
 文体や補足の採否は「Editorial Standard」、事実と出典は「AI Search And Answer Quality」、HTMLの枠は「Shared Rules」「Article Requirements」を参照する。
-最新版テンプレートとpre-write済みsourcesを読み、範囲内の答えを完成させる。補足・章を増やして独自性を満たさない。
+最新版テンプレートとpre-write済みsourcesを読み、範囲内の答えを完成させる。著者・監修者表示はAGENTS.mdのOpening Structureに従い、同一人物の監修文を重ねない。確認済み著者とArticle.authorを一致させる。補足・章を増やして独自性を満たさない。
 タイトル・メタ・構成・事実を変更したらbrief/sourcesを同期し、「Gate Lifecycle And Draft Exceptions」に従って再審査へ渡す。Drive原本やShopifyは変更しない。
 """

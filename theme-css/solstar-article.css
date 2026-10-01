@@ -14,6 +14,8 @@
   display: inline;
   padding: 0;
   text-decoration: underline;
+  line-height: inherit;
+  overflow-wrap: anywhere;
 }
 .rte .custom-content a::after { content: none; display: none; }
 .rte .custom-content a:hover,
@@ -27,32 +29,36 @@
   border-radius: 3px;
 }
 
-.custom-content {
+.rte .custom-content {
+  box-sizing: border-box;
+  min-width: 0;
   color: #1a1a1a;
   background: transparent;
   --heading-accent: #AB8C52;
   --tbl-border: #d1cdc4;
 }
 
-.rte .custom-content ul,
-.rte .custom-content ol  { margin: revert; list-style: revert; }
 .rte .custom-content blockquote { margin: revert; padding: revert; border: 0; }
-.rte .custom-content img { margin: revert; }
 
-.custom-content h1,
-.custom-content h2,
-.custom-content h3,
-.custom-content h4 { scroll-margin-top: 80px; }
+.rte .custom-content h1,
+.rte .custom-content h2,
+.rte .custom-content h3,
+.rte .custom-content h4 { scroll-margin-top: 80px; }
+
+/* 記事内の幅にpadding・borderを含める */
+.rte .custom-content *,
+.rte .custom-content *::before,
+.rte .custom-content *::after { box-sizing: border-box; }
 
 /* === H2 === */
-.custom-content h2 {
+.rte .custom-content h2 {
   padding: 0.25em 0.6em;
   border-left: solid 5px var(--heading-accent);
   margin: 2.5rem 0 1.2rem;
   line-height: 1.35;
 }
-.custom-content .toc h2,
-.custom-content h2.no-style {
+.rte .custom-content .toc h2,
+.rte .custom-content h2.no-style {
   padding: 0;
   border: none;
   color: inherit;
@@ -60,45 +66,46 @@
 }
 
 /* === H3 === */
-.custom-content h3 {
+.rte .custom-content h3 {
   margin: 2rem 0 0.75rem;
   line-height: 1.4;
 }
 
 /* === 段落 === */
-.custom-content p {
+.rte .custom-content p {
   margin-bottom: 1em;
   line-height: 1.8;
 }
-.custom-content .article-updated,
-.custom-content .article-supervisor {
+.rte .custom-content .article-author,
+.rte .custom-content .article-updated,
+.rte .custom-content .article-supervisor {
   color: #4b5563;
   font-size: 14px;
   line-height: 1.7;
 }
-.custom-content .article-updated {
+.rte .custom-content .article-updated {
   margin-bottom: 0.35em;
 }
-.custom-content .article-supervisor {
+.rte .custom-content .article-supervisor {
   margin-bottom: 1.5em;
 }
 
 /* === HR（大セクション区切り） === */
-.custom-content hr.section-divider {
+.rte .custom-content hr.section-divider {
   border: none;
   border-top: 2px solid #e8e4df;
   margin: 3rem 0 2.5rem;
 }
 
 /* === HR（小セクション区切り） === */
-.custom-content hr:not(.section-divider) {
+.rte .custom-content hr:not(.section-divider) {
   border: none;
   border-top: 1px solid #e8e4df;
   margin: 2.5rem 0 2rem;
 }
 
 /* ===== 目次（TOC） ===== */
-.custom-content .toc {
+.rte .custom-content .toc {
   border: 1px solid rgba(0,0,0,0.15) !important;
   box-shadow: 0 4px 16px rgba(0,0,0,.08) !important;
   border-radius: 12px;
@@ -110,17 +117,17 @@
 
 /* 番号はブラウザ標準の <ol> に任せる
    （CSSカウンタ不使用＝エディタ編集に強い） */
-.custom-content .toc ol {
+.rte .custom-content .toc ol {
   list-style: decimal;
   list-style-position: outside;
   margin: 0;
   padding-left: 28px;
 }
-.custom-content .toc li {
+.rte .custom-content .toc li {
   margin: 6px 0;
   line-height: 1.7;
 }
-.custom-content .toc ol ol {
+.rte .custom-content .toc ol ol {
   list-style: lower-roman;
   margin-top: 6px;
   padding-left: 24px;
@@ -144,25 +151,25 @@
 }
 
 /* ===== 箇条書き ===== */
-.custom-content ul,
-.custom-content ol {
+.rte .custom-content ul,
+.rte .custom-content ol {
   margin: 16px 0 24px 0;
   padding-left: 32px;
 }
-.custom-content ul {
+.rte .custom-content ul {
   list-style-type: disc;
 }
-.custom-content ol {
+.rte .custom-content ol {
   list-style-type: decimal;
 }
-.custom-content ul li,
-.custom-content ol li {
+.rte .custom-content ul li,
+.rte .custom-content ol li {
   margin: 8px 0;
   line-height: 1.7;
 }
 
 /* ===== テーブル ===== */
-.custom-content table {
+.rte .custom-content table {
   width: 100%;
   max-width: 100%;
   margin: 16px 0 24px;
@@ -170,11 +177,11 @@
   border: 1px solid var(--tbl-border);
   table-layout: auto;
 }
-.custom-content table col {
+.rte .custom-content table col {
   width: auto !important;
 }
-.custom-content table th,
-.custom-content table td {
+.rte .custom-content table th,
+.rte .custom-content table td {
   border: 1px solid var(--tbl-border);
   padding: 12px 14px;
   vertical-align: middle;
@@ -184,112 +191,87 @@
   word-break: normal;
   overflow-wrap: normal;
 }
-.custom-content table thead th,
-.custom-content table thead td {
+.rte .custom-content table thead th,
+.rte .custom-content table thead td {
   text-align: center;
   font-weight: 700;
   background-color: #f5f5f5 !important;
   background-image: none !important;
 }
-.custom-content table tbody th {
+.rte .custom-content table tbody th {
   text-align: left;
   font-weight: 400;
 }
-.custom-content table td p,
-.custom-content table th p,
-.custom-content table td span,
-.custom-content table th span {
+.rte .custom-content table td p,
+.rte .custom-content table th p,
+.rte .custom-content table td span,
+.rte .custom-content table th span {
   margin: 0 !important;
   padding: 0 !important;
   display: inline;
 }
-.custom-content table img {
+.rte .custom-content table img {
   max-width: 100%;
   height: auto;
   display: block;
 }
-.custom-content table tbody,
-.custom-content table tbody tr,
-.custom-content table tbody td {
+.rte .custom-content table tbody,
+.rte .custom-content table tbody tr,
+.rte .custom-content table tbody td {
   background-image: none !important;
 }
 
 /* ===== 画像 ===== */
-.custom-content img {
+.rte .custom-content img {
   max-width: 100%;
   height: auto;
   display: block;
+  margin: 20px auto 24px;
+}
+
+.rte .custom-content figure {
+  margin: 24px 0 32px;
+}
+.rte .custom-content figure img {
+  margin: 0 auto 12px;
+  border-radius: 10px;
+  border: 1px solid #e8e4df;
+}
+.rte .custom-content figcaption {
+  color: #4b5563;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.rte .custom-content .tbl-scroll {
+  max-width: 100%;
+  overflow-x: auto;
 }
 
 /* 本文・セクション内に単独で置かれた画像（セクション挿絵・図版）。
    管理画面から段落として挿入される画像を想定。
    中央寄せ＋角丸＋淡い枠で「記事内の図版」として整え、
    見出し直下でも余白を確保する。 */
-.custom-content p img,
-.custom-content li img {
+.rte .custom-content p img,
+.rte .custom-content li img {
   margin: 20px auto 24px;
   border-radius: 10px;
   border: 1px solid #e8e4df;
 }
 
 /* 表内の画像は枠・角丸を付けず素のまま */
-.custom-content table img {
+.rte .custom-content table img {
   margin: 0 auto;
   border: 0;
   border-radius: 0;
 }
 
 /* Tailwindクラスの干渉対策 */
-.custom-content .tw-text-fg-secondary {
+.rte .custom-content .tw-text-fg-secondary {
   color: #4b5563 !important;
   -webkit-text-fill-color: #4b5563 !important;
 }
 
-/* ===== ダークモード ===== */
-@media (prefers-color-scheme: dark) {
-  .custom-content .toc {
-    border: 1px solid rgba(255,255,255,.72) !important;
-    box-shadow:
-      0 10px 26px rgba(0,0,0,.35),
-      0 0 0 1px rgba(255,255,255,.72) inset !important;
-  }
-
-  .custom-content hr.section-divider,
-  .custom-content hr:not(.section-divider) {
-    border-top-color: rgba(255,255,255,.15);
-  }
-
-  .rte .custom-content a {
-    color: #695632;
-    -webkit-text-fill-color: #695632;
-  }
-
-  .rte .custom-content a:hover,
-  .rte .custom-content a:focus {
-    color: #AB8C52;
-    -webkit-text-fill-color: #AB8C52;
-  }
-
-  .rte .custom-content .toc a {
-    color: inherit;
-    -webkit-text-fill-color: currentColor;
-  }
-
-  .custom-content .tw-text-fg-secondary {
-    color: unset !important;
-    -webkit-text-fill-color: unset !important;
-  }
-
-  .custom-content table thead th,
-  .custom-content table thead td {
-    background-color: rgba(255,255,255,0.06) !important;
-  }
-
-  .custom-content p img,
-  .custom-content li img {
-    border-color: rgba(255,255,255,.12);
-  }
-}
+/* 白背景の記事スキームに合わせ、OSの配色設定では色を切り替えない */
 
 @media (prefers-reduced-motion: reduce) {
   .rte .custom-content .toc a {
@@ -299,49 +281,49 @@
 
 /* ===== スマホ ===== */
 @media (max-width: 768px) {
-  .custom-content .toc {
+  .rte .custom-content .toc {
     padding: 24px;
     border-radius: 10px;
     max-width: 100%;
   }
-  .custom-content .toc ol {
+  .rte .custom-content .toc ol {
     padding-left: 24px;
   }
-  .custom-content .toc ol ol {
+  .rte .custom-content .toc ol ol {
     padding-left: 18px;
   }
-  .custom-content table {
+  .rte .custom-content table {
     font-size: 13px;
   }
-  .custom-content table th,
-  .custom-content table td {
+  .rte .custom-content table th,
+  .rte .custom-content table td {
     padding: 8px 10px;
   }
-  .custom-content hr.section-divider {
+  .rte .custom-content hr.section-divider {
     margin: 2rem 0 1.75rem;
   }
 
-  .custom-content ul,
-  .custom-content ol {
+  .rte .custom-content ul,
+  .rte .custom-content ol {
     padding-left: 24px;
   }
 
-  .custom-content .tbl-scroll {
+  .rte .custom-content .tbl-scroll {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-x: contain;
     border-radius: 6px;
   }
-  .custom-content .tbl-scroll > table {
+  .rte .custom-content .tbl-scroll > table {
     min-width: 100%;
     width: auto;
   }
 
   /* tbl-scroll内のセルは折り返さず横スクロールで表示 */
-  .custom-content .tbl-scroll table th,
-  .custom-content .tbl-scroll table td,
-  .custom-content .tbl-scroll table th *,
-  .custom-content .tbl-scroll table td * {
+  .rte .custom-content .tbl-scroll table th,
+  .rte .custom-content .tbl-scroll table td,
+  .rte .custom-content .tbl-scroll table th *,
+  .rte .custom-content .tbl-scroll table td * {
     white-space: nowrap !important;
     word-break: keep-all !important;
     overflow-wrap: normal !important;

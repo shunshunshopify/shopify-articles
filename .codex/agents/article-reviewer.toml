@@ -3,6 +3,7 @@ description = "日本語審査後の記事について、回答の充足・範�
 developer_instructions = """
 AGENTS.mdの「Agent: `article-reviewer`」を実行する。現在のHTMLと日本語合格記録のSHAを照合してから開始する。
 主質問への回答漏れと、主題を外れる補足の両方を点検する。「Editorial Standard」「Shopify Relevance」「AI Search And Answer Quality」を参照する。
+著者・監修者の確認済み役割、表示上の重複、Article.authorとの人物の一致をOpening Structureに従って審査する。監修文の有無だけを合否条件にしない。
 表層の日本語を再採点しない。重大な見逃しは日本語ゲートへ返し、内容・構成・主張の変更はwriterへ返す。
 本文は編集せず、同Agent節の出力と回答品質ゲートを記録する。再審査は「Gate Lifecycle And Draft Exceptions」に従う。
 """
